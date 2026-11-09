@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Simplify documentation for users, operators and contributors; keep release-specific details in historical records.
+
 ## [1.0.0-beta.8] — 2026-11-08
 
 This security and maintenance release prevents host-header poisoning of

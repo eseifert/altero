@@ -1,6 +1,6 @@
 # Configuration
 
-Every altero setting has a working default. A personal instance needs `ALTERO_PUBLIC_URL` and nothing else; the rest exist for deployments that need them.
+Use this reference to look up a setting and its default. For a new server, start with [Deployment](deployment.md#production-settings-to-change-first).
 
 ## Where a setting comes from
 
@@ -32,7 +32,7 @@ ALTERO_PORT=9000 ALTERO_DEBUG=true uv run altero
 
 ## In Docker
 
-`docker/.env`, beside `docker/compose.yaml`, holds the settings for the Compose stack. Every `ALTERO_` setting in it reaches the container:
+Put `.env` beside your Compose file: `docker/.env` for the repository layout, or `.env` beside a downloaded `compose.yaml`. Every `ALTERO_` setting in it reaches the container:
 
 ```sh
 POSTGRES_PASSWORD=a-real-password
@@ -47,7 +47,7 @@ The file is handed to the container whole, so keep out of it anything the applic
 
 No `.env` is needed at all: an instance running on the defaults never writes one.
 
-A variable exported in the shell wins over the file for `ALTERO_DATABASE_URL`, `ALTERO_SMTP_URL`, `ALTERO_MAIL_FROM` and `ALTERO_PUBLIC_URL`, which `compose.yaml` names itself. `ALTERO_DATABASE_URL` is always the stack's own database; point altero at an external one with a second Compose file rather than with `.env`:
+A variable exported in the shell wins over the file for `ALTERO_SMTP_URL`, `ALTERO_MAIL_FROM`, `ALTERO_PUBLIC_URL` and `ALTERO_SSO_ONLY`, which `compose.yaml` names itself. `ALTERO_DATABASE_URL` is always the stack's own database; point altero at an external one with a second Compose file rather than with `.env`:
 
 ```yaml
 # docker/compose.settings.yaml
@@ -92,8 +92,8 @@ Booleans accept `true`, `1`, `yes` and `on`, and their opposites, in any case. D
 
 | Setting                    | Default | What it does                                                                                                                                                                                                                                                           |
 |----------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ALTERO_OPEN_REGISTRATION` | `false` | Whether anybody may register from the browser. The first account is always allowed, and so is anybody holding an unanswered group invitation, so a fresh instance is reachable without shell access either way.                                                        |
-| `ALTERO_PASSWORD_RESET`    | `false` | Whether somebody who has forgotten their password may ask for a link. It makes the mail relay part of the authentication, requires `ALTERO_SMTP_URL` and `ALTERO_PUBLIC_URL`, and does nothing for an unconfirmed address. An administrator can issue the same link whatever this says. |
+| `ALTERO_OPEN_REGISTRATION` | `false` | Whether anybody may register from the browser. First-account and invited-address registration are also available, except in SSO-only mode.                                                        |
+| `ALTERO_PASSWORD_RESET`    | `false` | Offer self-service password reset for confirmed addresses. Requires SMTP and a public URL. Administrators can issue reset links independently, except in SSO-only mode. |
 | `ALTERO_SSO_ONLY` | `false` | Require configured OIDC/SAML providers for browser authentication and recent SSO proof for sensitive actions. Disables local credentials, registration, recovery, email changes and MFA; requires `ALTERO_PUBLIC_URL`. See [SSO-only mode](administration.md#sso-only-mode). |
 
 ## Public URL and email
@@ -118,7 +118,7 @@ The first three are also settable in **Administration → Retention**, and a val
 
 | Setting                          | Default | What it does                                                                                                                                         |
 |----------------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `ALTERO_TRASH_RETENTION_DAYS`    | `0`     | How long an item stays in the trash before the server deletes it for good. zotero.org uses 30.                                                       |
+| `ALTERO_TRASH_RETENTION_DAYS`    | `0`     | Days before permanent trash deletion; zero keeps trash indefinitely.                                                       |
 | `ALTERO_ACTIVITY_RETENTION_DAYS` | `0`     | How long delivered group activity is kept.                                                                                                           |
 | `ALTERO_UPLOAD_RETENTION_HOURS`  | `24`    | How long an authorized upload whose bytes never arrived is remembered. Nothing is lost by forgetting one; the client asks again.                     |
 | `ALTERO_RETENTION_INTERVAL`      | `0`     | How often, in seconds, to apply those periods. Zero means only `altero retention run` ever does. 3600 suits an instance that should not need asking. |
@@ -140,6 +140,6 @@ These are read by something other than the application's own configuration, so t
 |--------------------------|--------------------------|-------------------------------------------------------------------------------------------------|
 | `ALTERO_CONFIG`          | the application          | Path to the configuration module, if not `config.py` at the repository root.                    |
 | `ALTERO_SKIP_MIGRATIONS` | the container entrypoint | `1` starts the server without running `alembic upgrade head` first.                             |
-| `ALTERO_IMAGE_TAG`       | `docker/compose.yaml`    | Which published image to run: `latest`, a release such as `1.0.0-beta.8`, or `dev` for master. |
+| `ALTERO_IMAGE_TAG`       | `docker/compose.yaml`    | Which published image to run: `latest`, a chosen release tag, or `dev` for master. |
 | `ALTERO_PUBLISH_PORT`    | `docker/compose.yaml`    | Loopback port the API is published on.                                                          |
 | `POSTGRES_PASSWORD`      | `docker/compose.yaml`    | Password for the bundled PostgreSQL, used by both containers.                                   |

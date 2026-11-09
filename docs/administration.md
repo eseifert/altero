@@ -2,7 +2,7 @@
 
 This page covers operations that affect the altero instance, accounts, groups or complete libraries.
 
-**For ordinary account settings:** see [Web interface](web-interface.md).
+For your own password, sign-in methods and preferences, use [Accounts and personal settings](web/account.md).
 
 ## What an instance administrator can do
 
@@ -164,22 +164,9 @@ always use it; request host headers cannot supply a substitute.
 
 A callback mismatch is rejected by the provider before altero can complete sign-in.
 
-OIDC and signed SAML sign-in have a real Keycloak integration test, including
-returning to the same account and keeping browser sessions out of the v3 API.
-The [test setup](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
-documents its scope. Account creation, required-group checks and sign-in-time
-deprovisioning are exercised for both protocols, including retained and revoked
-API keys. SAML signing-key rollover, callback replay and the five-minute
-validity tolerance are also checked against Keycloak-issued responses. The
-clock tests adjust altero's validator clock; they do not test machine clock
-synchronization.
-
-A second SAML integration test uses SimpleSAMLphp 2.5.3.1 on patched PHP 8.4.27,
-with both response and assertion signed. It covers persistent identity, required
-groups, provisioning policy, account linking, forced reauthentication and
-refusal of replayed or altered responses. This fixture does not establish
-compatibility with other providers or with encrypted assertions, artifact
-binding or signed AuthnRequests.
+Live integration tests cover Keycloak and SimpleSAMLphp. Other provider recipes
+below are marked unverified. See the [fixture scope](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
+for the flows actually checked.
 
 ### OpenID Connect
 
@@ -192,50 +179,29 @@ tokens, as required by
 
 ### SSO-only mode
 
-The v3 API still accepts API keys and OAuth access tokens, never browser
-sessions. Desktop clients obtain a key from **Settings → API keys**; this
-setting changes browser authentication rather than the sync protocol.
+Set `ALTERO_SSO_ONLY=true` to require an OIDC or SAML provider for browser
+sign-in. `ALTERO_PUBLIC_URL` is required. Desktop API keys and connected
+applications continue working; this setting controls browser authentication.
 
-Set `ALTERO_SSO_ONLY=true` (`SSO_ONLY = True` in `config.py`) to require the
-configured OIDC/SAML providers for every browser sign-in. The default is
-`false`. `ALTERO_PUBLIC_URL` is required; Compose forwards the setting from
-`.env` or the shell.
+Before enabling it:
 
-Configure and test the provider first, enable account provisioning if desired,
-and connect existing accounts under **Settings → Security** before switching.
-Email claims never attach a directory identity to an existing account. A new
-subject is provisioned or refused according to the provider's policy. An empty
-provider list or a disabled provider offers no fallback sign-in. The first
-local registration is disabled too; set up the instance before enabling this
-mode.
+1. Configure and test an enabled provider, including fresh identity confirmation for sensitive actions.
+2. Connect existing accounts under **Settings → Sign-in and security**, or choose whether the provider may create accounts.
+3. Keep shell access for recovery, then enable the setting and restart.
 
-The sign-in page offers only provider links. Direct HTTP requests cannot use
-local passwords, passkeys, registration, password-reset links (including links
-issued earlier), email confirmation/change, or local authenticator/email-code
-flows. Local MFA belongs at the identity provider in this mode. Administrators
-cannot issue local passwords or reset links through the web interface either.
-Existing credentials are retained so disabling the setting restores the normal
-behavior; API keys and OAuth grants remain usable.
+Matching email addresses never links identities. With no working provider,
+users cannot sign in. Initial local registration is disabled too.
 
-Sessions created before the SSO-provenance migration, and sessions established
-with local credentials, must sign in again through a provider. Only a recent
-SSO proof authorizes key creation, archive restore, zotero.org migration,
-desktop linking and protected administrator actions. **Confirm it is you**
-returns through the connected provider using OIDC `prompt=login` or SAML
-`ForceAuthn`; the proof lasts five minutes and is bound to that browser. A
-local password or passkey cannot extend it. Connecting another directory also
-requires recent proof from an existing identity; a linking callback cannot
-extend that proof. Migration still needs the separate
-zotero.org API key; after a provider round trip, reselect any archive or reenter
-form data that navigation cleared. Removing the last enabled provider connected
-to an account is refused even when that account has a stored local password.
+In this mode, local passwords, passkeys, registration, reset links, email
+changes and local second factors are unavailable. Manage second factors at the
+provider. Old local sessions must sign in through a provider; sensitive actions
+require fresh provider confirmation, valid for five minutes. After a provider
+round trip, reselect an archive or reenter form data if navigation cleared it.
 
-Display names and email addresses are copied when an account is provisioned;
-this setting does not add continuous directory synchronization or rename
-existing usernames. To recover from a provider outage or configuration mistake,
-an operator with shell access can disable `ALTERO_SSO_ONLY`, restart, and use
-the existing account-recovery commands. There is no public break-glass password
-route while the setting is enabled.
+The last enabled provider linked to an account cannot be removed. Existing
+local credentials are retained: to recover from provider failure, disable
+`ALTERO_SSO_ONLY` from the server shell, restart, and use account-recovery
+commands. This mode does not add continuous directory synchronization.
 
 ### SAML 2.0
 
@@ -252,11 +218,10 @@ Register the screen's **Callback address** as the assertion consumer service
 `<public_url>/web/auth/saml/campus/acs`. The service provider entity ID is
 `public_url` without a trailing slash.
 
-Linking an existing account and confirming identity return through a short-lived
-GET handoff after the assertion POST, so the browser can present its existing
-session cookie. The same signed-in account must complete it within two minutes;
-an expired or already-used handoff requires starting again. See the
-[SAML session handoff](compatibility.md#finishing-saml-account-linking-with-the-browser-session).
+When linking an account or confirming identity, complete the return to altero
+in the same signed-in browser within two minutes. An expired handoff requires
+starting again. See the [SAML session handoff](compatibility.md#finishing-saml-account-linking-with-the-browser-session)
+for protocol details.
 
 The SAML implementation is deliberately limited to:
 
@@ -305,11 +270,9 @@ the string or one entry in its list exactly.
 
 #### Keycloak
 
-**Verification:** OIDC and SAML passed with Keycloak 26.8.1 in
-[hosted CI at `fcf8460`](https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185),
-alongside the second SAML provider, SimpleSAMLphp. See the
-[test scope](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
-for the exercised flows and browser limitations.
+**Tested provider:** OIDC and SAML integration tests cover Keycloak.
+See [test scope](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
+for the exercised flows and limits.
 
 For OIDC, create an `openid-connect` client in the chosen realm. Enable client
 authentication and the standard authorization-code flow, require S256, and
@@ -438,11 +401,8 @@ deprovisioning. See [account creation and deprovisioning](#account-creation-and-
 
 ## Third-party applications
 
-Sign-in providers are how somebody proves who they are *to* altero. The authorization server is the other direction: how somebody else's application is given access to a library, without ever being handed a password or a long-lived API key.
-
-An application has to be registered before it can ask for anything. Nothing self-registers, because the list of addresses an authorization code may be sent to is the only thing that keeps the code from going somewhere else.
-
-Set `ALTERO_PUBLIC_URL` before registering anything. It decides the `iss` claim on every ID token, there is deliberately no fallback to the address a request arrived on, and without it these endpoints refuse to answer rather than guess.
+Register applications that should receive limited, expiring library access.
+Set `ALTERO_PUBLIC_URL` first, then use:
 
 ```sh
 uv run altero oauth add notebook \
@@ -451,12 +411,11 @@ uv run altero oauth add notebook \
     --scope openid --scope profile --scope library.read
 uv run altero oauth list
 uv run altero oauth disable notebook
-uv run altero oauth rotate-key
 ```
 
-A person approves an application in their browser and can disconnect it at any time under **Settings → Connected applications**. Disconnecting takes effect immediately.
-
-Full details, including the scope table and what a client developer needs: [Connecting other applications](oauth.md).
+Account holders approve access in their browsers and can disconnect an
+application under **Settings → Connected applications**. See
+[Connecting other applications](oauth.md) for scopes, registration and developer details.
 
 ## Retention
 
@@ -482,25 +441,19 @@ uv run altero retention run --dry-run --trash 30
 uv run altero retention run
 ```
 
-### Why trash cleanup is a normal delete
+### What cleanup removes
 
-When retention removes trashed Zotero objects, the library advances by one version and the deletions are recorded. A client that later asks `/deleted?since=` can therefore learn what disappeared.
+Trash cleanup permanently deletes eligible objects and records the deletions
+for syncing clients. It checks again for items restored or changed during the
+sweep. Age is measured from the last server-recorded item change, rather than
+a separate time of trashing.
 
-Items restored or changed while a sweep waits are checked again before deletion.
+The sweep also removes expired sessions, codes, links, invitations, download
+permissions and private undo snapshots. These have their own expiry times.
 
-Removing database rows without the deletion log would leave offline clients holding objects the server had silently forgotten.
-
-Unreferenced attachment files are not deleted by the timed retention sweep. They are handled separately from the Storage screen to avoid racing uploads that have written their bytes before committing their item rows.
-
-### Rows that carry their own expiry
-
-Browser sessions, sign-in codes, confirmation links, unanswered invitations and attachment download permissions have no retention period of their own. Each records when it expires, and the sweep removes it once it has: an expired session is already nobody's session, and an expired download permission opens nothing.
-
-The same sweep removes expired browser merge snapshots. A library keeps at most
-one, usable by its author for five minutes while the library remains unchanged.
-These private snapshots are not included in library archives.
-
-Download permissions are the highest-volume of these. A client syncing its files is granted one per attachment it fetches, so the sweep is what keeps that table from growing for as long as the instance runs. See [the file protocol](compatibility.md#the-location-has-to-be-a-credential) for what they are and why the redirect cannot simply point at a URL carrying the API key.
+Unreferenced attachment files require a separate cleanup action in **Storage**;
+timed retention does not remove them. A grace period protects files belonging
+to uploads still in progress.
 
 ## Library transfer and recovery
 
@@ -548,7 +501,7 @@ The migration asks for a zotero.org API key with read access to the personal lib
 
 The migration preserves Zotero object keys and versions so an already-synchronized desktop client can continue from the same state.
 
-If the local altero user ID differs from the zotero.org user ID, Zotero Desktop can require a reset and re-download because the client remembers which account number last synchronized that data directory.
+If the account numbers differ, linking the existing profile is refused. Use an account with the original number or a fresh profile, as explained in [A profile that has synced before](clients.md#a-profile-that-has-synced-before).
 
 Only the personal library is imported. Attachment bytes that zotero.org does not hold cannot be downloaded; the migration lists those items and brings the attachments across without their files.
 
@@ -557,17 +510,27 @@ Only the personal library is imported. Attachment bytes that zotero.org does not
 
 ### After recreating the database
 
-A newly recreated library begins at a low library version, while existing clients may remember a much higher version. Zotero refuses to move its stored version backwards.
+Pause other clients before recovery. A desktop may remember a later library
+version than a recreated database or older archive. Raising the server's
+library version fixes that counter mismatch, but **does not** make older item
+versions replace newer desktop caches.
 
-Raise the server library version above the version remembered by the client:
+If a surviving desktop holds the complete authoritative library:
 
-```sh
-uv run altero library set-version user 1 100
-```
+1. Back up its data directory and the server before proceeding.
+2. Raise the server library version above the value remembered by that desktop:
 
-This command only raises versions; lowering a working library version can lock clients out.
+   ```sh
+   uv run altero library set-version user 1 <higher-version>
+   ```
 
-Raising the version does not recreate data that was lost with the database. Use Zotero's **Restore to Server** afterwards if you need the client to upload a complete copy.
+3. Use Zotero's **Restore to Server** to upload the surviving desktop's complete copy.
+4. Verify metadata and attachment bytes before reconnecting other clients.
+
+This command only raises the counter; it recreates no lost objects or files.
+Do not resume normal sync assuming the version change restored data. Without a
+complete surviving copy, restore from a verified backup and plan how each client
+will obtain that state. Automatic rewind of synced desktop objects is unsupported.
 
 ## Group policy
 
@@ -607,10 +570,3 @@ uv run altero group members <group>
 These permissions can only restrict what the group policy already allows. They do not elevate a member above the group's normal policy.
 
 Only the read-only state maps cleanly onto a permission the Zotero sync client understands. `add` and `own` are enforced server-side; a client that attempts a forbidden operation receives a sync error explaining the restriction. See [Compatibility notes](compatibility.md#finer-roles-for-one-member).
-
-
-The desktop compatibility runner's `resync` scenario repeats this recovery
-with Zotero 10.0.6, including restoring an older archive before raising the
-counter and uploading the surviving desktop's authoritative copy. Raising the
-library counter alone does not rewind existing desktop objects to older object
-versions. See [the desktop scenarios](client-compatibility.md#additional-desktop-scenarios).

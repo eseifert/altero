@@ -1,141 +1,41 @@
 # The web interface
 
-altero includes a browser application at `/app/` for reference management, accounts, groups, sharing and instance administration.
+Open `/app/` on your altero server to work with your library in a browser.
+You can create and edit references, write notes, manage files and collections,
+and share work. Changes synchronize with Zotero Desktop.
 
-**Important boundary:** the browser session does not authenticate the Zotero v3 API. Zotero Desktop continues to use an API key.
+Signing into the browser does not sign Zotero Desktop in. Connect the desktop
+application using [its own setup guide](clients.md).
 
-The web interface can replace Zotero Desktop for most everyday reference management. Create items, edit their fields, type, creators, tags and notes, upload, rename and replace attachments, organize collections and merge duplicates. It also works alongside Zotero Desktop, with changes synchronized between them.
+## Choose a task
 
-## What you can do
+| Task | Guide |
+| --- | --- |
+| Sign in, change settings or manage credentials | [Accounts and personal settings](web/account.md) |
+| Search, edit, organize or merge references | [Browsing and organizing a library](web/library.md) |
+| Publish work or share a collection | [Publishing and sharing](web/sharing.md) |
+| Move a library, make a backup or export references | [Moving, importing and exporting data](web/data-transfer.md) |
+| Join or manage a group | [Groups, invitations and activity](web/groups.md) |
+| Manage the server and its accounts | [Administration](administration.md) |
 
-| Area                    | Main capabilities                                                                                       | Detailed guide                                               |
-|-------------------------|---------------------------------------------------------------------------------------------------------|--------------------------------------------------------------|
-| Accounts and settings   | Sign in, password/email settings, API keys, connected applications, language, time zone, second factors | [Accounts and personal settings](web/account.md)             |
-| Library                 | Browse, search, edit items and notes, manage attachments and collections, merge duplicates              | [Browsing and organizing a library](web/library.md)          |
-| Publishing and sharing  | My Publications, profile pages, shared collections                                                      | [Publishing and sharing](web/sharing.md)                     |
-| Data transfer           | Move from zotero.org, backup/restore archives, exports                                                  | [Moving, importing and exporting data](web/data-transfer.md) |
-| Groups                  | Membership, invitations, activity, notifications                                                        | [Groups, invitations and activity](web/groups.md)            |
-| Instance administration | Accounts, storage, retention, sign-in providers                                                         | [Administration](administration.md)                          |
-| Contributor details     | Build commands, design system, known browser gaps                                                       | [Web implementation notes](web/implementation.md)            |
+Registration may be closed. Ask the administrator for an account or use a group
+invitation. If your organization requires institutional sign-in, use the provider
+button on the sign-in page.
 
 ## Installing it as an app
 
-The interface can be installed on a phone, tablet or computer, and then opens
-in a window of its own:
+You can give altero its own app window:
 
-- **iPhone and iPad:** open `/app/` in Safari, then **Share → Add to Home
-  Screen**. Not verified on a real device yet.
-- **Android and desktop Chrome or Edge:** **Install** in the browser's menu or
-  address bar.
+- **iPhone or iPad:** open it in Safari, then choose **Share → Add to Home Screen**. This has not been verified on a real device.
+- **Android, Chrome or Edge:** choose **Install** in the browser menu or address bar.
 
-An installed app opens without a network, but it shows no library offline:
-nothing from a library is stored on the device, so signing out of a shared
-machine leaves nothing behind. An open page checks for a new interface build
-every five minutes while visible, and when you return to the tab. If its build
-is outdated, it offers **Reload** once for that update. A manual reload already
-fetches the current interface, so it shows no further update prompt. Updating
-another tab never forces your current page to reload.
+The app needs a network connection to show your library. It does not keep an
+offline library. When an interface update is available, choose **Reload** to
+load it.
 
-## Accounts
+## When to use Zotero Desktop
 
-Registration and personal settings are documented in [Accounts and personal settings](web/account.md).
-
-Registration is not generally open by default. It is available for the first account, when the instance enables open registration, or for an address with a group invitation.
-
-## Account settings
-
-Users can manage their own credentials, email address, second factors and signed-in sessions from Settings. See [Accounts and personal settings](web/account.md).
-
-## API keys
-
-API keys used by Zotero Desktop can be reviewed and revoked from the browser. See [Accounts and personal settings](web/account.md).
-
-## Connected applications
-
-Third-party applications the account has approved are listed and can be disconnected from Settings, separately from API keys. See [Accounts and personal settings](web/account.md) for the screen and [Connecting other applications](oauth.md) for how an operator registers one.
-
-## Language and time zone
-
-Language and time-zone preferences belong to the account, so they follow the user across browsers. See [Accounts and personal settings](web/account.md).
-
-## Browsing a library
-
-The browser presents a Zotero-like library view with collections/tags, an item list and item details. See [Browsing and organizing a library](web/library.md).
-
-## Collections
-
-Collections can be created, renamed, moved and removed in the browser. See [Browsing and organizing a library](web/library.md).
-
-<a id="sharing-one"></a>
-### Sharing one collection
-
-A collection can also be shared by link without exposing the whole library or requiring the recipient to have an account. See [Publishing and sharing](web/sharing.md).
-
-## Items
-
-The browser supports making items and notes, editing their fields, type, creators, tags, related items and note text, adding and replacing files and web links, and filing, trashing, restoring, deleting and copying items. See [Browsing and organizing a library](web/library.md).
-
-<a id="writing-items-out"></a>
-### Exporting items
-
-The browser can write Zotero-supported export formats and CSL JSON for a library, collection or selection. See [Moving, importing and exporting data](web/data-transfer.md).
-
-## My Publications
-
-My Publications lets a user publish selected work under the terms collected by the Zotero-style publishing flow. See [Publishing and sharing](web/sharing.md).
-
-## Profile pages
-
-Published work appears on the user's profile page subject to the audience chosen by that account. See [Publishing and sharing](web/sharing.md).
-
-<a id="who-can-see-it"></a>
-### Publication visibility
-
-Visibility is controlled by the account's publication/profile settings. The detailed behavior is in [Publishing and sharing](web/sharing.md).
-
-<a id="by-touch"></a>
-### Touch interaction
-
-Touch and pointer interaction details are documented in [Browsing and organizing a library](web/library.md#by-touch).
-
-## Tags
-
-Tags can be renamed across a library from the browser. See [Browsing and organizing a library](web/library.md).
-
-## Moving in from zotero.org
-
-A personal library can be copied from zotero.org while preserving keys and versions the desktop client already knows. See [Moving, importing and exporting data](web/data-transfer.md).
-
-## Import and export
-
-A complete altero archive is for backup or moving between compatible instances. Ordinary export formats are for other applications. See [Moving, importing and exporting data](web/data-transfer.md).
-
-## Administration
-
-Instance administrators get a separate Administration area for accounts, storage, retention and sign-in providers. The role does not automatically grant access to every library. See [Administration](administration.md).
-
-## Groups
-
-Users can view groups; group administrators can manage membership and policy. See [Groups, invitations and activity](web/groups.md).
-
-## Notifications and invitations
-
-Group invitations, activity and opt-in notifications are documented in [Groups, invitations and activity](web/groups.md).
-
-<a id="what-has-happened-in-a-group"></a>
-### Group activity
-
-The authenticated activity view can name the items and collections involved in changes. Email digests intentionally contain only counts. See [Groups, invitations and activity](web/groups.md).
-
-<a id="hearing-about-a-group"></a>
-### Group notifications
-
-Members choose their own notification subscriptions. See [Groups, invitations and activity](web/groups.md) and [Email](email.md#group-notifications).
-
-## Design
-
-The browser follows the altero design system. Contributor-facing details are in [Design system](design.md) and [Web implementation notes](web/implementation.md).
-
-## Not built yet
-
-Some workflows still need Zotero Desktop, including PDF annotation and offline library access. See [Web implementation notes](web/implementation.md#not-built-yet) for the current browser gaps and [What works](status.md) for the server feature status.
+Use Zotero Desktop for offline library access, PDF annotation and other reader
+workflows. The browser note editor preserves existing citations, annotations
+and embedded images but cannot add them; math appears as TeX source.
+See [browser limitations](web/implementation.md#not-built-yet) for details.

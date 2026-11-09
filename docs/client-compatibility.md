@@ -4,10 +4,20 @@ Run the optional compatibility suite when changing responses or versions that
 Zotero Desktop consumes. It feeds altero API responses into original desktop
 functions, and inventories source expectations to find contracts worth testing.
 
-The normal `uv run pytest` suite needs neither Node nor a desktop checkout.
-This toolchain needs Node 24+ and the Zotero revision pinned in
-`tools/compatibility/contracts.toml`. Its only npm dependency is the JavaScript
-parser; the server and its wheel gain no dependency.
+Choose the check that matches the change:
+
+| Check | Evidence |
+| --- | --- |
+| Source discovery | Candidate omissions and network consumers to review |
+| Source replay | Original desktop methods consuming altero responses |
+| Generated sequences | State invariants across ordered operations |
+| Desktop acceptance | Actual profiles, sync engine, dialogs and files |
+| Mutations | Whether assertions detect deliberate defects |
+
+The normal Python suite needs neither Node nor a desktop checkout. This optional
+toolchain needs Node matching `tools/compatibility/package.json`, its own parser
+installation, and the source revision in `tools/compatibility/contracts.toml`.
+The installed desktop binary is pinned independently in `desktop.toml`.
 
 ## Set up the checkout
 
@@ -62,108 +72,28 @@ also accepts a `PATCH` method argument, but the sync engine uses `POST` and the
 dataserver does not accept `PATCH` on the collection endpoint for items.
 The field-clearing scenarios therefore exercise partial `POST` bodies.
 
-`child-demotion` syncs a standalone PDF in a collection to two Zotero profiles,
-then makes it a child in one profile. It checks that the other profile accepts
-the change, that the server removes the former collection memberships, and that
-further syncs settle. Before the fix for issue #64, Zotero 10.0.7 rejected the
-download with its `collectionItems` parent-item foreign-key error.
+The `child-demotion` acceptance scenario makes a standalone PDF into a child
+and verifies that collection memberships are removed and both profiles settle.
+This protects against a desktop foreign-key failure on invalid child membership.
 
-Functions are selected by JavaScript syntax nodes and executed in a Node
-subprocess. Their decision logic keeps JavaScript's types, defaults and branch
-order. The adapters provide HTTP response facades, in-memory persistence, and
-small runtime helpers. The sync-version adapter substitutes the URI builder;
-it checks the original response handling and request parameters. The group
-refresh tests capture responses over a real HTTP socket.
+Source selectors identify original JavaScript functions. Adapters provide
+HTTP, persistence and file facades while retaining the selected decision logic.
+`DesktopAPI` runs the original API client over live HTTP; `DesktopStorage` runs
+its file-transfer methods. Subprocess calls remain asynchronous so the server
+can answer them.
 
-`tools.compatibility.live.DesktopAPI` executes the complete original
-`syncAPIClient.js`, including URL construction, headers, gzip decisions and
-retry policy, against a local HTTP server. Its async Python subprocess leaves
-the server event loop free to answer requests. The transport supplies an XHR
-response facade; the scheduler records requested delays without sleeping.
-This layer checks the API scheduler; generic retry behavior inside
-`Zotero.HTTP.request` is provided by the facade and is not exercised here.
-Request traces omit the API key. Injected responses and response mutations
-exercise error handling without changing the pinned source.
+These facades do not prove generic HTTP retries, desktop disk writes or ZIP
+unpacking. Actual desktop acceptance supplies that evidence separately.
 
-`DesktopStorage` runs the original ZFS authorization, upload, registration and
-download methods through the same transport. In-memory facades supply file
-attributes, bytes and persistence; downloaded metadata and bytes are captured
-at the `processDownload` boundary. This does not test writing or unpacking files
-in a desktop profile. A missing remote file exercises ZFS's settled-file path.
+Duplicate merging has service, HTTP, browser and desktop checks. They cover
+field choices, relations, permissions, rollback, stale reviews, attachment
+matching, notes and annotation parents. PDF extraction uses a different parser
+from Zotero, so matching arbitrary PDFs is not guaranteed. Extraction failures
+are treated conservatively as possible embedded markup. The browser merge
+contract is documented in [implementation notes](web/implementation.md#duplicate-merge-endpoint).
 
-The schema corpus checks server wire round trips. Actual desktop serialization
-and persistence belong to the disposable-profile acceptance runner.
-
-Duplicate merging has service-level database checks in `tests/test_merge.py`
-and `tests/test_merge_attachment*.py`: child moves, note links, tag precedence,
-collections, merge history, incoming relations, permissions, transaction
-rollback and attachment deduplication. These follow the reviewed Zotero 10.0.7
-source; they do not execute the desktop merge code. A live HTTP check verifies
-the resulting incremental item download, annotation parent and original PDF
-bytes. The [browser merge endpoint](web/implementation.md#duplicate-merge-endpoint)
-also has permission, stale-version and rollback checks, plus a live HTTP test
-that uploads different PDF byte streams with matching text and verifies the
-surviving file and moved annotation. Browser tests exercise complete candidate
-groups, ordinary click/tap selection, individual inspection and return, member
-exclusion, master and field choices, confirmation, stale-review reloads and
-persisted results on desktop and phone layouts. They check touch target sizes
-and accessibility. `web-merge` submits a merge through the cookie-authenticated
-browser route, then runs the original sync engine in two actual desktop
-profiles. It checks chosen fields and creators, moved children, combined tags
-and collections, incoming relations, transferred replacement history, a stale
-review's refusal and restoring the trashed duplicate record.
-
-`web-merge-files` uploads actual PDFs through the browser route and checks both
-desktops' downloaded bytes, notes, annotation parents and settled storage
-states. Its five cases cover identical bytes, matching text with different
-bytes, retaining the PDF with embedded markup, the parent/note compatibility
-fallback, and keeping two PDFs with markup. The server has no cached full text
-for these files, so the text match requires PDF extraction.
-
-The service accepts chosen bibliographic fields and creators as part of the
-same master-item write. Omitted values stay on the master; empty values clear
-them. Structural properties and timestamps cannot be chosen this way, and
-field and creator validation runs before attachment inspection.
-
-The PDF inspector has generated-file tests for extraction, all 17 desktop
-markup annotation types, non-markup annotations, encryption, malformed files
-and timeouts. A separate source-replay check compares common-word fingerprints
-against the original function in seven locales. pypdf supplies extraction in
-place of Zotero's PDF worker; these checks do not establish identical text
-extraction for arbitrary PDFs. Parsing runs in a disposable, time-limited
-process, with CPU and memory limits on Unix; failures are treated as possible
-embedded annotations, as on the desktop.
-
-PDF matches use file bytes first and common words second. Embedded markup
-decides which copy survives; both survive when both contain markup. Database
-annotations move to the surviving attachment. An embedded attachment note moves
-too, becoming a child note if the survivor already has one. Web attachments
-match by title and link mode, preferring an equal URL; the pinned client also
-falls back to title for linked URLs. Linked files have no server-side bytes to
-compare and are kept.
-
-An exception keeps both PDFs when transferring a note would also move its
-recipient to the master. Zotero 10.0.6 can save that note but lose the parent
-change; this was reproduced both with zotero.org and offline. The fallback
-preserves each file's original note and annotations; a three-record regression
-also checks a move planned earlier in the same merge. See the
-[compatibility decision](compatibility.md#merging-pdfs-with-embedded-notes).
-
-The attachment transition cases also check repeated PDF swaps, notes promoted
-after an attachment already moved, cached full text, missing files, and the PDF
-attachments that participate in the subsequent web-attachment pass. Server
-merge coverage and desktop acceptance are separate inventory entries.
-
-Source replay adapters provide facades for the database and application UI.
-The real acceptance runner below exercises complete synchronization separately.
-Group-removal prompts raise an explicit error in source replay; continue to use
-[two-client testing](testing-two-clients.md) for interactive conflict dialogs
-and removal prompts.
-
-The harness was checked against PR #14's failure: removing the roster arrays
-makes the permission checks fail, and omitting the command-line version
-increment makes the refresh check fail. Source discovery also reports `admins`
-and `members` when given altero's actual pre-fix serializer.
+Source replay and real desktop scenarios are separate inventory entries; neither
+should stand in for the other.
 
 ## Discover contracts from source
 
@@ -177,23 +107,16 @@ removed consumer, parse error or new consumer fails the review gate:
 
 ```sh
 .venv/bin/python -m tools.compatibility interactions \
-  --zotero-source .compatibility/zotero-10.0.7 --check \
+  --zotero-source .compatibility/zotero --check \
   --output .compatibility/interactions.json --markdown .compatibility/interactions.md
 ```
 
-The initial inventory identifies 109 transport call sites in 88 consumers across
-324 source files, with no parse errors. A review records scope, not a passing run.
-Expressions retain unresolved dynamic URLs and request options for inspection;
-this is not whole-program call-graph analysis. Runtime acceptance traces record
-methods, paths, protocol query selectors, header names, response codes and library
-versions. Login/storage tokens in paths and credential header values are omitted.
-Source replay and actual desktop evidence remain separate.
+The inventory is syntactic, not a whole-program call graph. Dynamic URLs and
+unresolved options stay visible for review. Supported library sync, unsupported
+services, external services and general transport each retain their disposition.
+Runtime traces omit credential values and login/storage tokens in paths.
 
-Library sync is the supported scope. Zotero speech synthesis/credits, legacy
-password-to-key creation and legacy `removestoragefiles` are explicitly unsupported,
-alongside retractions. WebDAV, publisher downloads, metadata recognition and
-repository updates target separate services. Their exclusion is recorded rather
-than allowing absence from the scan to imply coverage.
+An inventory entry records scope, not a successful run.
 
 Inspect the scenario inventory before extending coverage:
 
@@ -216,35 +139,19 @@ uv run python -m tools.compatibility analyze \
   --evidence .compatibility/evidence.json
 ```
 
-The manifest maps selected consumers to server functions and defines the file
-globs to inspect. The inventory includes direct input reads and simple aliases,
-defaults, conditions, request construction, response headers and declared routes.
-Constructed request paths are matched to route patterns where their literal
-parts agree. These matches supply provider code for review.
-
-Mapped input reads are compared with the possible fields of a returned Python
-object, including dictionary aliases and conditional additions. An unknown
-expansion or helper result remains unresolved. Each observation carries source
-positions; unmapped consumers and parse errors stay in the report.
-
-Read the report statuses as follows:
+The report compares mapped client field reads with possible server response
+shapes and retains source positions, unmapped consumers and parse errors.
 
 | Status | Meaning |
-|---|---|
-| `candidate` | A client-read field has no known server emission; reproduce the effect |
-| `no-static-gap` | The mapped fields are present in the static shape; behavior still needs tests |
-| `execution-only` | An executable contract or helper has no static field comparison |
-| `unresolved` | Source or a dynamic object shape prevents a comparison |
+| --- | --- |
+| `candidate` | No known emission for a client-read field; reproduce the effect |
+| `no-static-gap` | Static fields match; behavior still needs tests |
+| `execution-only` | Executable check without static field comparison |
+| `unresolved` | Dynamic shape or source prevents comparison |
 
-This is a syntactic inventory with limited alias resolution. It does not resolve
-all calls, scopes, dynamically constructed paths, mutations, or runtime types.
-A field's presence says nothing about its value or whether a route actually
-supplies it for a particular requester. An empty findings list therefore does
-not establish compatibility.
-
-Discovery returns a report even with candidates or unresolved entries. Exit
-code 2 means a prerequisite, pinned source, command, or output could not be
-used. Executable tests supply the pass/fail check.
+Presence does not establish correct values or permissions. Zero candidates
+therefore does not establish compatibility. Discovery reports findings without
+failing; exit 2 indicates unusable prerequisites or runner/output errors.
 
 ## Add automated source review
 
@@ -306,30 +213,15 @@ This flag is for discovery; executable checks always enforce their fingerprints.
 
 ## CI reports
 
-The **Desktop compatibility** workflow replays the pinned contracts on pushes
-to master and pull requests. It fails if a test skips and uploads the test
-results, source report and review evidence. Static candidates remain review
-work rather than reproduced failures.
+The **Desktop compatibility** workflow verifies pinned sources, replays contracts
+and rejects skips. Reports include source discovery, reference evidence,
+scenario inventory and test results. Nightly/manual checks also inspect upstream
+source with drift allowed and run mutations without changing the supported pin.
 
-A nightly and manually dispatched job also inspects Zotero's current `main`
-with source drift allowed and uploads a separate upstream report. It does not
-change the supported baseline or run an external review provider.
-
-
-CI now verifies the pinned dataserver checkout alongside the desktop source and
-attaches the reviewed reference spans to its reports. It uploads the scenario
-inventory beside JUnit, and runs the mutation catalogue nightly and on manual
-dispatch. Write, full-text, pagination, HTTP-policy and storage-registration
-consumers now have explicit manifest selectors as well as live scenario tests.
-
-The real desktop CI job runs nightly and on manual dispatch. Its official Linux
-archive, SHA-256 and version are pinned in `tools/compatibility/desktop.toml`.
-The 10.0.7 archive was downloaded through Zotero's official download endpoint
-and its application metadata inspected on 2026-10-30. CI checks the archive hash
-and running version, runs under Xvfb, and uploads snapshots, logs and desktop
-databases even on failure. A successful download is not a successful acceptance
-run; the test matrix below records runs separately. The GitHub jobs themselves
-have not been executed locally.
+Real desktop acceptance runs separately under Xvfb. CI checks the Linux archive
+hash and running version from `desktop.toml` and preserves reports, logs and
+databases on failure. Scheduled jobs and successful downloads are not passing
+acceptance results; use the [recorded matrix](#successfully-tested-matrix).
 
 ## Cross-check the dataserver reference
 
@@ -351,19 +243,14 @@ and monotonic watermarks rather than expecting equal counter values.
 
 ## Generated sequences and replay
 
-The reusable `LibraryReplay` helper and `disposable_server` support standalone
-sequence and desktop acceptance commands. The latter creates a new database and
-file store, binds only loopback, seeds a disposable test credential, and closes
-the server when the run finishes. It refuses an existing state directory.
+Sequences use a fresh loopback server, database and file store. Existing state
+directories are refused. The independent model checks effective create, edit,
+file, unfile, trash, restore and delete operations after each step.
 
-`generate_sequence(seed, steps)` produces valid create/edit/file/unfile,
-trash/restore and delete operations. Tests run seeds 4, 14 and 91 in personal
-and group libraries, checking an independent state model after every step.
-`minimize` removes chunks while preserving a caller-defined failure predicate;
-invalid sequences must be rejected rather than treated as reproductions.
-Validity includes an actual state change: removing a trash step must not turn
-a later restore into a no-op that is mistaken for the original failure. Empty
-or ineffective replay input is rejected before creating a server.
+Failures shrink on fresh servers while retaining the invariant's object family,
+key and field. Invalid or ineffective sequences do not count as reproductions.
+Reports preserve original and minimized operations. Exit 1 means an assertion
+failure; runner and prerequisite failures use exit 2.
 
 Run and replay a standalone sequence with preserved disposable databases:
 
@@ -376,21 +263,8 @@ uv run python -m tools.compatibility sequence --zotero-source .compatibility/zot
   --output .compatibility/replay-14.json
 ```
 
-Failures automatically shrink against fresh servers, rejecting invalid operations
-and preserving the failing invariant. The JSON keeps the seed, original operations,
-failure and independently confirmed minimized sequence. Exit 1 is a reproduced
-assertion failure; prerequisites and runner errors remain exit 2. Replays require
-a new state directory.
-
-`--model protocol --steps 60` selects the broader independent graph model.
-It covers bibliographic items, notes, attachments, annotations, collections,
-saved searches, settings, files, full text, cascade deletion and credential write
-permissions. Two original API clients retain offline field patches, encounter
-stale preconditions and retry after access is restored. Every step checks object
-fields and versions, the library watermark, deletion logs, settings, full text
-and downloaded bytes against the model. This is source-method replay: the
-queued-patch policy belongs to the harness; actual desktop conflict and offline
-recovery are tested by acceptance scenarios.
+Use `--model protocol --steps 60` for the broader model covering object graphs,
+settings, files, full text, deletions, permissions and two offline patch queues:
 
 ```sh
 uv run python -m tools.compatibility sequence --zotero-source .compatibility/zotero \
@@ -398,184 +272,69 @@ uv run python -m tools.compatibility sequence --zotero-source .compatibility/zot
   --output .compatibility/protocol-14.json
 ```
 
-Reports persist the model selection and replay chooses it automatically.
-Shrinking rejects missing or non-regular note parents, child collection membership,
-collection cycles, stranded pending work, denied writes, malformed operations and
-ineffective operations. Generated filing operations target top-level items;
-child detachment is explicit. A hundred model-only seeds check
-generation validity and eventual queue recovery. A canary passes intact and
-then fails by assertion when a returned version list loses an object.
-
-The source replay passed seeds 4, 14 and 91 in personal and group libraries
-on 2026-10-03. A standalone protocol replay also passed; its report is preserved
-in `.compatibility/implementation-protocol-14b.json`. Failure identity retains
-the object family, key and field when shrinking, rather than accepting any
-other object-state failure as the same reproduction.
-
-A live check injected a frozen watermark into seed 14 with six operations.
-The runner reduced it to one create operation and confirmed the same invariant
-on a fresh server in four trials.
+Replay selects the recorded model automatically. Shrinking rejects orphaned
+children, collection cycles, denied writes, stranded work and no-op operations.
+The queued-patch policy belongs to this harness, not Zotero's desktop engine.
 
 ## Run two real desktop profiles
 
-`desktop.prepare_profile` installs a small acceptance add-on in a new profile
-and data directory. It points the desktop at a disposable server, disables
-automatic sync, streaming, updates and word-processor installation, and leaves
-sync logic intact. `run_phase` applies explicit operations through Zotero's
-item APIs, runs the real sync runner, exports a JSON snapshot and exits. Each
-phase enforces the requested application version and a timeout, and preserves
-the desktop log on failure. The desktop archive and Node replay source both pin the 10.0.7 release;
-archive and source hashes are independent pins.
-
+Acceptance runs two isolated desktop profiles against a disposable server,
+using the actual sync engine and file storage. Supply an installed executable
+and its exact version; use the archive pin in `desktop.toml` for reproducible CI
+comparisons.
 
 ```sh
 uv run python -m tools.compatibility acceptance \
-  --desktop-executable /path/to/Zotero_linux-x86_64/zotero --desktop-version 10.0.7 \
-  --xvfb --schema-corpus --state-dir .compatibility/desktop-10.0.7
+  --desktop-executable /path/to/zotero --desktop-version <installed-version> \
+  --xvfb --schema-corpus --state-dir .compatibility/desktop-run
 ```
 
-This requires an installed Zotero binary and Xvfb (or omit `--xvfb` to use an
-existing display). With `--xvfb`, GTK and Gecko are forced onto its X11 display,
-even on a Wayland host. The version is checked by the running application. The
-command creates two isolated profiles and a loopback server, drives the actual
-sync engine and ZFS filesystem path, and preserves phase snapshots, databases
-and logs. It refuses an existing state directory.
+Use a fresh state directory. `--xvfb` requires Xvfb; omit it for an existing
+display. Each profile gets its own temporary directory and waits for schema and
+bundled-file initialization. The add-on applies operations through original
+Zotero APIs without replacing sync or conflict dialogs.
 
-To exercise PostgreSQL, add
+For PostgreSQL, add
 `--postgres-url postgresql+asyncpg://altero:altero@localhost:55432/altero`.
-The existing container can supply this connection. The account must be allowed
-to create databases: every scenario creates its own `altero_acceptance_<uuid>`
-database and leaves the database named in the URL untouched. Each scenario's
-`server/database.json` records the generated name without credentials. Databases
-are retained on success and failure for inspection; drop those generated
-databases explicitly when finished. Desktop profiles and files remain under
-the new state directory. Without the flag the server uses SQLite there.
+The account must be able to create databases. Each scenario creates and retains
+a fresh database; its name is saved in `server/database.json` without credentials.
+The database named in the URL is not migrated. Without this option, SQLite
+state stays in the run directory.
 
-The 15-phase baseline passes with Zotero 10.0.7: parent/note/file download,
-collection filing, persisted attachment bytes, disjoint offline edits and
-convergence, trash/restore propagation, deletion of parent and children, and
-all 40 schema types serialized by desktop A and downloaded into desktop B.
-The schema phase disables file transfer because its generated attachment has
-metadata only; the preceding file scenario checks real byte transfer.
-The acceptance command also runs same-field conflicts in a separate pair of
-profiles. It selects the local and remote panes in the actual merge dialog and
-clicks Finish, checks both desktops against the server and requires another sync to
-leave the library watermark unchanged. Unexpected or missing dialogs fail the
-phase; prompt/reconciliation methods are never replaced.
+Repeat `--scenario` to select cases; the default runs all implemented scenarios.
+The top-level `acceptance.json` and scenario directories retain snapshots and
+logs, including on failure.
 
-The conflict scenario also covers an offline edit against a remote deletion.
-Zotero 10.0.7's
-local choice for the deletion conflict retains the old object version, so the
-server's correct 404 triggers full sync and a repeated prompt. Cancelling that
-prompt must preserve the pending edit. Choosing local on the next sync lets
-full sync reset its version and recreate it; a second edit/delete race chooses
-the remote deletion. Both outcomes must settle both desktops.
-`--scenario filing` runs
-concurrent tag and collection membership additions in a fresh pair of profiles;
-both desktops' additions must survive without a conflict dialog.
+| Core scenario | Coverage |
+| --- | --- |
+| `baseline` | Parent/child objects, schema types, attachment bytes, offline edits, trash and deletion |
+| `conflicts` | Actual local/remote choices, edit/delete conflicts, cancellation and recovery |
+| `filing` | Concurrent tag and collection additions |
+| `groups` | Role/policy changes, permission-loss choices, archival, removal and rejoining |
+| `files` | Replacement, both file-conflict choices, missing-file recovery and snapshot unpacking |
+| `relationships` | Collection moves, reparenting, type changes, searches and annotations |
+| `recovery` | Interrupted desktop requests and downloads, restart and concurrent pending work |
+| `credentials` | Login helpers, revocation, relinking and account-mismatch cancellation |
 
-Each desktop has its own temporary directory and waits for schema/bundled-file
-initialization before running operations. This avoids shared translator staging
-files and shutdown racing unfinished startup work.
+The convergence check compares all pages of persisted objects, child graphs,
+fields, significant list ordering, pending work and downloaded bytes. Matching
+titles alone is insufficient. Desktop item versions may exceed server object
+versions because the client stamps a batch watermark. `lastRead` is normalized
+numerically; setting values and finished queues must match even where setting
+version metadata differs.
 
-Use `--scenario baseline` or `--scenario conflicts` to run one scenario; repeat
-the flag to select several. The default runs every implemented scenario, each
-with its own profiles and server under the new state directory. The top-level
-`acceptance.json` records scenario results and each subdirectory retains its
-phase snapshots and desktop logs.
-The optional desktop CI job runs a matrix with one scenario per job against
-PostgreSQL 18, so a longer scenario cannot consume another's timeout. Artifacts
-have the scenario's name and include the generated database name for diagnosis.
+File-conflict tests use different displayed modification dates. Equal-date
+selection has a [recorded client defect](#recorded-client-behavior) and is not
+covered by a passing distinct-date scenario. Missing files are recovered through
+the original on-demand download rather than forced storage flags.
 
-`--scenario groups` uses an owner and a member account. It checks member/admin
-promotion and demotion, editing/file-policy changes and server denial after a
-restriction. With pending local edits, the real permission-loss prompt's Skip
-retains work and Reset restores server state. Membership removal exercises Keep
-Group (archive locally, retaining unsynced data), rejoining and Remove Group.
-The runner verifies both the dialog and the resulting persisted state. Policies
-are cross-checked against `Group.inc.php` in the pinned dataserver; the prompts
-and archival choices come from desktop `checkLibraries` and `checkLibraryForAccess`.
-Group phases use the runner's ordinary all-library sync: explicitly forcing a
-group library into its input list can make this client attempt an upload even
-after Skip Group. The group selector scopes local operations and snapshots.
-
-`--scenario files` replaces bytes of an existing attachment, exercises both file
-conflict choices, removes a local file and calls the original on-demand download
-to recover it after verifying that its missing state persisted.
-It checks disk bytes, server downloads, synced hashes and settled storage states.
-Offline edits run the original file-change scan before exiting the profile, so
-pending uploads are persisted before incoming metadata arrives. File conflicts
-overlap real syncs: B pauses just before upload authorization, A commits its file,
-then B continues with its stale hash. No response or sync method is mocked.
-The files have a one-hour timestamp offset, which Zotero's timestamp check
-tolerates, keeping the local file until ZFS compares hashes. After selecting
-the local side, A's stale copy is removed and downloaded on demand. This
-explicitly covers recovery rather than claiming the client
-detects every timestamp collision. Exactly equal displayed dates exposed a
-Zotero 10.0.1 bug: choosing Remote can keep and upload the local bytes.
-`Zotero.Sync.Storage.Local.resolveConflicts` identifies the selected side by its
-date instead of a side identifier, so either choice matches the local side.
-The original failure was reproduced with 10.0.1. A separate 2026-10-30 run with
-10.0.6 reproduced it against Zotero Storage at zotero.org: after selecting
-Remote, the downloaded server bytes matched the formerly local file instead.
-The [upstream report](https://forums.zotero.org/discussion/134528/bug-selecting-remote-in-a-file-conflict-can-upload-the-local-file)
-records the real dialog selection, transfers, hashes and a passing control with
-different timestamps. The equal-date case has not been rerun with 10.0.7; its
-passing acceptance scenario uses distinct displayed dates to verify both
-working choices.
-A multi-file HTML snapshot also checks that ZIP transfer restores its HTML
-and CSS on disk.
-
-Acceptance phase snapshots also record collections, saved searches, pending
-object uploads and group permissions. `AcceptanceRun` compares persisted objects
-on both desktops with server responses, normalizing omitted empty/default
-properties, collection membership order and scalar/list relation shapes. It
-retains keys and checks that both desktops hold positive object versions at
-least as high as the server. The original engine deliberately records the
-batch watermark on unchanged objects, so a desktop version can exceed that
-object's server version. All server pages are read, including beyond 100 objects.
-Creator and saved-search condition order remain significant. Matching item titles alone cannot
-claim convergence. Its group selector requires discovery before local edits;
-each profile's account identity is explicit.
-
-`--scenario relationships` moves and renames a collection branch, reparents a
-note and a file attachment, changes a book into an article, replaces a saved
-search's conditions, edits an annotation's comment, color and position, and
-clears tags and collection membership. Both desktops' persisted objects must
-match server responses after each transition. The annotation's parent is a
-file attachment, as both desktop and dataserver require. This checks sync data
-and caches; it does not open the reader or test rendered annotation images.
-
-`--scenario recovery` kills desktop A after the server has committed an item
-but before it sends the response. Restarting the same profile must settle the
-pending upload without duplicating the commit. Both real runners then upload
-disjoint pending work simultaneously, converge and leave the watermark unchanged
-on another sync. Finally B is killed after receiving part of an attachment
-download; restarting must recover all bytes and leave its storage state synced.
-The HTTP barriers pause genuine requests and preserve their responses. The
-server remains running. Server-process crashes and interrupted uploads are
-covered by separate scenarios below.
-
-`--scenario credentials` starts and polls a login session through the original
-desktop runner helpers. The disposable server approves it through the same
-service the administrator's CLI uses; this is not browser sign-in UI coverage.
-After revocation through the original API client, the next sync must report the
-specific invalid-key error and retain an offline edit. Relinking must upload
-that work to both desktops. Switching B to a second account opens the real
-account-mismatch confirmation; Cancel must retain the original owner and data
-and leave the second account's library empty. Login handoffs live outside the
-uploaded phase artifacts, and phase snapshots contain no issued API key.
-
-Streaming scenarios subscribe over a real WebSocket, make a live write and feed
-the greeting, subscription changes and notification into the original `_connect`
-message handler. They check sync scheduling, already-current and skipped libraries,
-and reconnect delays. The replay supplies a socket facade and virtual clock;
-actual desktop reconnect timing and UI scheduling are not exercised.
-
+Source replay of streaming handlers uses a socket facade and virtual clock.
+The `streaming-reconnect` acceptance scenario separately checks actual sockets,
+resubscription and notification-driven sync.
 
 ## Additional desktop scenarios
 
-Each scenario uses two actual 10.0.7 profiles, original desktop operations,
+Each scenario uses two actual desktop profiles, original desktop operations,
 real HTTP, persistent databases and files. Unexpected sync errors fail the run.
 The final settled sync checks convergence and an unchanged server watermark.
 
@@ -606,74 +365,32 @@ The final settled sync checks convergence and an unchanged server watermark.
 | `transient-errors` | Real 503s before and after a write, a lost commit response, a truncated object read, and user cancellation through the original sync runner; recover without duplicates or extra versions. |
 | `streaming-reconnect` | Close the actual WebSocket with 1012, observe the original two-second reconnect delay and resubscription, then send a notification that drives automatic desktop sync without an explicit sync call. |
 
-HTTP barriers preserve the actual request and response bodies. Upload barriers
-require a first chunk with more bytes still expected. Killing only Zotero's
-shell launcher leaves its child running, so interruption and timeout handling
-terminate the whole isolated process group. A regression test proves the child
-stops. Server-crash controls use files outside the HTTP API; worker logs and
-barrier traces are preserved.
+HTTP barriers hold genuine requests independently. A fault before execution
+performs no write; a response fault can lose an already committed answer.
+Partial download and upload failures use incomplete transport bodies. Crash
+checks restart the same database and URL and compare durable state and retry
+preconditions. A consumed file-registration token returns 404 on retry; current
+metadata and downloaded bytes establish recovery.
 
-Barriers can also inject one-shot `status` or `disconnect` failures at the
-`before`, `response`, `download` or `upload` boundary. Status injection is confined
-to request/response boundaries and error codes. Before-request failures execute
-no application write; response failures happen after the application has run.
-Partial download failures send a real incomplete HTTP body; upload interruptions
-deliver a disconnect after the first portion has been consumed. A subsequent
-request runs intact. Socket tests distinguish an uncommitted write from a lost
-commit response and verify retry recovery without duplicate objects or versions.
-These faults live only in the disposable compatibility harness, not the API.
-The durable-write matrix injects a 503 before execution or after the committed
-response for collections, saved searches, settings, deletions, full text and
-file registration. It then kills and restarts the actual server process on the
-same database and checks persisted state, watermark and retry preconditions.
-A consumed registration token answers 404 on replay; current file metadata and
-downloaded bytes prove recovery. Thirteen tests passed locally on SQLite, including
-an intact baseline followed by deliberate committed-watermark loss that must fail
-by assertion. These socket tests do not substitute for desktop acceptance.
-Independent barriers can hold two concurrent requests and release each separately.
-Streaming controls close actual accepted sockets; traces retain event names and
-close codes without subscription credential payloads.
+Process interruption terminates the entire isolated desktop process group.
+Barrier traces redact credentials. These controls exist only in the disposable
+harness. Socket-level durable-write checks remain distinct from desktop acceptance.
 
-The storage-error allowance in `file-lifecycle` requires exactly one original
-`Zotero.Sync.Storage.defaultError` and a real stale-token 404. Other errors still
-fail. Browser writes use real sessions and CSRF tokens, but do not exercise the
-browser sign-in UI. Archive recovery follows the documented surviving-client
-procedure; it does not claim that raising a watermark rewinds synced desktops
-to an older archive.
+Seven further cases cover additional transitions:
 
-All of the scenarios above pass with Zotero 10.0.7 on SQLite and PostgreSQL.
-Login expiry and personal-library read scope do not cover every credential
-transition. Streaming reconnect observes the original reconnect delay and
-notification-driven synchronization. Seven further scenarios cover the
-remaining declared transitions:
+| Scenario | Coverage |
+| --- | --- |
+| `parent-rejection` | Rejected parent and dependent 409, unrelated success, displayed errors and retry |
+| `missing-parent` | A synced parent missing on the server is requeued from the child's 409 |
+| `child-promotion` | `parentItem: false` makes a child top-level on both desktops |
+| `type-change` | Fields and creator roles map to a different item type |
+| `reader-rendering` | Actual PDF canvas pixels, changed PNG cache after crop and restart persistence |
+| `zipped-digest-race` | Concurrent uploads with equal main-file digests and different ZIPs; archive integrity and unpacked resources |
+| `backup-rewind` | A raised watermark does not rewind desktop objects; explicit surviving-client recovery |
 
-| Scenario | Assertions |
-|---|---|
-| `parent-rejection` | Corrupt only a new parent type in one outgoing batch; the real validator refuses it, and the dependent child with a 409 naming the parent; unrelated success is preserved, both refusals are shown, and the desktop's next sync recovers both objects. Inspect the rejected batch before releasing its response. |
-| `missing-parent` | Restore an archive older than a synced parent, then create a child under it; the 409 naming the parent makes the original desktop queue the parent again, and both profiles converge on parent and child. |
-| `child-promotion` | Move a synced child note out to the library; the desktop's `parentItem: false` makes it top-level on the server and on the other profile. |
-| `type-change` | Change a synced book with an edition, a publisher, an author and an editor into a film through `setType`; the patch blanking fields a film lacks is accepted, and the server and the other profile hold the distributor, director and contributor the desktop mapped. |
-| `reader-rendering` | Open the shipped PDF reader; check the fixture geometry in actual canvas pixels; compare generated PNG caches across profiles; change the crop, require different PNG bytes, and preserve regenerated output across restart. |
-| `zipped-digest-race` | Hold two actual uploads independently; prove their main-file digests match while ZIP digests differ; overwrite the stored archive before the second registration, observe the expected storage failure and recover complete files and unpacked auxiliary resources. |
-| `backup-rewind` | Restore an older archive after both profiles synced newer objects; show that an increased library watermark preserves newer desktop copies while the server remains older; explicitly restore the surviving authoritative desktop and converge. |
-
-`parent-rejection`, `reader-rendering`, `zipped-digest-race` and
-`backup-rewind` pass with Zotero 10.0.7 on both databases, and so do
-`missing-parent`, `child-promotion`, `type-change` and the revised
-`parent-rejection`. The
-automatic rewind entry is explicitly unsupported: an increased library counter
-cannot make older object versions replace already synced desktop caches. The
-separate recovery scenario proves the supported procedure. No inventory count
-certifies every interaction; additional platforms, credential combinations,
-reader formats and arbitrary failure schedules still need separate evidence.
-
-The convergence oracle compares `lastRead` numerically: the desktop persists an
-integer and the API serves text. Setting values and finished queues must agree,
-but setting version metadata can differ in either direction. Original
-`SyncedSettings.set` skips metadata updates for an equal primitive value, and
-`markAsSynced` stamps uploads with the batch watermark. Regression tests first
-failed on these differences and still reject changed values or unfinished work.
-Item version bounds remain checked separately.
+Browser-route scenarios use real sessions and CSRF tokens, but do not establish
+browser sign-in UI coverage. Automatic rewind remains unsupported. More platforms,
+credential combinations, reader formats and failure schedules need separate evidence.
 
 ## Prove the checks detect omissions
 
@@ -696,6 +413,9 @@ not a mutation score for production source. `ALTERO_COMPAT_MUTATION` selects onl
 a catalogue entry and is normally unset.
 
 ## Successfully tested matrix
+
+These are historical local runs, not results for the current checkout. The
+original release-candidate run and later additions are identified below.
 
 <!-- desktop-matrix -->
 Zotero 10.0.7 Linux x86-64; actual desktop profiles.
@@ -797,9 +517,9 @@ or mismatched evidence. Interrupted phases retain their process exit status;
 completed phases identify their running binary. Summary hashes are evidence
 identifiers, not signatures or a certification of the whole desktop surface.
 
-The matrix records 72 successful database/scenario combinations and 838
-actual desktop phases: all 36 scenarios have successful results on both
-databases. The baseline includes all 40 schema types.
+The original 2026-10-30 run recorded 72 database/scenario combinations and 838
+phases across 36 scenarios. Later undo scenarios are recorded separately above.
+The baseline includes all 40 schema types.
 The 2026-10-30 source-replay run passed 333 tests with no skips against the
 pinned 10.0.7 sources, with Node 24.22.1; its network-consumer review gate had
 no stale or unreviewed consumers. Regressions cover the restore request marker
@@ -818,3 +538,17 @@ binary between phases. Profiles now request English and turn automatic updates
 off. The PHP dataserver and browser sign-in UI were not executed. The desktop
 evidence is Linux-only; exhaustive credential combinations, reader formats and
 failure schedules remain unverified.
+
+## Recorded client behavior
+
+Equal displayed file-conflict dates exposed a client defect: selecting Remote
+can keep and upload local bytes. It was reproduced with Zotero 10.0.1, and with
+10.0.6 against Zotero Storage on 2026-10-30. The
+[upstream report](https://forums.zotero.org/discussion/134528/bug-selecting-remote-in-a-file-conflict-can-upload-the-local-file)
+records dialog selection, hashes and a passing different-date control. This
+case has not been rerun on 10.0.7; its acceptance run used distinct dates.
+
+PDF parent/note merging also reproduced a Zotero 10.0.6 defect against zotero.org
+and offline: a changed note could persist while its parent move was lost.
+altero retains both PDFs when that combination would occur; see
+[the compatibility decision](compatibility.md#merging-pdfs-with-embedded-notes).

@@ -1,36 +1,33 @@
 # OpenID provider interoperability
 
-Local assessment on **31 October 2026**, using altero at `d06783c`:
+Historical local assessment on **2026-10-31**, using altero at `d06783c`:
 the OpenID Foundation suite's **Config OP passed**. **Basic OP did not pass**.
 This is a development assessment, not OpenID certification or an exhaustive
 claim of protocol support. The mandatory S256 PKCE policy was retained.
 
 ## Independent client in CI
 
-`tests/test_authlib.py` runs 24 live HTTP cases using stock Authlib 1.9.1 and
-its native httpx2 integration. Public clients, HTTP Basic secrets and form
-secrets each exercise code + PKCE, ID-token signature/claim validation,
-userinfo, refresh rotation/replay, revocation, device consent and RP logout.
-It also checks bearer/cookie separation and refuses bad proof and code reuse.
-No external IdP is needed and no opt-in variable skips these tests.
+Run the independent Authlib client checks with:
 
 ```sh
 uv run pytest -q tests/test_authlib.py
 ```
 
-The harness uses an isolated SQLite database and loopback port 18765. It
-approves consent through the browser's cookie/CSRF HTTP endpoints and hands the
-callback URL to Authlib. It does not provide a separate RP listener or prove
-consent-page rendering. See the [fixture details](https://github.com/eseifert/altero/blob/master/tests/idp/README.md).
-Combined Authlib and existing OAuth regressions passed 181 cases locally.
-Changing the nonce or access-token hash in actual server-issued ID tokens made
-Authlib reject them; the intact 24 cases passed again after restoring source.
+They cover code and PKCE, public/confidential clients, ID tokens, userinfo,
+refresh, replay, revocation, device consent and logout over live HTTP. No
+external provider is required. Keep loopback port 18765 free.
 
-The [hosted test job at `fcf8460`](https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185)
-passed on 31 October 2026 (UTC): 3,556 tests, no skipped tests, including these
-24 Authlib cases. The same job ran the real Keycloak and SimpleSAMLphp cases.
-This is CI evidence for the supported flows, separate from the Foundation
-profile results below.
+The harness approves through real cookie/CSRF routes, without testing consent
+page rendering or a separate client callback listener. See the
+[fixture scope](https://github.com/eseifert/altero/blob/master/tests/idp/README.md).
+
+### Recorded CI run
+
+On 2026-10-31, the [hosted job at `fcf8460`](https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185)
+passed 3,556 tests without skips, including 24 Authlib cases using Authlib 1.9.1.
+The same job ran Keycloak and SimpleSAMLphp tests. Local token mutations made
+Authlib reject changed nonce and access-token hashes after intact baselines
+passed. These results are separate from the Foundation assessment below.
 
 ## Foundation suite environment
 

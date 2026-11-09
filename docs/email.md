@@ -32,10 +32,7 @@ Security notices are sent only to a **confirmed** email address.
 
 Confirmation links are valid for 24 hours. Administrator-issued or self-service password links are single-use and valid for 12 hours. Email sign-in codes are valid for ten minutes, work once and are tied to the browser session that requested them.
 
-Upgrading does not revoke password-reset links already issued. If an earlier
-message contains an incorrect host, issue a fresh reset from **Administration →
-Accounts** after configuring `ALTERO_PUBLIC_URL`; the new token replaces that
-account's previous reset token.
+For reset links issued before a public-address correction, see [historical upgrade notes](release-history.md#historical-upgrade-notes).
 
 ## Run without SMTP
 
@@ -130,7 +127,7 @@ This is required when `ALTERO_SMTP_URL` is set; altero refuses to start without 
 
 ## Docker Compose
 
-Put the mail settings in **`docker/.env`**, which the Compose file hands to the container along with everything else in it (see [Configuration](configuration.md#in-docker)):
+Put mail settings in **`.env` beside the Compose file** (`docker/.env` in a checkout). See [Configuration](configuration.md#in-docker).
 
 ```dotenv
 POSTGRES_PASSWORD=something-other-than-the-default
@@ -148,7 +145,7 @@ docker compose -f docker/compose.yaml config | grep ALTERO_
 
 ### Common Docker mistakes
 
-**Put the file in `docker/.env`.** The documented Compose file lives in `docker/`, and that is the environment file it reads.
+**Keep `.env` beside the Compose file.** A checkout uses `docker/.env`; a downloaded deployment usually uses `.env` in its working directory.
 
 **Escape `$` for Compose.** In `.env`, Compose interpolates `$NAME`. Double a literal dollar sign as `$$`. This is in addition to URL percent-encoding.
 
@@ -216,7 +213,7 @@ Mail failure does not roll back the action that caused the message. For example,
 
 Failures are logged. There is no mail queue and no automatic retry. Most user-triggered messages can be requested again.
 
-Mail sending runs on a worker thread with a 10-second timeout so a slow relay does not block the server's event loop.
+SMTP requests time out after ten seconds. Check relay connectivity if delivery stalls.
 
 ## Related
 

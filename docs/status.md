@@ -1,39 +1,18 @@
 # What works
 
-This page is the feature-level status of altero's Zotero v3 compatibility.
+Use this page to check whether altero supports your workflow. For installation,
+start with [Getting started](getting-started.md).
 
-**Release:** 1.0.0-beta.8. See the [upgrade requirements](deployment.md#upgrade-altero).
+Ordinary Zotero Desktop synchronization is the main target. Automated desktop
+acceptance runs on Linux. Basic sync has community reports on Windows and
+macOS; broader conflict and recovery coverage on those platforms remains
+unverified. Mobile apps need a separate build pointed at your server.
 
-The beta.7 desktop acceptance run with two real Zotero 10.0.7 profiles passed 72
-database/scenario combinations and 838 phases on Linux, across SQLite and
-PostgreSQL 18.4. This verifies the recorded transitions, not every client path
-or platform. See
-[desktop compatibility coverage and gaps](client-compatibility.md).
-
-**Windows and macOS remain untested by the project's desktop acceptance
-suite.** A [community report](https://github.com/eseifert/altero/issues/49#issuecomment-6555801282)
-describes basic sync working with Zotero 10.0.7 and altero beta.7 on both;
-it does not establish conflict, file-recovery or full acceptance coverage.
-To contribute a reproducible platform result, follow the
-[two-client test and reporting checklist](testing-two-clients.md#windows-and-macos-reports).
-
-Populated databases from every beta through beta.7 pass direct upgrades to the
-beta.8 schema on SQLite and PostgreSQL, including attachment
-downloads and repeat startup. See the [upgrade matrix and limits](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation).
-
-The published beta.7 amd64 image also passes a [rootless Podman check](testing-podman.md#recorded-run)
-with SQLite, browser writes, attachment persistence after container replacement
-and a changed internal port. The report records the exact image and host;
-other Podman configurations need separate evidence.
-
-A file-conflict issue was reproduced in Zotero 10.0.1 and 10.0.6: when both sides
-have equal displayed modification dates, choosing Remote can retain and upload
-the local bytes. The later run used Zotero Storage at zotero.org; the
-[upstream report](https://forums.zotero.org/discussion/134528/bug-selecting-remote-in-a-file-conflict-can-upload-the-local-file)
-records the reproduction and file hashes. This equal-date case has not been
-rerun on 10.0.7. See [the exercised cases and limits](client-compatibility.md#run-two-real-desktop-profiles).
-
-**Short version:** ordinary Zotero Desktop synchronization is the target; the official mobile apps work through a build of your own, unofficially but supported.
+Keep a current backup of important libraries and don’t rely on altero as your
+only copy yet. Recorded results and their limits are in
+[desktop compatibility checks](client-compatibility.md),
+[Podman testing](testing-podman.md#recorded-run) and
+[release validation history](release-history.md).
 
 ## User-facing capabilities
 
@@ -84,36 +63,23 @@ and [Unfiled is a browser-only view](compatibility.md#the-desktop-clients-three-
 
 ## Additional altero features
 
-These are not required for basic Zotero compatibility but are available on an altero instance:
-
-- browser-based account and API-key management;
-- instance administration without library-wide superuser access;
-- OpenID Connect and SAML 2.0 browser sign-in;
-- an OAuth 2.0 and OpenID Connect authorization server, so a third-party application can be given scoped, expiring access instead of an API key, confinable to chosen libraries and collections, with RP-initiated sign-out and a device grant for a machine that has no browser;
-- passkeys, authenticator-app second factors and email codes;
-- per-member group permissions such as read-only, add-without-remove and own-items-only;
-- group activity and opt-in notifications;
-- configurable retention;
-- server-side tag rename;
-- [undo toasts](web/library.md#items) for browser filing and trash changes, guarded against later edits;
-- single-collection sharing links;
-- storage reporting; and
-- whole-library export/import and migration from zotero.org.
+The browser adds account management, collection-sharing links, group activity,
+per-member restrictions, configurable retention and storage reporting. Library
+archives and migration from zotero.org support moving data between servers.
+See the [web guide](web-interface.md) and [administration guide](administration.md).
 
 ## Sign-in and authorization verification
 
-Real Keycloak OIDC/SAML, SimpleSAMLphp SAML and independent Authlib client flows
-passed [hosted CI at `fcf8460`](https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185)
-without skipped tests. The [provider recipes](administration.md#provider-recipes)
-distinguish that coverage from the unverified Entra ID, Okta, authentik and
-Shibboleth setups.
+Live integration tests cover Keycloak and SimpleSAMLphp sign-in, and Authlib
+as a client of altero's authorization server. Other provider recipes are
+explicitly marked unverified in [Administration](administration.md#provider-recipes).
 
-The local OpenID Foundation assessment passed Config OP; Basic OP did not pass.
-See the [results and limits](oidc-conformance.md), including the mandatory-PKCE
-profile mismatch. These checks establish no OpenID certification.
+The recorded OpenID Foundation assessment passed Config OP but did not pass
+Basic OP. altero is not OpenID-certified; see [results and limits](oidc-conformance.md).
 
 ## Not implemented
 
+- Storage quotas: usage is reported, but no per-library quota is enforced.
 - Continuous replication with zotero.org in either direction. The existing personal-library import is a one-time copy; [one-way refresh remains future work](compatibility.md#continuous-sync-with-zoteroorg).
 - Zotero's **Note HTML** and **Note Markdown** translators. These create a note rather than an ordinary bibliography/export response.
 - Zotero-hosted read-aloud speech synthesis and credit services (`/tts/...`).

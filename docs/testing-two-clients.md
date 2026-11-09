@@ -1,24 +1,12 @@
 # Syncing two desktop clients
 
-This is the strongest manual test of altero synchronization: two real Zotero Desktop installations use the same library through the server and are compared afterwards.
+Use this procedure to check changes traveling through altero between two real
+Zotero Desktop installations. It is useful for reporting a platform or deployment
+that the automated tests do not cover.
 
-For automated checks of desktop decisions and source expectations, see
+Use disposable data and separate profiles. Preserve a failed run for diagnosis
+before starting again. For automated checks, see
 [Desktop compatibility checks](client-compatibility.md).
-
-**Use disposable data:** a failed run should be thrown away, not repaired in place.
-
-## What this test proves
-
-A single client can show that requests succeed. Two clients can show whether changes actually travel through the server and converge on the same state.
-
-The test is useful for:
-
-- conflict handling;
-- deletions and trash;
-- collection movement;
-- attachment changes;
-- group libraries; and
-- changes made while one client is offline.
 
 ## Test setup
 
@@ -57,29 +45,14 @@ altero's file store.
 
 For the complete linking flow, see [Connecting a Zotero client](clients.md).
 
-## Important traps
+## Before testing
 
-### Account ID must match the data directory
+Check that each profile has its own empty data directory and that both use the
+same altero account. Do not use your everyday Zotero library. Set both API and
+streaming URLs; the API setting alone does not redirect streaming.
 
-Zotero remembers the numeric user ID that last synchronized a data directory. Pointing an existing data directory at a different user ID can trigger Zotero's reset-data-directory protection.
-
-For tests, start with fresh profiles unless you are deliberately testing migration behavior.
-
-### Use separate data directories
-
-Two profiles that share the same Zotero database are not two clients. Each test client needs its own data directory.
-
-### Do not leave streaming pointed at zotero.org
-
-Set `extensions.zotero.streaming.url` on both clients, or disable streaming. The API URL alone does not replace Zotero's built-in streaming endpoint.
-
-### Let each side finish syncing
-
-Do not compare the clients while one still has queued changes or an unresolved sync error.
-
-### Compare server state as well as the UI
-
-A library can look similar in the UI while versions, deleted objects or attachment metadata differ. Use the project comparison tooling after the interactive part of the test.
+Wait until both clients finish syncing before comparing them. An unresolved
+sync error or queued change means the test has not settled.
 
 ## Suggested test sequence
 
@@ -134,7 +107,7 @@ When a run fails, record:
 
 ## When the run is complete
 
-Discard the disposable instance and test profiles unless they are needed for a minimal reproduction.
+Keep failed state until you have a reproduction or report. After a successful run, the disposable instance and profiles can be removed.
 
 A clean two-client run is stronger evidence than replaying captured HTTP traffic because it exercises the real client's local synchronization state in both directions.
 
@@ -148,9 +121,8 @@ dialogs on Linux.
 ## Windows and macOS reports
 
 Windows and macOS have not completed the project's automated desktop acceptance
-suite. A [basic-sync report](https://github.com/eseifert/altero/issues/49#issuecomment-6555801282)
-for Zotero 10.0.7 and altero beta.7 is encouraging, but does not cover the checks
-below. A manual run records evidence for its checked operations; it does not
+suite. A [community basic-sync report](https://github.com/eseifert/altero/issues/49#issuecomment-6555801282)
+does not cover the checks below. A manual run records evidence for its checked operations; it does not
 certify the full automated matrix.
 
 Use the setup and sequence above, then record **pass**, **fail** or **not run**

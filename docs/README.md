@@ -1,96 +1,41 @@
 # altero documentation
 
-altero is a self-hosted synchronization server for Zotero Desktop.
+altero lets you synchronize Zotero libraries on a server you control. Use
+Zotero Desktop, the browser interface, or both.
 
 > [!WARNING]
 > Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
 
-**Current release: 1.0.0-beta.8.** This security and maintenance release fixes
-password-reset link poisoning and OIDC issuer handling. SMTP-enabled instances
-must set `ALTERO_PUBLIC_URL` before upgrading; see [upgrade instructions](deployment.md#upgrade-altero).
+## Find your guide
 
-The beta.7 desktop acceptance run with two real Zotero 10.0.7 profiles passed 72
-scenario/database combinations and 838 phases across SQLite and PostgreSQL.
-See [desktop compatibility checks](client-compatibility.md) for the
-tested transitions, known client behavior and remaining gaps.
+| You want to… | Start here |
+| --- | --- |
+| Try altero on your computer | [Getting started](getting-started.md) |
+| Connect Zotero to an existing server | [Connecting a Zotero client](clients.md) |
+| Work with your library in a browser | [Web interface](web-interface.md) |
+| Run, upgrade or back up a server | [Deployment](deployment.md) |
+| Manage accounts and server policies | [Administration](administration.md) |
+| Look up a setting | [Configuration](configuration.md) |
+| Set up email delivery | [Email](email.md) |
+| Connect another application | [Connecting other applications](oauth.md) |
+| Evaluate features and limits | [What works](status.md) and [Why altero exists](motivation.md) |
 
-## Start here
+## For contributors
 
-| I want to…                                           | Read this                                    |
-|------------------------------------------------------|----------------------------------------------|
-| Try altero locally                                   | [Getting started](getting-started.md)        |
-| Connect Zotero Desktop                               | [Connecting a Zotero client](clients.md)     |
-| Run or upgrade a server                              | [Deployment](deployment.md)                  |
-| Look up a configuration setting                      | [Configuration](configuration.md)            |
-| Manage users, groups, retention or sign-in providers | [Administration](administration.md)          |
-| Let another application reach a library              | [Connecting other applications](oauth.md)    |
-| Configure outgoing email                             | [Email](email.md)                            |
-| Use the browser interface                            | [Web interface](web-interface.md)            |
-| Test synchronization with two real clients           | [Two-client testing](testing-two-clients.md) |
-| Check desktop decisions against server responses     | [Desktop compatibility checks](client-compatibility.md) |
-| Check whether a feature is implemented               | [Implementation status](status.md)           |
-| Understand why altero exists                         | [Motivation](motivation.md)                  |
-| Investigate Zotero protocol behavior                 | [Compatibility reference](compatibility.md)  |
-| Understand the database                              | [Database schema](schema.md)                 |
-| Work on the browser design system                    | [Design system](design.md)                   |
+Start with the [development guide](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md).
+Use the [compatibility reference](compatibility.md) and [database schema](schema.md)
+when changing server behavior. For browser work, see the [design system](design.md)
+and [implementation notes](web/implementation.md).
 
-## Choose your path
+To help test, follow [two-client testing](testing-two-clients.md),
+[desktop compatibility checks](client-compatibility.md), or the
+[Podman procedure](testing-podman.md). These pages include the scope and limits
+of recorded results.
 
-### I am evaluating altero
+## Terms used in these guides
 
-Read these in order:
-
-1. [Why altero exists](motivation.md) — what problem it solves, what it does not try to replace, and the current limits.
-2. [Getting started](getting-started.md) — run a local test instance and connect Zotero Desktop.
-3. [What works](status.md) — feature status and known omissions.
-
-You do **not** need the compatibility or schema documents to try altero.
-
-### I run an altero server
-
-Start with [Deployment](deployment.md). It covers Docker Compose, source installations, upgrades, health checks, reverse proxies and the main configuration settings.
-
-Then use:
-
-- [Configuration](configuration.md) for every setting, its default, and how to set it from `config.py`, the environment or Docker.
-- [Administration](administration.md) for accounts, API keys, groups, retention, library moves and institutional sign-in.
-- [Connecting other applications](oauth.md) for registering a third-party application and giving it scoped access instead of an API key.
-- [Email](email.md) if you want confirmations, invitations, security messages or group digests delivered by mail.
-- [Web interface](web-interface.md) for what ordinary users and administrators can do in the browser.
-
-### I use altero but do not administer the server
-
-The [Web interface](web-interface.md) is the main guide. It links to shorter pages for account settings, library browsing, sharing, groups and data transfer.
-
-For Zotero Desktop setup, use [Connecting a Zotero client](clients.md).
-
-### I develop or test altero
-
-Use:
-
-- [Implementation status](status.md) for the supported API surface.
-- [Compatibility reference](compatibility.md) for behavior copied from or deliberately different from zotero.org.
-- [Desktop compatibility checks](client-compatibility.md) for executable client contracts and automated source discovery.
-- [Two-client testing](testing-two-clients.md) for end-to-end synchronization with real Zotero installations.
-- [Database schema](schema.md) for persistence and concurrency rules.
-- [Design system](design.md) for browser UI work.
-
-## A few terms used throughout the docs
-
-**Instance**  
-One running altero server and its database and attachment storage.
-
-**Library**  
-A Zotero personal library or group library.
-
-**Group**  
-A shared Zotero library with members and permissions.
-
-**API key**  
-The credential Zotero Desktop uses to synchronize with altero. Browser sessions and API keys are separate credentials.
-
-**Access token**  
-The other credential the v3 API accepts: scoped and expiring, issued to a third-party application the account holder approved.
-
-**Instance administrator**  
-An account allowed to manage the altero installation itself. This role does not automatically grant access to other users' library contents.
+- **Instance:** one altero installation, including its database and attachment storage.
+- **Library:** a personal or group Zotero library.
+- **API key:** a credential used by Zotero Desktop to synchronize. Signing into the browser does not replace it.
+- **Connected application:** software you have approved to access your account with limited, expiring tokens.
+- **Instance administrator:** someone who manages the server and accounts. This role does not automatically grant access to other people's library contents.

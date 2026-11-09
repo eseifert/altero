@@ -1,139 +1,61 @@
 # Groups, invitations and activity
 
-The browser lets members see their groups, administrators manage membership and policy, and users review activity or opt into notifications.
+Open **Groups** in the header to see your memberships, create a group or
+manage a group you administer. Open a group library from the library sidebar
+to work with its references.
 
-## Common tasks
+## Groups
 
-- Create or administer groups from the **Groups** screen.
-- Invite a person by email address; they can accept in the interface or through the invitation link.
-- Review group activity in the authenticated interface.
-- Choose which group changes should generate notifications or email digests.
+Any signed-in user can create a group. Its settings control visibility,
+reading, item editing and file uploads. Group administrators manage these
+settings and membership; see [Group policy](../administration.md#group-policy).
 
-## Detailed behavior
+A member can also have a restriction: read only, edit only their own items, or
+add and edit without removing. These restrictions cannot grant more access
+than the group's policy. Some desktop operations may produce sync errors
+when a member's restriction forbids them.
 
-The sections below retain the technical and behavioral detail needed for troubleshooting and development. You can stop after the task summary if you only need to use the feature.
+Public metadata does not make a group's attachment files public. Files remain
+available to members, subject to their permissions.
 
-### Groups
+Members can leave a group. Only the owner can transfer ownership or delete it.
+Deleting a group permanently removes its library; there is no group Trash.
 
-A screen of its own, reached from the header. It lists the groups the account
-belongs to with how many people and items are in each and what this account may
-do there, and it creates one — which is open to anybody signed in, a group
-being a library of your own rather than something to be granted.
+## Notifications and invitations
 
-Opening a group shows its members and, to an administrator, the settings that
-decide what everybody may do: whether the group is private or public, who may
-read the library, who may add and change items, and who may upload files. Those
-last three are Zotero's own `libraryReading`, `libraryEditing` and
-`fileEditing`, enforced by the server rather than merely recorded — see
-[administration.md](../administration.md#group-policy).
+A group administrator can invite someone by email and choose their role and
+permissions. Existing users with that confirmed address see the invitation in
+notifications. An emailed invitation link also lets someone register before
+accepting, even when general registration is closed.
 
-Beside those, each member carries a permission of their own: whatever the group
-allows, read only, only their own items, or add but not remove. Zotero has no
-such notion — its groups decide who may edit once, for everybody — and these
-are the three finer roles the forums have asked for since 2010. A permission is
-a ceiling under the group's policy rather than a way past it, an administrator
-cannot be given one, and an invitation can carry one so that being asked to
-read a library and being asked to work on it are different invitations.
-[compatibility.md](../compatibility.md#finer-roles-for-one-member) has the table
-and the two decisions behind it — how a read-only member is expressed to a sync
-client, and why the other two show up as sync errors when a desktop client
-tries anyway. The item list here knows about all of them and does not draw a
-control the server would refuse.
+Open the invitation and sign in or register with the address it names. Accept
+or decline it on that screen. Without the invitation link, confirm your email
+address before accepting. Registration alone does not join the group.
 
-Public library metadata does not make its files public: those remain available
-to members. Copying metadata as a nonmember does not copy the files. A copy that
-carries files must also satisfy the destination group's file-upload policy.
+If a link no longer works, ask the group administrator for a new invitation.
 
-What a screen offers follows the role the *server* resolved and sends back with
-the group. Deciding it in the browser would mean a second implementation of the
-permission rules, drifting against the one that actually refuses the request,
-and a control that will be refused is a promise the interface cannot keep. So a
-plain member sees no policy controls and no delete button at all.
+### What has happened in a group
 
-Three things need more than a click. Handing a group on and deleting one are
-the owner's alone, and deleting asks first, because everything in the group
-goes with it and there is no trash around a library. Leaving is nobody's
-permission but your own: a member who had to ask would be in a group they
-cannot get out of.
+Every member can read recent activity in the group's panel: who changed items,
+collections or membership, and when. Entries show titles as they were at the
+time, including for objects later renamed or deleted.
 
-The same operations are available to an API key and to the command line;
-`services/groups.py` is the one place that decides any of it, so a role means
-the same thing whichever door set it.
+Activity is a summary, rather than a field-by-field edit history. An item's
+details also show who added it and who last changed it.
 
-### Notifications and invitations
+### Hearing about a group
 
-An administrator of a group library can invite an email address to it. If that
-address is verified by an account here, the invitation appears in that person's
-notifications and can be accepted or declined in the interface; otherwise,
-the emailed link carries a token and whoever registers with that address can
-accept it afterwards using the link. Without the link, confirm the address
-first. Typing an invited address when registering does not grant membership.
-An invitation that was revoked or reissued cannot be answered from a stale page.
+In each group's panel, choose whether to receive notifications about:
 
-Both channels are used deliberately. Mail may be unconfigured, unconfirmed,
-filtered or simply lost, and an invitation that exists only in an inbox is one
-that frequently never arrives.
+- items added or changed;
+- items deleted;
+- people joining or leaving;
+- collections added or changed.
 
-The emailed link lands on a screen that reads the invitation **without a
-session**: somebody with no account here has to be able to see what they were
-asked to join before deciding to make one. Answering it still needs one, and
-the server still checks the address it was sent to — holding the link is not
-the same as being the person it was offered to. Signing in or registering from
-that screen comes back to it, so the thing they came to answer is the next
-thing they see.
+All categories are off by default. Your choices affect only your own
+notifications for that group.
 
-#### What has happened in a group
-
-The group's panel opens with its recent activity: who changed what, and when.
-Every member sees it. It was asked for as a way of keeping up with a shared
-library, and restricting it to the people who run the group would make it a
-supervision tool instead.
-
-An entry is one write request — the same unit as a library version — and it
-names what the request touched: "4 items added or changed", then the titles.
-The first three are shown and the rest summarized, because a request may carry
-fifty objects and fifty titles under one line would bury the log rather than
-fill it in.
-
-The names are **what things were called at the time**, stored with the entry
-rather than looked up when it is read. An item renamed next week must not
-rewrite what it was called last week, and a deleted item has nothing left to
-look up at all — which is the entry most worth being able to read.
-
-The wording matches the digest that arrives by mail, so one change reads the
-same way whichever way somebody hears about it. A change nobody can be
-attributed to reads "Somebody": a write can reach a group library with a key
-that names no person, and that is still something that happened.
-
-What an entry does not say is what *about* an object changed. Recording that a
-title went from one string to another means storing both, for every field of
-every write; that is a different feature with a very different cost, and it is
-not built.
-
-This is the read side of the record the notification digest already keeps, so
-it costs no extra writing. Upstream has wanted the same thing since
-[dataserver#89](https://github.com/zotero/dataserver/issues/89) in 2019 and
-offers a group RSS feed instead, which shows neither what was modified nor what
-was deleted.
-
-Alongside it, an item in a group library carries who added it and who last
-changed it. That part is upstream's own.
-
-#### Hearing about a group
-
-The same panel carries four switches for what the group should tell you about:
-items added or changed, items deleted, people joining or leaving, and
-collections. All off until somebody turns one on, per group rather than per
-account — being in five groups and caring about one is the ordinary case, and
-one switch for all of them would make that a choice between silence and five
-groups' worth of noise.
-
-This is the one thing in the group panel a plain member can change. It is your
-own subscription: there is no address to point somebody else's notifications
-at, and an administrator deciding what the members are mailed about is not a
-power anybody asked for.
-
-What arrives is a digest rather than a running commentary, and what decides
-when it arrives is in [email.md](../email.md#group-notifications). The interface
-shows the same thing in the notifications panel whether or not mail is
-configured.
+Notifications appear in the interface. When mail is configured, altero can
+also send a digest after changes settle. It does not email you a digest about
+your own changes. See [Group notifications](../email.md#group-notifications)
+for delivery timing.

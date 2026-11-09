@@ -4,159 +4,100 @@
 
 [![CI](https://github.com/eseifert/altero/actions/workflows/ci.yml/badge.svg)](https://github.com/eseifert/altero/actions/workflows/ci.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-006a6a)](LICENSE)
-[![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-006a6a)](https://www.python.org/)
-[![GitHub stars](https://img.shields.io/github/stars/eseifert/altero?style=flat&logo=github)](https://github.com/eseifert/altero/stargazers)
 [![Documentation](https://img.shields.io/badge/docs-altero.run-006a6a)](https://altero.run/)
 
-**altero is a self-hosted synchronization server for Zotero.** Point an unmodified Zotero desktop application at it and keep your libraries, groups, notes, annotations, attachments and full text on infrastructure you control.
+altero is a self-hosted synchronization server for Zotero. Use the normal
+Zotero Desktop application to keep personal and group libraries on infrastructure
+you control. A browser interface lets you manage references, notes, attachments,
+collections and accounts alongside it.
 
-It speaks the same [Zotero Web API](https://www.zotero.org/support/dev/web_api/v3/start) that the desktop client uses and deliberately reproduces upstream behavior where compatibility matters.
-
-📖 **The documentation is at <https://altero.run/>** — installation, connecting a client, deployment, administration and the compatibility reference.
-
-- **Use the normal Zotero desktop app** — no patched client or custom build
-- **Self-host the whole sync service** — not only attachment files
-- **Run a small stack** — one application, one database, one attachment store
-- **Use SQLite or PostgreSQL** — from a personal installation to a shared server
-- **Get a web interface** — libraries, groups, search, account settings, imports, exports and administration
-- **Integrate institutional identity** — OpenID Connect and SAML 2.0 for browser sign-in
-- **Connect other applications** — scoped, expiring OAuth 2.0 access instead of handing out an API key
-- **Stay in control** — altero is licensed under the GNU AGPL v3 or later
+- Synchronize library data and files, including notes and annotations.
+- Use SQLite for a small installation or PostgreSQL for concurrent users.
+- Share collections by link and manage group membership and permissions.
+- Set up institutional sign-in and limited access for other applications.
+- Run one application, one database and one attachment directory.
 
 > [!WARNING]
-> **Keep a current backup of important libraries and don’t rely on altero as your only copy yet.**
->
-> Test it with a separate Zotero profile or a library you can recreate. Synchronization writes client data to the server, and Zotero does not officially support third-party sync servers.
+> Keep a current backup of important libraries and don’t rely on altero as your only copy yet. Try it with a separate Zotero profile or a library you can recreate.
 
-**Current release: 1.0.0-beta.8.** This security and maintenance release fixes password-reset link poisoning and OIDC issuer handling. SMTP-enabled instances must set `ALTERO_PUBLIC_URL` before upgrading; see [upgrade instructions](docs/deployment.md#upgrade-altero) and [the changelog](CHANGELOG.md).
+## Try it locally
 
-The beta.7 desktop acceptance run with two real Zotero 10.0.7 profiles passed 72 scenario/database combinations across SQLite and PostgreSQL, covering 838 desktop phases. See [coverage and remaining gaps](docs/client-compatibility.md).
+With Docker and Docker Compose installed:
 
-## Why altero?
-
-Zotero is excellent software, and zotero.org is the right sync service for most users. altero exists for people and institutions that need a different deployment model: one where the synchronization service itself runs on infrastructure they operate.
-
-That is more than WebDAV offers. According to [Zotero's synchronization documentation](https://www.zotero.org/support/sync), WebDAV carries attachment files for a personal library; library data still goes through Zotero's service, and group libraries cannot use WebDAV at all. altero replaces the data and file synchronization endpoints themselves, for personal and group libraries alike, along with the accounts and authentication behind them.
-
-Nothing else is required to run it: no cache, search cluster, queue or object store. Attachments live in a normal directory, so a backup is a database backup plus that directory.
-
-See [Why altero exists](https://altero.run/latest/motivation/).
-
-## What works
-
-Ordinary desktop synchronization in both directions: items, collections, tags, saved searches, notes, annotations, attachments and their files, full-text upload and search, group libraries, deleted objects, live updates through the streaming API, citations, bibliographies and Zotero's export formats. On top of that come a browser interface, OIDC and SAML sign-in, an OAuth 2.0 and OpenID Connect authorization server, passkeys and second factors, and importing a personal library from zotero.org.
-
-The official **iOS and Android applications** compile the Zotero API host into the application and offer no setting to replace it, so they reach altero only through a build of your own — for Android, see the third-party [zotero-self-hosted-sync](https://github.com/raphaelbahat/zotero-self-hosted-sync). That route is unofficial but supported: altero serves the sign-in, sync and file protocols the apps speak, and a difference from zotero.org is a bug here. The desktop application has hidden preferences for both the API and the streaming server, so it needs no patching. See [Mobile apps](https://altero.run/latest/clients/#mobile-apps).
-
-The [implementation status](https://altero.run/latest/status/) documents the API surface feature by feature, including deliberate differences and remaining omissions.
-
-## Quick start with Docker
-
-Docker Compose is the easiest way to try altero. It starts PostgreSQL, altero and persistent attachment storage. The image is published, so this needs no checkout and no build:
-
-```bash
+```sh
 mkdir altero && cd altero
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.8/docker/compose.yaml
-
-ALTERO_IMAGE_TAG=1.0.0-beta.8 docker compose up -d
-docker compose exec altero altero user add <username>
-docker compose exec altero altero user password <username>
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
+docker compose up -d
 ```
 
-`user add` creates the account without a password, which is what `user password` then sets. The alternative is to open <http://localhost:8000/app/> and register: the browser opens registration while an instance has no accounts, and the account that claims it administers the instance.
+Open <http://localhost:8000/app/> and register the first account. That account
+administers the instance. The default image tag is `latest`, including prereleases.
 
-The server is published on the loopback interface by default. An idle instance uses around 125 MB of memory; attachments are what grows.
+> [!IMPORTANT]
+> Set the streaming URL too. Leaving it unchanged can send your altero API key to zotero.org. A profile that has synced before also needs [special handling](docs/clients.md#a-profile-that-has-synced-before).
 
-Put `ALTERO_IMAGE_TAG=1.0.0-beta.8` in `.env` beside the Compose file to keep this version pinned for later upgrades. Without a pin, Compose follows `latest`, including future prereleases. The matching release documentation is at <https://altero.run/1.0.0-beta.8/>.
-
-For anything beyond local testing, read [Deployment](https://altero.run/latest/deployment/) before exposing it. In particular, put a TLS terminator or reverse proxy in front of altero and set a real PostgreSQL password.
-
-To run without Docker you need **Python 3.14.10 or newer** and [uv](https://docs.astral.sh/uv/) 0.13.4 or newer; SQLite is the default database. See [Deployment](https://altero.run/latest/deployment/#from-a-source-checkout).
-
-### Point Zotero at altero
-
-In Zotero Desktop, open **Settings → Advanced → Config Editor** and set both preferences:
+In a test Zotero Desktop profile, open **Settings → Advanced → Config Editor**
+and set both preferences:
 
 ```text
 extensions.zotero.api.url = http://localhost:8000/
 extensions.zotero.streaming.url = ws://localhost:8000/stream
 ```
 
-The trailing slash on `api.url` matters.
+Keep the API URL's trailing slash and restart Zotero. Then open
+**Settings → Sync → Link Account**, sign in through the browser and approve.
 
-> [!IMPORTANT]
-> Set the streaming URL as well as the API URL. Zotero resolves the streaming service separately. Leaving it at the built-in default can send the altero API key to zotero.org, where it is not valid.
+This setup is local to your computer. Follow [Deployment](docs/deployment.md)
+before making it available to other people. That guide also covers source
+installation, image pinning, HTTPS, upgrades and backups.
 
-Restart Zotero, then open **Settings → Sync → Link Account**. Zotero opens altero in your browser; sign in and approve the client. The desktop application receives its API key and synchronization begins normally.
+## Is it right for you?
 
-For the full walkthrough, including running two test clients at once, see [Connecting a Zotero client](https://altero.run/latest/clients/).
+altero hosts the synchronization service itself. WebDAV hosts only personal
+attachment files while library data still goes through zotero.org. See
+[Why altero exists](docs/motivation.md) for the tradeoffs.
 
-## More than a clone of zotero.org
+The desktop application works without patches. Official mobile apps do not
+offer a server setting and need a separate build; altero does not distribute
+one. See [client setup](docs/clients.md#mobile-apps).
 
-Compatibility comes first, but running your own server also makes features possible that are difficult or unavailable in the hosted service:
-
-- **[Institutional sign-in](https://altero.run/latest/administration/#sign-in-providers)** with OpenID Connect or SAML 2.0, while Zotero Desktop keeps authenticating with an API key.
-- **[Scoped access for other applications](https://altero.run/latest/oauth/)**: altero is an OAuth 2.0 and OpenID Connect authorization server, so a third-party application gets an expiring token confined to the libraries and collections the account holder chooses.
-- **[Finer group permissions](https://altero.run/latest/compatibility/#finer-roles-for-one-member)** beyond owner and member: read-only, add without removing, or edit only your own items.
-- **[Shared collection links](https://altero.run/latest/web/sharing/)**, exposing one collection without an entire library or an account for the recipient.
-- **[Group activity and notifications](https://altero.run/latest/web/groups/)**, so members can see what changed and opt in to hearing about it.
-- **[Server-side tag rename](https://altero.run/latest/compatibility/#renaming-a-tag)** across a library in one operation.
-- **[Retention and storage reporting](https://altero.run/latest/administration/#retention)**: how long deleted objects and unfinished uploads are kept, and what libraries actually consume on disk.
-- **[Migration from zotero.org](https://altero.run/latest/web/data-transfer/)** that preserves object keys and versions, so an already-synchronized client continues from the same state.
-
-## Web interface
-
-The browser application at `/app/` covers registration and sign-in, account settings, API keys, connected applications, library management, citations, groups, My Publications, shared links, imports and exports, and the administration screens. It is translated into 56 languages, held in 59 catalogs, and takes item types, fields and creator types from Zotero's own schema translations so the two applications read as one vocabulary.
-
-For most everyday reference management, altero can replace Zotero Desktop: create items, edit bibliographic fields, creators and tags, write notes, upload, rename and replace attachments, organize collections and merge duplicates. Zotero Desktop remains useful for workflows such as PDF annotation and offline library access. See [The web interface](https://altero.run/latest/web-interface/) and [current browser gaps](https://altero.run/latest/web/implementation/#not-built-yet).
-
-## Compatibility over purity
-
-altero reimplements a protocol spoken by software that already exists. That changes the engineering priority:
-
-> The right behavior is the behavior the Zotero client expects.
-
-When the published API documentation, the reference data server and observed server behavior disagree, altero favors compatibility with the actual server behavior. Upstream quirks are copied deliberately when clients depend on them, and deliberate departures are documented in the [compatibility reference](https://altero.run/latest/compatibility/).
-
-## Help test altero
-
-**The project especially needs testers. You do not need to write Python to make a useful contribution.** A successful test on a configuration nobody has tried before is valuable evidence — a recent Zotero release, another operating system, two desktop installations sharing a library, group libraries with several accounts, PostgreSQL, a reverse proxy, your identity provider, or an installation on a platform nobody has documented yet. Reviewing the documentation as a first-time installer, and improving translations, help just as much.
-
-If something works against zotero.org but not against altero, [open an issue](https://github.com/eseifert/altero/issues/new). Include your Zotero version, operating system, database, how altero is deployed, what you expected, what happened instead, and logs or a reproduction with no private library data or API keys in them.
-
-For code, a development checkout is:
-
-```bash
-uv sync
-uv run pre-commit install
-cp config.example.py config.py
-uv run alembic upgrade head
-uv run pytest
-```
-
-The core architectural rule is that the web framework stays at the API boundary, so domain behavior remains testable without an HTTP request. Read [CONTRIBUTING.md](CONTRIBUTING.md) for the code layout, the testing approach and the compatibility rules before changing protocol behavior.
+The browser covers everyday reference management. Use Zotero Desktop for offline
+access, PDF annotation and other reader workflows. [What works](docs/status.md)
+describes features, known limits and links to recorded compatibility checks.
 
 ## Documentation
 
-The documentation is published at **<https://altero.run/>**.
+Read the full documentation at **<https://altero.run/>**, or start here:
 
-| Section                                                   | What it covers                                                 |
-|-----------------------------------------------------------|----------------------------------------------------------------|
-| [Overview](https://altero.run/latest/motivation/)         | What altero is and why it exists                               |
-| [Get started](https://altero.run/latest/getting-started/) | Install locally, connect Zotero, first sync                    |
-| [Using altero](https://altero.run/latest/web-interface/)  | Web interface, groups, sharing                                 |
-| [Running altero](https://altero.run/latest/deployment/)   | Deployment, configuration, administration, applications, email |
-| [Reference](https://altero.run/latest/compatibility/)     | Compatibility, implementation status, database schema          |
-| [Contributing](CONTRIBUTING.md)                           | Development and testing                                        |
+| Goal | Guide |
+| --- | --- |
+| Install and connect Zotero | [Getting started](docs/getting-started.md) |
+| Use altero in a browser | [Web interface](docs/web-interface.md) |
+| Run and maintain a server | [Deployment](docs/deployment.md) |
+| Manage accounts and policies | [Administration](docs/administration.md) |
+| Find a setting | [Configuration](docs/configuration.md) |
+| Develop or help test | [Contributing](CONTRIBUTING.md) |
+
+## Help improve altero
+
+Testing another operating system, reviewing these guides or improving a
+translation is as useful as writing code. [CONTRIBUTING.md](CONTRIBUTING.md)
+explains how to get started.
+
+For a bug report, include what you expected, what happened, steps to reproduce,
+and the altero and client versions, operating system and deployment method.
+Remove credentials and private library content from logs before
+[opening an issue](https://github.com/eseifert/altero/issues/new/choose).
 
 ## Relationship to Zotero
 
-altero is an independent project. It is not an official Zotero server distribution and is not supported by the Zotero project.
+altero is independent and is not supported by the Zotero project. It implements
+the published Zotero Web API and follows the behavior clients expect, using
+the open-source desktop client and [reference server](https://github.com/zotero/dataserver).
 
-It depends on the openness of the Zotero ecosystem: the published Web API, the open-source desktop client and the [AGPL-licensed Zotero data server](https://github.com/zotero/dataserver) make it possible to study and reproduce the protocol.
-
-This project does not argue that everybody should stop using zotero.org. Hosted Zotero synchronization is convenient and helps fund Zotero's development. altero provides another option for users and institutions that need to operate their own synchronization infrastructure.
+Hosted sync at zotero.org remains convenient and helps fund Zotero's development.
+altero is another option for people who need to operate their own service.
 
 ## License
 
-altero is free software licensed under the [GNU Affero General Public License v3 or later](LICENSE).
+[GNU Affero General Public License, version 3 or later](LICENSE).

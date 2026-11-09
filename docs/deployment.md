@@ -13,32 +13,22 @@ For a server used by several people, prefer PostgreSQL.
 
 ## Database requirements
 
-Full-text search is answered from an index each database builds with features that are not always installed. altero requires them:
+The bundled container meets the requirements. For a source installation:
 
-| Database   | Requires                                                                                                                  |
-|------------|---------------------------------------------------------------------------------------------------------------------------|
-| SQLite     | 3.34 or newer, built with FTS5. It is the SQLite Python links: `python3 -c "import sqlite3; print(sqlite3.sqlite_version)"`. |
-| PostgreSQL | The `pg_trgm` and `btree_gin` extensions, from PostgreSQL's contrib modules. Some distributions package those separately, for example as `postgresql-contrib`. |
+- SQLite must support FTS5 with the trigram tokenizer. Migrations report an unsupported SQLite installation before proceeding.
+- PostgreSQL needs the `pg_trgm` and `btree_gin` extensions, usually provided by its contrib package.
 
-The Docker image and the Compose stack meet both.
-
-The migration creates the two PostgreSQL extensions itself. Both are trusted since PostgreSQL 13, so the database's owner may create them. If altero's database user does not own the database, or PostgreSQL is 12 or older, have a superuser run this in altero's database first:
+Migrations create the PostgreSQL extensions when the database user has
+permission. Otherwise, ask the database administrator to run these in altero's
+database:
 
 ```sql
 CREATE EXTENSION pg_trgm;
 CREATE EXTENSION btree_gin;
 ```
 
-Without either requirement the migration stops and names what is missing; altero does not start against the old schema.
-
-The index costs disk, and building it costs time once. Measured with 30,000 attachment texts holding 180 MB of text:
-
-| Database   | Index on disk                          | Built by the migration in |
-|------------|----------------------------------------|---------------------------|
-| SQLite     | 477 MB, about 2.6 times the text       | ~65 s                     |
-| PostgreSQL | 90 MB, about half the text             | ~70 s                     |
-
-Each later full-text upload takes a few milliseconds longer to index.
+Index creation can make a large library's first migration take longer and use
+additional disk space. A missing database feature stops the migration with an error.
 
 ## Docker Compose
 
@@ -46,8 +36,8 @@ The image is published as `ghcr.io/eseifert/altero`, so running altero needs no 
 
 ```sh
 mkdir altero && cd altero
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.8/docker/compose.yaml
-ALTERO_IMAGE_TAG=1.0.0-beta.8 docker compose up -d
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
+docker compose up -d
 docker compose exec altero altero user add <username>
 docker compose exec altero altero user password <username>
 ```
@@ -55,7 +45,7 @@ docker compose exec altero altero user password <username>
 From a repository checkout, name the file where it lives instead:
 
 ```sh
-ALTERO_IMAGE_TAG=1.0.0-beta.8 docker compose -f docker/compose.yaml up -d
+docker compose -f docker/compose.yaml up -d
 docker compose -f docker/compose.yaml exec altero altero user add <username>
 docker compose -f docker/compose.yaml exec altero altero user password <username>
 ```
@@ -64,11 +54,14 @@ The stack contains PostgreSQL, altero and persistent attachment storage.
 
 `altero user add` creates the account without a password, so `altero user password` follows it. The alternative is to create the first account in the browser: registration is open while the instance has no accounts at all, and the account that claims it administers the instance. See [Accounts](web/account.md).
 
-`latest` is the newest release, prereleases included. `ALTERO_IMAGE_TAG` selects another: `1.0.0-beta.8` pins this version, and `dev` follows master. Persist the pin in `.env` beside a downloaded Compose file, or in `docker/.env` for a checkout. The matching release documentation is at <https://altero.run/1.0.0-beta.8/>; the docs site's `latest` alias is managed separately from the container tag.
+The default `latest` image includes prereleases. For controlled upgrades, set
+`ALTERO_IMAGE_TAG` to your chosen release tag in `.env` beside the Compose file.
+Use `dev` only if you intend to follow development builds. The documentation
+site's `latest` alias is managed separately from the container tag.
 
 The altero API is published on the loopback interface by default. Put a TLS terminator or reverse proxy in front of it rather than exposing the application port directly.
 
-There are two ports. altero listens on `ALTERO_PORT` inside the container, 8000 unless changed; `ALTERO_PUBLISH_PORT` is the host port Compose publishes it on, also 8000. To move the address clients use, change `ALTERO_PUBLISH_PORT` and leave `ALTERO_PORT` alone.
+The Compose stack publishes container port 8000 at host port 8000. Set `ALTERO_PUBLISH_PORT` to change the host port; leave `ALTERO_PORT` unchanged unless you also update the container mapping.
 
 ### Production settings to change first
 
@@ -80,7 +73,7 @@ Before putting real data on the instance:
 4. Decide whether outgoing email is required; see [Email](email.md).
 5. Name the reverse proxy in `ALTERO_FORWARDED_ALLOW_IPS`; see [Behind a reverse proxy](#behind-a-reverse-proxy).
 
-Container settings belong in **`docker/.env`**, beside `docker/compose.yaml`.
+Put settings in **`.env` beside your Compose file**: `docker/.env` when using the repository layout.
 
 To see the values Compose resolved:
 
@@ -90,59 +83,31 @@ docker compose -f docker/compose.yaml config
 
 ### Upgrade altero
 
-Back up the database and attachment storage together before upgrading; see
-[Backups](#backups). Upgrading from alpha.3 or earlier advances group-library
-versions once, so existing desktops refresh their cached group permissions.
-It does not change personal-library versions. See [desktop compatibility coverage and remaining gaps](client-compatibility.md)
-for the verified sync behavior.
+1. Read the [changelog](https://github.com/eseifert/altero/blob/master/CHANGELOG.md) for changes between your installed and target releases. For older installations, also check [historical upgrade notes](release-history.md#historical-upgrade-notes).
+2. Back up the database, attachment storage and configuration together; see [Backups](#backups).
+3. Update `ALTERO_IMAGE_TAG` if you pinned the image, then pull and recreate the application:
 
-> [!WARNING]
-> Before upgrading to beta.8 with `ALTERO_SMTP_URL` configured, set
-> `ALTERO_PUBLIC_URL` to the instance's trusted external URL. The server refuses
-> to start with SMTP enabled and no public URL.
+   ```sh
+   docker compose pull altero
+   docker compose up -d
+   ```
 
-```sh
-docker compose -f docker/compose.yaml pull altero
-docker compose -f docker/compose.yaml up -d
-```
+4. Check the logs and `/health`, then sync a test client before resuming normal use.
 
-An instance pinned with `ALTERO_IMAGE_TAG` upgrades when that value changes, not when `pull` runs.
+Run these commands beside a downloaded Compose file. In a repository checkout,
+add `-f docker/compose.yaml` to each Compose command.
 
-Upgrading from beta.6 to beta.7 needs no database or storage changes.
+Migrations run automatically when the container starts. On failure, the
+application exits instead of serving an incompatible database. Source
+installations must update dependencies, rebuild the browser interface and run
+`uv run alembic upgrade head` before restarting.
 
-Account links no longer use request host headers. Without a configured public
-URL, logged account links and administrator-issued reset links
-are relative paths to open on the instance itself. Single sign-on also requires
-the public URL before a provider can be saved or used.
+SMTP requires `ALTERO_PUBLIC_URL`; configure it before starting with email
+enabled. Single sign-on and passkeys also depend on a stable public address.
 
-Database migrations run when altero starts. If a migration fails, the application container exits instead of serving against an incompatible schema.
-
-Beta.8 repairs child notes and attachments incorrectly
-filed in collections ([issue #64](https://github.com/eseifert/altero/issues/64)).
-Sync each desktop after upgrading. Affected items receive a new version so
-clients download the repair; their parents and attachment files stay intact.
-Source installations must run `uv run alembic upgrade head` before serving.
-
-If beta.7 removed a trailing slash from an OIDC issuer, re-save the exact issuer
-from the provider's discovery document in the administration screen after
-upgrading to beta.8. Existing rows cannot be repaired automatically because the
-server cannot infer which issuers require a slash; direct database edits are
-unnecessary ([issue #67](https://github.com/eseifert/altero/issues/67)).
-
-Direct upgrades from beta.1 through beta.7 to the beta.8 schema
-passed with populated personal and group libraries on SQLite and PostgreSQL.
-The checks include attachment bytes, full-text search, versions, permissions
-and repeat startup; see the [upgrade matrix and limits](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#beta-upgrade-validation).
-
-Upgrading from beta.2 or earlier builds the full-text search index once: about a minute per 30,000 attachment texts, and more disk. Check the [database requirements](#database-requirements) first.
-
-Upgrading from beta.5 or earlier renames attachment storage once, on the first start: every attachment file is read and hashed, so starting takes about as long as reading the storage directory from disk. Web snapshots are renamed to the digest of their own bytes. A file on a mount that cannot make hard links is copied first, so keep free space for your largest snapshot. Do not downgrade afterwards without restoring the storage backup as well.
-
-To update only the PostgreSQL image within the currently compatible major version:
-
-```sh
-docker compose -f docker/compose.yaml pull db
-```
+Some older upgrades rebuild search indexes or rename stored files. Allow time
+and free disk space. A rollback may require restoring **both** the database and
+storage backup; running an older image alone is not a recovery plan.
 
 ### Upgrade PostgreSQL across a major version
 
@@ -152,13 +117,13 @@ Moving a PostgreSQL volume to a new major version requires a dump and restore, f
 
 ### Build the image instead of pulling it
 
-A change to the source, the Dockerfile or the web interface wants a locally built image. `docker/compose.build.yaml` adds the build to the same deployment:
+To deploy local changes, build an image using the additional Compose file: `docker/compose.build.yaml` adds the build to the same deployment:
 
 ```sh
 docker compose -f docker/compose.yaml -f docker/compose.build.yaml up -d --build
 ```
 
-It builds `altero:local`, deliberately not the published name, so that a later `docker compose pull` cannot replace a built image without saying so. Each build fetches the current base images and uv rather than reusing cached ones. Both files carry the same project name, so the built stack uses the volumes an earlier pulled one wrote.
+The result is `altero:local`. It uses the same project and volumes as the pulled stack. Continue using both Compose files when operating a local build.
 
 ### Try the image on its own
 
@@ -196,21 +161,19 @@ podman build --format docker -f docker/Dockerfile .
 
 A worked NixOS example, with altero and PostgreSQL as `virtualisation.oci-containers` units on a shared Podman network, is posted in [Discussion #5](https://github.com/eseifert/altero/discussions/5#discussioncomment-18404764). It is one contributor's running configuration rather than a reference deployment.
 
-The published beta.7 amd64 image passed a [rootless Podman run](testing-podman.md#recorded-run)
-on Gentoo with Podman 6.1.4: browser edits and attachment bytes persisted across
-container replacement, and the health check passed with internal ports 8000
-and 8091. This was a named-volume SQLite deployment; bind mounts, SELinux,
-PostgreSQL, Compose and Quadlet need separate evidence. Follow the same
-[operator procedure](testing-podman.md) to contribute another result.
+For the tested configuration and its limits, see the
+[recorded rootless Podman run](testing-podman.md#recorded-run).
+Use the same procedure to contribute another result.
 
 ## From a source checkout
 
 Requirements:
 
-- Python 3.14.10 or newer — earlier releases still trust the eMudhra intermediate certificates whose keys were exposed in October 2026;
-- a database meeting the [database requirements](#database-requirements);
-- [uv](https://docs.astral.sh/uv/) 0.13.4 or newer, for the same reason; and
-- Node 24.22.1 or newer and npm to build the browser interface; earlier releases carry the Brotli decoder flaw CVE-2026-111497 and the eMudhra certificates.
+- A supported Python installation and [uv](https://docs.astral.sh/uv/). The required Python range and minimum uv release are declared in `pyproject.toml`.
+- Node and npm to build the browser interface. Use the Node release selected by `web/.nvmrc`.
+- A database meeting the [requirements above](#database-requirements).
+
+Use current security updates for these tools.
 
 Source installations also need ICU development libraries, `pkg-config` and a
 C++ compiler to build PyICU, used for duplicate PDF matching. On Debian or
@@ -224,11 +187,12 @@ SQLite is the default. For PostgreSQL outside Docker, install the extra dependen
 uv sync --extra postgres
 ```
 
-For a basic SQLite installation:
+Check out your chosen release tag before installing; the default branch contains development work. For a basic SQLite installation:
 
 ```sh
-git clone --branch v1.0.0-beta.8 https://github.com/eseifert/altero.git
+git clone https://github.com/eseifert/altero.git
 cd altero
+git checkout <release-tag>
 uv sync --locked
 npm --prefix web ci
 npm --prefix web run build
@@ -255,50 +219,30 @@ The key is printed once and cannot be displayed again.
 
 ## What a small instance costs
 
-Measured on x86-64 from a source checkout, Python 3.14 and SQLite, with the interface built:
+Plan capacity for the application, database and growing attachment storage.
+Memory use depends on traffic and library size; account for PostgreSQL
+separately from the application process.
 
-| What                               | Size             |
-|------------------------------------|------------------|
-| altero, idle after start           | ~125 MB resident |
-| altero, after light API traffic    | ~130 MB resident |
-| Peak during start-up and migration | ~133 MB resident |
-| An empty database, schema only     | 0.7 MB           |
-| The installed Python environment   | ~380 MB          |
-
-The container runs the same interpreter and the same packages, so the application's own use is the figure above. Two things sit on top of it and are **not** measured here: the PostgreSQL container in the Compose stack, and the image on disk.
-
-Attachments are what grows. They are stored once per digest, so a file two libraries hold is on disk once; a library's nominal and real usage are reported per library under **Administration → Storage**.
+Attachment files are stored once per content digest even when several libraries
+use them. **Administration → Storage** shows physical disk use, library totals
+and missing files. Monitor free space and leave room for backups and migrations.
 
 ## Attachment storage
 
-An attachment is written under a temporary name and then moved onto the path named after its digest, so an upload that fails leaves no file rather than a short one. That relies on the move being atomic, which it is on any ordinary filesystem, including NFS and SMB mounts.
+Use a normal filesystem that supports atomic renames for
+`ALTERO_STORAGE_PATH`. Local disks and suitable NFS or SMB mounts can provide this.
 
 > [!WARNING]
-> Do not point `ALTERO_STORAGE_PATH` at object storage mounted as a filesystem. s3fs, goofys and rclone implement a rename as copy-then-delete, and some refuse to rename over an existing file at all. altero will not fall back to copying — a copy onto the final path is the torn write it is avoiding — so uploads fail there and clients retry them indefinitely. Keep the store on a block-backed filesystem and back *that* up to object storage instead.
+> Do not use object storage mounted through s3fs, goofys or rclone as the attachment directory. Uploads rely on atomic renames, which these mounts do not provide. Back up a filesystem-based store to object storage instead.
 
 ## Health check
 
-`GET /health` is the readiness endpoint and is also used by the container health check.
+`GET /health` returns `200` and `status: "ok"` when the database is reachable.
+The response also reports the application, API and schema versions and migration
+revision. Use it for readiness monitoring.
 
-A successful response includes the application version, API version, schema version and database migration revision, for example:
-
-```json
-{
-  "status": "ok",
-  "version": "1.0.0b8",
-  "apiVersion": 3,
-  "schemaVersion": 42,
-  "revision": "c8f17a2d904e"
-}
-```
-
-If the database is unavailable, the endpoint returns `503` with:
-
-```json
-{"status": "error"}
-```
-
-Because `/health` is unauthenticated, it intentionally does not expose the database failure details.
+An unavailable database returns `503` with `{"status": "error"}`. Inspect the
+server logs for details.
 
 ## Configuration
 
@@ -371,30 +315,25 @@ See [Email](email.md#group-notifications).
 
 ## Behind a reverse proxy
 
-Four things have to be right, and a default configuration gets two of them wrong.
+Configure your proxy to:
 
-**Attachment uploads need a large request body.** altero accepts a file of up to 1 GiB, or [`ALTERO_MAX_UPLOAD_MB`](configuration.md#server-and-storage). nginx allows 1 MB by default and answers `413` above it, which rejects most PDFs; Zotero reports the attachment as failing to sync. Caddy and Traefik impose no limit of their own.
+- Accept attachment uploads at least as large as `ALTERO_MAX_UPLOAD_MB` (1 GiB by default). A smaller proxy limit produces `413` errors.
+- Pass WebSocket upgrades for `/stream`, used by Zotero Desktop.
+- Stream `/web/libraries/<id>/events` without buffering, used for live browser updates. Allow idle connections for at least a minute.
+- Preserve altero's security headers and cache controls. Do not cache `/app/sw.js` or `/app/manifest.webmanifest` beyond their revalidation rules.
+- Pass the external `Host`, and overwrite `X-Forwarded-For` with the actual client address.
 
-**`/stream` is a WebSocket.** It needs the upgrade headers, and a read timeout longer than an idle connection. The connection is not silently idle — the server pings every 20 seconds — so a 60-second timeout is already enough, but a proxy that drops the upgrade entirely leaves Zotero without live updates. Worse, a streaming URL that does not resolve is why [Connecting a Zotero client](clients.md) insists on setting `extensions.zotero.streaming.url`: left at its default, the client sends the altero API key to zotero.org.
+Set `ALTERO_PUBLIC_URL` to the external HTTPS address. Set
+`ALTERO_FORWARDED_ALLOW_IPS` to the connecting proxy's address so client IPs
+and schemes are recognized. Trust only a proxy that overwrites client-supplied
+forwarded headers. In a container network, this is usually a network address,
+not `127.0.0.1`.
 
-**`/web/libraries/<id>/events` is a stream that does not end.** It is how an open browser page hears of changes made elsewhere, as Server-Sent Events. It sends something every 25 seconds, so a 60-second read timeout is enough, and it must not be buffered: nginx honours the `X-Accel-Buffering: no` altero sends, and a proxy that buffers anyway delivers the changes late or not at all. Like `/stream`, it works within one server process: run several workers and a page hears only of changes made through its own.
+Run a **single application process** when using live updates: the desktop and
+browser notification brokers are process-local.
 
-**Forwarded headers are believed only when a proxy is named.** Set `ALTERO_FORWARDED_ALLOW_IPS` to the address the proxy connects from. Until then altero ignores `X-Forwarded-Proto` and `X-Forwarded-For`, which has two effects:
-
-- Behind a TLS terminator, the request appears to use `http://`. Set `ALTERO_PUBLIC_URL` so API object links and attachment upload/download URLs use the external HTTPS address. Without it, these URLs depend on the forwarded scheme and request host.
-- altero sees the proxy's address rather than the client's, and both rate limiting and the “last used from” shown for an API key report one address for everybody.
-
-Name only a proxy that **overwrites** `X-Forwarded-For`. A trusted proxy that passes a client-supplied header through lets the caller choose the address attributed to it. Pass the external `Host` header through unchanged so request-based URLs, including pagination links, use the public host.
-
-In the Compose stack the proxy is a container, so the value is that container's address on the Docker network — not `127.0.0.1`, which is altero's own container.
-
-Set `ALTERO_PUBLIC_URL` to the URL people actually open. See [Public URL](#public-url); passkeys in particular are bound to that host.
-
-The proxy need not compress anything. altero sends the browser interface's scripts and stylesheets in the Brotli or gzip copies its build writes, and leaves API responses as they are.
-
-**Don't cache `/app/sw.js` or `/app/manifest.webmanifest`.** altero sends them with `Cache-Control: no-cache`, because a new service worker is how an installed app learns of an upgrade. A proxy that keeps a copy holds every installed app on the old version.
-
-**Leave altero's security headers in place.** Every response carries `X-Content-Type-Options: nosniff` and a `Content-Security-Policy`: the interface's own under `/app`, and `sandbox` everywhere else, so an attachment opened in a browser tab runs no script. A proxy that replaces or strips them undoes that. `Strict-Transport-Security` is the proxy's to add.
+The examples below show routing. Configure your TLS certificates and security
+policy, including HSTS, at the proxy.
 
 ### nginx
 
@@ -493,30 +432,18 @@ The limiter is process-local. With several application workers, each process has
 
 ### Sign-in backoff
 
-Password sign-in and TOTP/email second-factor guesses share database-backed
-budgets across workers and restarts. This protection is enabled even when
-`ALTERO_RATE_LIMIT=0`. Run `alembic upgrade head` when upgrading from beta.7;
-the new `login_attempts` table contains counters, not passwords or codes.
+Password and second-factor guesses have always-on protection shared across
+workers and restarts. The first five account attempts and twenty address
+attempts can proceed without waiting. Further guesses cause increasing pauses,
+up to five minutes. Responses include `429` and `Retry-After`; a quiet period
+of fifteen minutes resets the counters.
 
-The first five attempts per account and twenty per client address can proceed
-without waiting. The fifth/twentieth reservation starts a one-second pause
-before another attempt; each further admitted guess doubles it to a maximum of
-five minutes. `429` answers carry a whole-second `Retry-After`. Requests refused
-during the pause do not extend it. Fifteen minutes without an admitted attempt
-reset the counters; expired rows are removed by the next reservation.
+Username and email share the same account budget; changing aliases or requesting
+another code does not bypass it. Passkey and institutional sign-in do not use
+these password/code budgets.
 
-Password and second-factor account budgets are separate. Username/email aliases
-share the account's password budget; TOTP and email share its factor budget
-across pending sessions and resends. Unknown names get the same limits. A
-successful proof resets its account budget and refunds only its own address
-attempt, preserving other failures. Concurrent attempts count before checking
-the credential; an interrupted verification counts conservatively as a failure.
-
-The address comes from the connection after uvicorn's trusted-proxy processing.
-Configure [forwarded headers](#behind-a-reverse-proxy) correctly: an unrecognized
-proxy makes all its users share one address budget. The application never reads
-an untrusted `X-Forwarded-For` directly. Passkey/SSO ceremonies, existing browser
-sessions and v3 API credentials do not use these password/code budgets.
+Configure [forwarded headers](#behind-a-reverse-proxy) correctly so users behind
+a proxy are not all counted as one client address.
 
 ## Moving or restoring data
 

@@ -1,86 +1,49 @@
 # Why altero exists
 
-altero exists for people and organizations that want to run the **Zotero synchronization service itself** on infrastructure they control.
+altero is for people and organizations that need the Zotero synchronization
+service on infrastructure they control. Libraries, notes, annotations, group
+data and attachments can stay on their own server.
 
-Its core requirement is to let an unmodified Zotero Desktop application synchronize against a self-hosted server. The [browser interface](web-interface.md) also covers most everyday reference management, including editing items and notes, managing attachments and merging duplicates, so it can be used on its own or alongside the desktop application.
+## Why not just WebDAV?
 
-## The core requirement
+WebDAV stores attachment files for a personal Zotero library. Library data
+still synchronizes through zotero.org, and group files cannot use WebDAV.
 
-Everything depends on compatibility with the normal desktop client.
+altero provides both data and file synchronization for personal and group
+libraries. It works with unmodified Zotero Desktop. Its
+[browser interface](web-interface.md) also supports everyday reference management.
 
-A useful self-hosted server must let Zotero Desktop synchronize without patches, custom builds or a separate workflow. That is why altero reproduces upstream behavior even when the behavior is surprising. Where protocol purity and client compatibility conflict, compatibility wins.
+## What running your own server involves
 
-The practical test is stronger than “the API endpoints exist”: two real desktop clients should be able to exchange changes through altero without divergence or manual repair.
+A basic installation has one application, a database and an attachment directory.
+SQLite suits small personal installations; PostgreSQL suits concurrent users.
+No separate search service, cache or queue is required.
 
-## What self-hosting changes
+You take responsibility for hosting, HTTPS, backups, upgrades and account
+management. The browser provides routine administration, including storage
+reports and retention settings. Institutional sign-in and finer group
+permissions can help a shared installation fit local needs.
 
-### The whole library can stay on infrastructure you choose
+An instance administrator manages the installation without automatically gaining
+access to everybody's library contents.
 
-WebDAV can place personal-library attachment files on storage you control. It does not move Zotero's metadata synchronization service or group-library file synchronization there.
+## Compatibility comes first
 
-altero is aimed at users who want the library data, notes, annotations, group metadata, sync history and attachments on their own infrastructure.
+The normal Zotero desktop application must be able to exchange changes through
+altero. When published API documentation and actual server behavior disagree,
+altero follows the behavior clients depend on. Additional features must preserve
+that compatibility.
 
-That can matter for research groups, institutions, companies and individuals with data-location, privacy or operational requirements.
+Mobile apps need a separate build pointed at altero because they do not offer
+a server setting. altero does not distribute such builds. See
+[Mobile apps](clients.md#mobile-apps).
 
-### The service can fit into a small operational footprint
+## Is altero right for you?
 
-A basic altero deployment is one application, one database and one attachment directory.
+Hosted synchronization at zotero.org remains convenient and supports Zotero's
+development. altero is an independent project for users who need another
+deployment model; it is not supported by Zotero.
 
-- SQLite can be enough for a small personal installation.
-- PostgreSQL is the appropriate choice for concurrent users.
-- There is no required search cluster, cache, queue or object-storage service.
-
-That makes the service easier to understand, back up and operate than a larger distributed stack.
-
-### Administration can happen in the browser
-
-Most routine account and group administration is available through the web interface: account settings, API keys, groups, invitations, retention settings, server status and account lifecycle operations.
-
-An **instance administrator** can manage the installation without automatically gaining access to other users' library contents. The role is intentionally about operating the instance, not reading everybody's data.
-
-### Institutional identity can be used for browser sign-in
-
-altero supports OpenID Connect and SAML 2.0 for browser authentication.
-
-The Zotero API still uses API keys. A desktop client receives a key after the user signs in through the browser, so institutional sign-in does not require changing the synchronization protocol.
-
-### Self-hosting makes additional server-side features possible
-
-altero also explores features that are useful in a self-hosted environment, including:
-
-- per-member group restrictions beyond Zotero's normal group-wide policy;
-- group activity and notifications;
-- configurable retention;
-- server-side tag rename;
-- links that share one collection without exposing a whole library;
-- storage reporting that distinguishes physical disk use from library-accounted use; and
-- moving a personal library from zotero.org while preserving keys and versions.
-
-These are secondary to reliable synchronization. A useful feature that breaks a normal Zotero client is still a regression.
-
-## What altero does not try to do
-
-- **Replace zotero.org for everybody.** Hosted Zotero sync is convenient and supports Zotero's development.
-- **Fork Zotero Desktop.** If altero requires a patched desktop client, the main compatibility goal has failed.
-- **Ship patched mobile apps.** The official mobile clients do not expose an alternate API host at runtime. altero serves a build pointed at it, but does not make or distribute one.
-- **Change the API simply because a different design would be cleaner.** Compatibility comes first at the protocol boundary.
-
-## What success looks like
-
-1. Two unmodified Zotero Desktop clients can synchronize the same real library through altero without divergence.
-2. Attachments, full text and group libraries behave as the desktop client expects.
-3. A new instance can be installed, upgraded and backed up from documented procedures.
-4. A library can be exported and restored to another compatible instance without losing the versions clients already know.
-5. A user can leave an instance without being trapped there.
-
-## Current state
-
-The implementation already covers a substantial part of the Zotero v3 API and desktop synchronization behavior. Two real Zotero 10.0.6 profiles passed 68 scenario/database combinations across SQLite and PostgreSQL; [the compatibility checks](client-compatibility.md) record the coverage and remaining gaps. Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
-
-The most important remaining evidence is broad real-world testing across operating systems, Zotero releases, databases and deployment environments.
-
-See:
-
-- [What works](status.md) for the feature-level status;
-- [Compatibility notes](compatibility.md) for protocol behavior and deliberate differences; and
-- [Syncing two desktop clients](testing-two-clients.md) for the strongest manual end-to-end test.
+Keep a current backup of important libraries and don’t rely on altero as your
+only copy yet. Read [What works](status.md) for capabilities and limits, then
+[try a local instance](getting-started.md) with disposable data.

@@ -1,20 +1,16 @@
 # Compatibility reference
 
-This page records how altero behaves where the published Zotero API documentation is silent, vague or wrong, and where altero deliberately does something different.
+Use this reference when integrating a client or investigating behavior that
+differs from Zotero's published API documentation. Each decision describes the
+observable result and its reason.
 
-## How to use this reference
+altero targets unmodified Zotero Desktop. Where documentation disagrees with
+behavior clients depend on, compatibility wins. Evidence includes the live API,
+the [reference dataserver](https://github.com/zotero/dataserver) and real-client
+checks. Inferences and untested behavior are marked explicitly.
 
-altero is built for the unmodified Zotero desktop application. One rule decides every disagreement:
-
-> When the published documentation and what the real client needs disagree, the real client wins.
-
-The evidence comes from three places, in this order:
-
-- the live API at `https://api.zotero.org`, compared response by response;
-- the source of the official [dataserver](https://github.com/zotero/dataserver); and
-- real Zotero clients and libraries, where the first two say nothing.
-
-Each section says what altero does and why. The later sections cover features zotero.org does not have, such as finer group roles, renaming tags and the authorization server, and record the decisions behind them.
+For setup and ordinary use, start with [Clients](clients.md) or the
+[web guide](web-interface.md).
 
 ## API queries and response behavior
 
@@ -24,11 +20,9 @@ A partial write that leaves out `note` keeps the existing note text, for notes a
 
 ### Empty creators in item responses
 
-Regular-item responses include `creators: []` when there are no creators.
-The dataserver's response serializer calls `toJSON` with `includeEmpty=true`;
-its default of omitting an empty list applies elsewhere. Omitting this property
-from a sync response makes an existing desktop retain the creators it already
-has. Notes, attachments and annotations do not carry a creator list.
+Regular items include `creators: []` when empty. Omitting it from a sync
+response makes an existing desktop retain its previous creators. Notes,
+attachments and annotations have no creator list.
 
 ### Racing ZIP archives of different sizes
 
@@ -48,54 +42,40 @@ A leading hyphen is escaped as `\-`. Only the whole value is trimmed, once, so i
 
 ### Quick search and full-text search
 
-`q` follows its own rules.
+Quick search combines words with AND across the title, note title, creators
+and year. Double quotes group a phrase; single quotes do not. As upstream,
+unquoted `q=0` applies no filter, while `q="0"` searches for zero.
 
-**Words are combined with AND, fields with OR.** Each word must appear somewhere in the title, a note's title, a creator's name or the year. `q=call me` needs both words, not the phrase; `q="call me"` needs the phrase. Single quotes never group words.
+With `qmode=everything`, altero also searches stored attachment text and every
+item field. It uses database substring matching instead of a separate search
+service. The differences are:
 
-**`q=0` matches everything.** The dataserver drops an unquoted `0` before searching, so a query of just `0` filters nothing. `q="0"` searches for it. Copied rather than corrected.
+- Character substrings match: `equod` finds *Pequod*. Punctuation can interrupt a phrase match.
+- Accents are significant; case is ignored across alphabets. Chinese and Japanese terms require consecutive characters.
+- `%` and `_` act as wildcards. Terms shorter than three characters require a slower scan.
+- All fields are searched, including fields upstream omits.
+- There is no upstream-style 300-hit full-text cap.
 
-**`qmode=everything` also searches attachments' text.** The matching item is the attachment itself, not the item it belongs to.
+Upstream's documented analyzer defaults imply different word and phrase behavior;
+that analyzer comparison is an inference, not a direct measurement.
 
-zotero.org answers this from Elasticsearch. altero does not run a search cluster — that is exactly the kind of dependency [Motivation](motivation.md) rules out — so it matches the stored text as a substring, using a trigram index in the database (see [Database requirements](deployment.md#database-requirements)). Three differences follow:
+`/top` returns the parent of a matching child for `q`, `tag`, `itemKey` and
+`itemType`. All words must match the same item. `since` does not promote a
+child to its parent. Neither a trashed match nor a trashed parent is returned.
 
-- **Characters, not words.** zotero.org matches whole words, with the last one as a prefix. altero matches characters, which cuts both ways: `q=equod` finds *Pequod*, which zotero.org would not, but `q="Pequod sailed"` does not find *Pequod, sailed*, which zotero.org would. Neither server stems, so `q=sailing` finds *sailed* on neither.
-
-  **Accents are not folded, and Chinese and Japanese text matches as a phrase.** `q=cafe` does not find *café*, here or on zotero.org. Zotero 9 made the *desktop's* own search ignore accents, but that is its local copy; the API is accent-sensitive on both servers. `量子計算` needs those four characters in a row, which is the behavior the desktop had to be fixed to produce. What zotero.org's analyzer does is taken from Elasticsearch's documented defaults, not observed.
-
-  **Case is ignored in every alphabet, on every database**: `über` finds `ÜBER`, in attachments' text and in every field.
-
-  A search term shorter than three characters cannot use the index and reads every text, which is slower. `%` and `_` act as wildcards, in the text as in the fields: `q=col_ur` finds *colour*. zotero.org has no wildcards.
-- **No 300-result cap.** zotero.org asks Elasticsearch for 300 hits and silently drops the rest. altero returns every match: the limit is an accident of how zotero.org fetches hits, not part of what the API means.
-- **More fields are searched.** zotero.org searches the title, creators, year and attachment text. altero searches every field, so a match on `publisher` is found here only. This is a superset, so no client breaks on it.
-
-**`/top` answers with the parent of whatever matched.** When a search can match a child item — through `q`, `tag`, `itemKey` or `itemType` — a hit in an attachment's text or a child note's title returns the top-level item it belongs to. Otherwise full-text hits would never appear in the top-level list clients actually show.
-
-Two consequences, both copied from zotero.org:
-
-- All words must match the same item. A word in the parent's title plus a word in its attachment's text is not a match.
-- `since` does not climb to the parent. Syncing clients send it, and reporting a parent whose own version did not change would be wrong.
-
-Neither the matched item nor the parent it resolves to may be in the trash, so a hit inside a trashed item's PDF does not bring it back.
-
-**A tag search minds case.** `/tags?q=fic` does not find *Fiction*, as on zotero.org and in the desktop's own local API. `%` and `_` act as wildcards there too, and `\` escapes them: searching for `50\%` finds *50%* but not *500*.
+Tag-name search is case-sensitive: `/tags?q=fic` does not find *Fiction*.
+It also accepts `%` and `_` wildcards, escaped with a backslash when literal.
 
 ### Tag counts and the trash
 
-**Library-wide tag counts include trashed items.** `/users/<id>/tags` and
-`/groups/<id>/tags`, including a tag fetched by name, retain
-[dataserver#51](https://github.com/zotero/dataserver/issues/51). A tag on one
-live item and one trashed item reports `meta.numItems: 2`; a tag carried only
-by trash remains listed. `includeTrashed=0` does not change these library-wide
-counts. The reviewed [tag serializer](https://github.com/zotero/dataserver/blob/6e091852b8a3e369056f390ba69e5de90cda1134/model/Tag.inc.php#L487-L493)
-counts linked items without filtering the deletion flag. This is source
-evidence, not a new live zotero.org measurement.
+Library-wide `/tags` counts include trashed items, even with
+`includeTrashed=0`. A tag carried only by trashed items remains listed. This
+matches reviewed upstream behavior ([dataserver#51](https://github.com/zotero/dataserver/issues/51));
+it is source evidence, not a new live measurement.
 
-Use `/items/tags` for tags counted over non-trashed items, or
-`/items/trash/tags` for the trash alone. altero counts item-scoped tags over
-the matching items: `includeTrashed=1` widens `/items/tags`, and collection
-scopes keep their own counts. The browser uses these scoped counts. Confined
-OAuth grants still restrict which items any count may include; the quirk never
-bypasses a grant's collection restrictions.
+Use `/items/tags` for live-item counts or `/items/trash/tags` for Trash.
+`includeTrashed=1` widens the former. Collection scopes and restricted OAuth
+grants still limit which items are counted. The browser uses item-scoped counts.
 
 ### Who added an item, and who last changed it
 
@@ -172,47 +152,41 @@ If a write is refused with `Invalid field`, this is the first thing to check.
 
 ### Citations and bibliographies
 
-zotero.org sends items to a separate citation server. altero formats citations itself, with [citeproc-py](https://github.com/brechtm/citeproc-py) and a packaged copy of the Citation Style Language styles ([citeproc-py-styles](https://github.com/inveniosoftware/citeproc-py-styles)). Nothing is fetched while answering a request, so an instance without internet access can still use every published style.
+Citation rendering runs locally with packaged CSL styles. No network fetch is
+needed during a request. CSL field mapping follows Zotero's schema.
 
-**Items are mapped to CSL the way Zotero maps them**, using the tables in Zotero's own schema. A schema update therefore changes the output with it.
+| Request | Behavior |
+| --- | --- |
+| `format=csljson` | Wraps entries in `{"items": [...]}`, including a single item |
+| `format=bib` | One document, at most 150 items; `Total-Results` but no pagination links |
+| `format=bib` with sorting or paging parameters | 400 |
+| `include` outside JSON, an unknown include, or `none` combined with another | 400 |
+| Unknown style name | 404; renamed styles retain their aliases |
+| Style supplied as a URL | 400; arbitrary remote styles are not fetched |
 
-**A field is text in `bib` and `citation`.** Markup in a title or a name is escaped, except the rich-text tags the citation processor zotero.org uses also reads as formatting: `<i>`, `<b>`, `<sup>`, `<sub>`, small caps and `nocase`. A field cannot add an element, so a page that shows the HTML cannot be made to run a script.
+`include` accepts `data`, `bib`, `citation`, `csljson`, `none` and supported
+export formats. Atom uses `content` for HTML. Titles and names escape markup
+except supported rich-text formatting such as italics, bold, superscript,
+subscript, small caps and `nocase`.
 
-**`format=csljson` always wraps items** in `{"items": [ ... ]}`, even a single one, as zotero.org does.
+The server provides Zotero's bibliography export formats. API exports omit
+attachment bytes and child-note bundles; individual notes or attachments are
+handled as each format permits. BibTeX, BibLaTeX and RIS use CSL data, so some
+types become `@misc` or `GEN`. Citation keys use author, year and title with
+collision suffixes; an explicit `citationKey` takes precedence.
 
-**`format=bib` is one document.** It carries `Total-Results` but no `Link` header, refuses `sort`, `direction`, `start`, `limit` and `order` with a 400, and holds at most 150 items.
+Deliberate output differences:
 
-**`include` is checked.** `data`, `bib`, `citation`, `csljson`, `none` and every export format are accepted. `include=none` cannot be combined with anything, `include` outside `format=json` is a 400, and so is an unknown value. zotero.org also accepts `html`, which needs Atom and is requested through `content` here.
+- EndNote XML and Evernote identify altero as the writer.
+- XML and RDF preserve content without matching upstream whitespace.
+- CSV's Date Added contains the added date rather than the modified date.
+- Bookmarks and Evernote escape special characters correctly; Evernote dates have one trailing `Z`, and missing URLs are empty.
+- Multiple ISBNs do not create an extra empty RDF entry.
+- Duplicate TEI IDs receive suffixes as they are streamed.
 
-**Every export format zotero.org offers is available.** zotero.org runs Zotero's JavaScript translators; altero has a Python port of each of the sixteen formats, checked against what zotero.org returns for the same item:
-
-- Refer/BibIX, RefWorks Tagged, Wikipedia citation templates, COinS, MODS and TEI match byte for byte.
-- CSV and EndNote XML match except for one deliberate difference each, listed below.
-- The three RDF formats match statement for statement, apart from whitespace.
-- BibTeX, BibLaTeX and RIS are produced from the item's CSL data instead of ported. Nothing these formats can hold is lost, but a type CSL calls `document` becomes `@misc` or `GEN`. Citation keys are author, year and the first significant title word, with a letter added where two collide; a `citationKey` field on the item always wins. Tags become keywords.
-
-Like Zotero, altero hands the TEI translator the item exactly as the API serves it, and every other translator the older field names they expect.
-
-Eight deliberate differences in the exported files. The first names the program that wrote the file; the rest avoid copying something broken:
-
-- **Files say altero wrote them**, in EndNote XML and Evernote, where zotero.org's name Zotero.
-- **XML and RDF files match in content, not whitespace.** No XML or RDF reader can tell the difference.
-- **CSV's `Date Added` column holds the date added.** zotero.org writes the date modified there.
-- **Bookmarks are escaped**, so an ampersand in a title no longer produces a file HTML readers misread.
-- **Evernote escapes ampersands once**, not twice, so a title with `<` no longer reads `&lt;`.
-- **An Evernote `<updated>` ends in one `Z`**, and an item without a URL has an empty `<source-url>` instead of the text `undefined`.
-- **An ISBN field holding two numbers separated by two spaces gives two Bibliontology entries**, not two plus an empty one.
-- **TEI entry ids:** when two entries would get the same `xml:id`, the second gets the letter, because a file written in batches cannot go back and rename an entry already sent.
-
-Exports over the API carry neither attached files nor child notes, on either server: each item is exported on its own. Whether a format writes anything for a note, attachment or annotation is left as Zotero's translator decides.
-
-Three differences in formatted citations:
-
-- **Old style names still work.** The API's default style, `chicago-note-bibliography`, was renamed years ago; altero follows the CSL project's list of renamed styles. An unknown style answers `404 Style not found`.
-- **A style given as a URL is refused** with `400 Invalid style`. zotero.org fetches it, but fetching any URL on request would turn the server into a proxy for anyone holding a key.
-- **Hanging indents and line spacing are written as zotero.org writes them**, but the alignment some numbered styles use for their numbers (`second-field-align`) is not reproduced.
-
-APA bibliographies can repeat an item's title when it has no author. This [known citeproc-py limitation](https://github.com/citeproc-py/citeproc-py/issues/91) remains unresolved.
+Formatted citations preserve hanging indents and line spacing but do not
+reproduce numbered-style `second-field-align`. APA may repeat a title when an
+item lacks an author, a [known processor limitation](https://github.com/citeproc-py/citeproc-py/issues/91).
 
 ### Item type schema
 
@@ -261,16 +235,13 @@ The desktop reads these headers from the redirect and nowhere else. Answering 20
 
 ##### The location has to be a credential
 
-The desktop does not follow the redirect itself. It reads the headers, then makes a *new* request to the location, sending no API key with it. zotero.org can do that because its location is a pre-signed S3 address, which is a credential in itself.
+The desktop makes a new request to the redirect location without its API key.
+altero therefore issues a full URL at `/storage/download/<key>` that grants
+access to just that file for five minutes. It permits retries and forbids
+shared caching.
 
-So altero's location is one too: a short-lived permission for that one file, at `/storage/download/<key>`. It expires after five minutes, is valid only for the file the redirect described, and is marked so that no shared cache stores it. It can be used more than once, because the desktop retries the same address after a server error or a dropped connection.
-
-The location is a full URL, because the desktop accepts nothing else here.
-
-Appending the caller's API key to the location (`?key=…`) would also work, and was rejected. An API key grants the whole account and never expires, and reverse proxies write every requested address into their access logs.
-
-> [!NOTE]
-> Before Zotero's April 2026 rewrite the desktop followed this redirect itself and sent its key along. The older location, `<prefix>/items/<key>/file/content`, is still served for callers with a key that want the bytes directly.
+The URL never contains the account's long-lived API key. Callers that already
+hold a key can also fetch bytes directly at `<prefix>/items/<key>/file/content`.
 
 #### Telling an archive from a file
 
@@ -282,27 +253,27 @@ altero records which is which when the file is registered: an upload that came w
 
 ### Obtaining a key
 
-To link an account, the desktop creates a login session (`POST /keys/sessions`), opens the `loginURL` it receives in a browser, and polls the session until the response carries `apiKey`, `userID` and `username`, alongside `displayName` and `emails`. None of these fields is in the published documentation; they were found in the client source, and altero sends all of them.
+The desktop creates a login session with `POST /keys/sessions`, opens its
+`loginURL`, and polls until approved. A completed response includes `apiKey`,
+`userID`, `username`, `displayName` and `emails`.
 
-At zotero.org the browser window signs in to zotero.org. Here it opens altero's own interface, which asks the signed-in person to confirm and then issues the key. The client sees the same exchange either way.
+Approval in altero requires fresh identity confirmation before issuing a
+long-lived key. The key includes group access so the client does not mistake
+unreadable groups for lost libraries. Shell approval remains available when
+the browser interface is not built.
 
-**Confirming takes a fresh proof of identity**: the password, or, for an account without one, signing in again at its identity provider within the last five minutes. What is handed over is a full-access key that outlives the browser session, so an already open tab should not be able to approve it just by visiting a link.
+A profile requesting one account number cannot be approved for another: the
+client would offer to reset its data directory. Changing the username alone
+is safe because the client identifies the account by number.
 
-**Usernames and email addresses are separate**, as at zotero.org. A username may not contain `@`, because signing in accepts either and decides which by the shape of what was typed. An account holds at most one address, reported only once confirmed.
+Usernames cannot contain `@`; sign-in distinguishes usernames from email
+addresses by that character. An account has at most one email address and
+reports it only after confirmation. `loginURL` always has a query so mobile
+clients can append `&app=1`.
 
-**Changing a username does not unlink a client.** The client identifies an account by its numeric `userID` and accepts a changed username silently.
-
-**`loginURL` carries a query**, as zotero.org's does. The Android app appends `&app=1` to it as text; without an existing query that landed in the path and the app opened a 404 page.
-
-The command line still works, and is the way in when the web interface has not been built: `loginURL` then shows the `altero login approve` instructions.
-
-**A re-authentication for one account cannot be approved for another.** Handing a client somebody else's key makes it warn, offer to reset its data directory and quit. The confirmation screen says so before offering a button, and the server refuses it anyway.
-
-**The key covers group libraries too**, as zotero.org's does. A key without group access makes the client think the server has lost the groups.
-
-`POST /keys` (a key from a username and password) is not implemented. The client only uses it when migrating a profile that still holds a sync password from before 2016.
-
-**Managing keys was never part of the v3 API.** `/users/<id>/keys` exists at zotero.org but only answers zotero.org's own signed-in web pages; an API key gets 403. altero offers the same under **Settings → API keys** in the browser, plus `altero key add` and `altero key revoke`. An API key can do to itself what zotero.org allows: read `/keys/current` and delete itself.
+Legacy password-to-key `POST /keys` is unsupported. Key management is available
+in Settings and the CLI, rather than through `/users/<id>/keys`. A key may
+read `/keys/current` and revoke itself.
 
 ### A credential that gave up notes or files
 
@@ -328,35 +299,29 @@ None of this changes what the desktop sees: the keys it receives, and every key 
 
 ### What the desktop client actually sends
 
-These were found by running the real client, not by reading the documentation.
+The desktop relies on behavior beyond the published request examples:
 
-**`mtime` is in milliseconds and needs a 64-bit number.** PostgreSQL refused it in a 32-bit column, so uploads worked in development on SQLite and failed in every container deployment.
+- `mtime` is a numeric millisecond timestamp and requires 64-bit storage.
+- Full text is uploaded as a `POST <prefix>/fulltext` batch with `If-Unmodified-Since-Version`. Result entries are objects containing `key`.
+- Recreating a setting clears its deletion record, so deletion processing does not erase the new value.
+- A bare `DELETE <prefix>/tags` answers 204 without deleting anything. The client can drop the query naming the tags; it accepts only 204 or 412. An explicit `tags=a||b` is also supported.
+- Gzipped bodies are accepted. Compressed and expanded bodies are each limited to 128 MiB; invalid compression returns 400 and excess size returns 413.
+- Snapshots carry `md5` for the main file and `zipMD5` for the archive. Transfer validation uses the archive digest.
+- Upload addresses must be absolute URLs.
+- Batch uploads contain partial changes after the first sync; see [patch semantics](#a-posted-batch-is-a-batch-of-patches).
+- File registration advances the library version. A following stale full-text upload can receive 412 and retry after syncing.
 
-**`mtime` is served as a number**, as on zotero.org, although every other field is a string. The desktop requires a number when it resolves a file conflict in favor of the local copy.
+A client's version ahead of the server is accepted, as upstream. The desktop
+then refuses a lower response version. Raising the server counter resolves
+that mismatch but recreates no data; follow the
+[recovery procedure](administration.md#after-recreating-the-database).
 
-**Full text is uploaded in batches.** The documentation describes `GET`/`PUT` on one item's full text, but the client uploads with `POST <prefix>/fulltext`, carrying a list of entries and requiring `If-Unmodified-Since-Version`. Each entry reported back must be an object with a `key`, not a bare key.
+Retraction-list requests return 404 because altero has no retraction data.
+The client logs the error and continues syncing.
 
-zotero.org advances the library version once per item in the batch; altero once per request. The client cannot tell the difference, because it only uses the final version.
-
-**Recreating a deleted setting clears its deletion record**, as on zotero.org. The desktop downloads settings before deletions, so a leftover record for `tagColors` would throw away the colors it just downloaded.
-
-**Tag deletions arrive without naming the tag.** Because of a quirk in the client, `DELETE <prefix>/tags?tags=a||b` reaches the server as a bare `DELETE <prefix>/tags`. zotero.org answers 204 having deleted nothing, and the client accepts only 204 or 412 here, so altero answers 204 too. It also understands `tags=a||b` in case the client ever stops dropping it.
-
-**Uploads are compressed.** The client gzips large request bodies, including full-text batches, which the documentation never mentions. altero decompresses them first; a body that does not decompress is a 400. Because this happens before authentication, compressed bodies and what they expand to are both limited to 128 MiB (413 beyond that). The client's largest write — 50 notes at zotero.org's length limit — is about 100 MB.
-
-**Snapshots arrive as ZIPs, with two digests.** `md5` describes the original file and `zipMD5` the archive actually sent. altero checks the transfer against `zipMD5`, stores the archive under it, and records `md5` on the item, which is what the client sends back next time.
-
-**The upload address must be a full URL.** The client refuses a bare path.
-
-**Uploads are changes, not whole objects.** After the first sync the client uploads only what changed — for example `{key, version, lastRead, dateModified}` with no `itemType`. A batch entry naming an existing item without `itemType` is therefore a partial update. A new item must still state its type. See [A POSTed batch is a batch of patches](#a-posted-batch-is-a-batch-of-patches).
-
-**Registering a file upload advances the library version.** The full-text upload that follows can then arrive with an outdated version and get 412. The client syncs and retries successfully — one wasted round trip. zotero.org does the same, and not advancing the version would hide file changes from anyone asking what changed `since`.
-
-**A client may be ahead of the server.** If the client's library version is higher than the server's, the write is accepted, as on zotero.org. zotero.org never gets into that state, but altero can, when a database is recreated while a client remembers a later version. The client then refuses the server's answer ("cannot decrease"), and re-uploads the same objects on every sync. "Restore to server" fails the same way. The only way out is to raise the server's counter above what the client remembers, with `altero library set-version`. Objects the client believes are already synced are not uploaded again, so anything written before the reset can be missing afterwards. Neither the check nor the answer is changed to avoid this: both are zotero.org's.
-
-**Two services the client uses are not part of the dataserver.** `GET /retractions/list`, which flags retracted papers, answers 404. An empty list would claim that nothing in the library has been retracted, which altero cannot know. The client logs the failure and syncs normally. The streaming API is served — see below.
-
-**Pointing the client at altero does not redirect its streaming connection.** The streaming address is set separately, by `extensions.zotero.streaming.url`, and defaults to `wss://stream.zotero.org`. A client configured only with altero's API address therefore opens a connection to zotero.org and sends it the API key — a full-access credential handed to a third party, though zotero.org rejects it as unknown. The symptom is a log line: `WebSocket connection closed: 4403 Invalid API key`. Set `streaming.url` to altero's own endpoint, as [Clients](clients.md) describes; `extensions.zotero.streaming.enabled = false` also stops it.
+The streaming URL is independent of the API URL. Configure both, or disable
+streaming explicitly, to avoid sending the altero key to Zotero's default
+streaming service. See [client setup](clients.md).
 
 [streaming]: https://www.zotero.org/support/dev/web_api/v3/streaming_api
 
@@ -433,7 +398,7 @@ There is no group version. My Publications belongs to a person, which is also wh
 
 `publications/settings` and `publications/deleted` are served and always empty, because the client polls both and treats anything but 200 as a failed sync.
 
-zotero.org also answers `publications/settings` with a 400 — "Please upgrade to the latest Zotero 5.0 beta" — once a user has published anything. That was a temporary guard for an old kind of publications library that altero never had. Copying it would refuse every current client that has published something.
+An obsolete upstream publications guard returned 400 for some libraries. altero does not reproduce that legacy refusal, which would break current clients.
 
 #### Who may read My Publications
 
@@ -528,7 +493,7 @@ Treated as complete objects, the first would be refused for lacking a name — s
 
 **Leaving a property out means "unchanged"; sending it empty clears it.** That matters for the four list properties: `creators`, `tags`, `collections` and `relations`. The desktop really sends `collections: []` to take an item out of its last collection — for example after saving into a collection with the browser connector and then switching the save target to the library root. Treating empty as absent would leave the item filed, and the client would upload the same change on every sync forever.
 
-An item without creators has no `creators` property at all, while `tags`, `collections` and `relations` appear even when empty. That inconsistency is zotero.org's and is copied.
+Regular-item sync responses include empty `creators`, `tags`, `collections` and `relations`; see [Empty creators](#empty-creators-in-item-responses).
 
 **Changing an item's type keeps what the new type can hold.** A field the new type lacks moves to its equivalent there, as a book's `publisher` becomes a report's `institution`, or is cleared. A creator whose role the new type lacks becomes a `contributor`. A field sent empty is accepted even if the new type lacks it, because that is how the desktop clears one: it uploads `{key, version, itemType}` with every field the item lost set to `""`. Fields and creators sent with the type are taken as sent.
 
@@ -603,18 +568,11 @@ Changing a group's details or its members advances the library's version. zotero
 
 #### Group renames notify connected clients
 
-altero deliberately sends the committed library-version notification for a
-rename too. [dataserver#92](https://github.com/zotero/dataserver/issues/92)
-reports a missing name-change notification upstream, but was itself filed as
-unverified. The reviewed [group save path](https://github.com/zotero/dataserver/blob/6e091852b8a3e369056f390ba69e5de90cda1134/model/Group.inc.php#L518-L663)
-increments the separate group version; its notification calls concern owner
-transfers. We have not retested the hosted service's rename notifications.
-
-Retain altero's existing version bump and `/groups/<id>` `topicUpdated` event.
-The desktop uses `/users/<id>/groups?format=versions` to decide whether to
-fetch the group again. A rename therefore refreshes the cached name without
-waiting for an unrelated item write. The event, group response and version
-listing agree on the new version; item versions need not change.
+A group rename advances its advertised version and sends a committed
+`topicUpdated` event, so clients refresh their cached group name. Item versions
+need not change. Upstream's missing-notification report is unverified against
+the hosted service; altero deliberately keeps this behavior
+([dataserver#92](https://github.com/zotero/dataserver/issues/92)).
 
 #### Who the client finds in a group
 
@@ -681,26 +639,25 @@ zotero.org has no such endpoint: renaming is left to the client, item by item, a
 
 `If-Unmodified-Since-Version` is required. Renaming a tag to its own name changes nothing and does not advance the library version. An unknown tag is a 404; an empty name, or one longer than 255 characters, is a 400.
 
-The browser's tag list uses the same rename — see [Tags](web-interface.md#tags).
+The browser uses the same operation; see [Tags](web/library.md#tags).
 
 ### The desktop client's three extra views
 
-The desktop's sidebar shows **Recently Read**, **Duplicate Items** and **Unfiled Items**, all worked out from its local copy of the library. zotero.org's API has none of them, so altero's versions exist only in its browser interface; the v3 API is unchanged.
+These views exist only in the browser. Zotero computes them from its local
+library; its API has no corresponding scopes.
 
-**Unfiled Items** needs no interpretation: top-level items in no collection and not in the trash.
+| View | altero behavior |
+| --- | --- |
+| Unfiled Items | Untrashed top-level items in no collection |
+| Duplicate Items | Shared normalized DOI/ISBN, or normalized title plus matching surname or year; title alone only when neither has creators or year |
+| Recently Read | Items with attachments read within 90 days, and standalone attachments read in that period |
 
-**Keep Unfiled out of the v3 API.** The upstream request remains
-[dataserver#11](https://github.com/zotero/dataserver/issues/11). altero serves
-the view at `/web/libraries/<id>/items?scope=unfiled`, authenticated by browser
-session. There is no v3 `/items/unfiled` endpoint. Unknown v3 query parameters
-are ignored, so adding `scope=unfiled` or `unfiled=1` to `/items` still returns
-the ordinary item listing. Applications must not treat those parameters as a
-filter. Desktop synchronization continues to download the library and compute
-Unfiled locally; no extension is needed for that workflow.
+Duplicate detection compares regular items across types. It suggests candidates,
+not proof that they are the same work. The 90-day reading window is an explicit
+guess; the desktop's exact rule is undocumented.
 
-**Duplicate Items** is a judgment. Two items count as the same work if they share a DOI or ISBN (ignoring punctuation, case and any `https://doi.org/` prefix), or if they share a title (ignoring punctuation and case) *and* a creator surname or year. A title alone is not enough, because many works are called "Introduction"; only when neither item has a creator or a year does the title stand alone. Item types are not compared, so a book and a chapter of it appear as a pair. Notes, attachments and annotations are never compared.
-
-**Recently Read** is a guess. Zotero 7 records when an attachment was last read and syncs it, but which items the desktop lists, and over what period, is not documented. altero lists items whose attachments were read in the last 90 days, newest first where the sort allows, and stand-alone attachments themselves. **The 90 days is a guess**, chosen so the view does not grow into "everything ever opened".
+There is no v3 `/items/unfiled`. Unknown query parameters are ignored, so
+`scope=unfiled` or `unfiled=1` on a v3 item listing does not filter it.
 
 ### Merging PDFs with embedded notes
 
@@ -709,10 +666,7 @@ another PDF's embedded note to it, altero keeps both PDFs under the master.
 Each keeps its original note and annotations. Other PDF matching follows the
 desktop's byte and common-word checks.
 
-Zotero 10.0.6 can save the changed note while losing the attachment's parent
-change, leaving the surviving file under the trashed duplicate. This was
-reproduced with zotero.org and without a server. Keeping both files avoids
-that combination without detaching the note from its original PDF.
+A recorded desktop defect can save the note while losing the parent change. Keeping both files avoids leaving the survivor under a trashed duplicate. See the [historical desktop evidence](client-compatibility.md#successfully-tested-matrix).
 
 ### Reading a library out of zotero.org
 
@@ -758,7 +712,7 @@ It would need to apply upstream changes and deletions through altero's own
 versioned writes so already-connected clients can observe them. Local edits
 would need an explicit refusal or overwrite policy. This is a design
 assessment, not an implemented or tested refresh feature; scheduling and its
-implementation are deferred beyond 1.0.
+implementation remain future work.
 
 Today, the CLI and browser offer a one-time personal-library import. Repeating
 it with `--replace` restores a whole snapshot and can discard altero-only
@@ -816,15 +770,15 @@ An item can be moved between granted collections but not out of them, and a new 
 
 ### Signing ID tokens while still not verifying them
 
-These two decisions look contradictory, but are not.
-
-As a *client* of somebody else's identity provider, altero does not verify the signature on the ID tokens it receives — see [below](#not-verifying-the-id-tokens-signature). As an *identity provider*, it signs the ID tokens it issues (RS256), publishes its key at `/oauth/jwks.json`, and checks its own signature when a token comes back during sign-out.
-
-Every reason for not verifying other providers' tokens concerns input somebody else controls: a token claiming no algorithm, confusion between key types, a key chosen by the attacker. Signing its own tokens and checking them against its own keys involves none of these: the algorithm is fixed and no key is looked up from the token. The implementation is tested against the published examples in the relevant standards (RFC 7515 and RFC 7638).
+As a client, altero accepts an ID token delivered directly by a trusted
+provider over TLS under the conditions [below](#not-verifying-the-id-tokens-signature).
+As a provider, it signs its own ID tokens with RS256 and verifies its own
+signatures during logout, using only its stored keys and fixed algorithm.
 
 ### No dynamic client registration
 
-Applications cannot register themselves (RFC 7591), and never will. The list of addresses an authorization code may be sent to is the whole security of the sign-in flow; a list anyone can add to protects nothing. An administrator registers applications from the command line.
+Applications must be registered by an operator. Redirect addresses and allowed
+scopes are reviewed at registration; no dynamic registration endpoint is provided.
 
 ### PKCE is required, and `S256` is the only method
 
@@ -840,60 +794,35 @@ There is no `annotations.*` scope: annotations are items, and the API has no sep
 
 ### Not verifying the ID token's signature
 
-Not a compatibility question — zotero.org has no single sign-on — but recorded here because it looks wrong and is deliberate.
+altero does not verify signatures on ID tokens received from an external
+provider. OpenID Connect Core §3.1.3.7 item 6 permits reliance on TLS for a token
+received directly from the token endpoint in this flow.
 
-altero does **not** verify the signature on OpenID Connect ID tokens. It fetches the token itself, directly from the provider's token endpoint over TLS, and the OpenID Connect standard (Core §3.1.3.7, item 6) allows the TLS connection to vouch for the token in exactly that case. Not verifying keeps a signature implementation out of altero, along with its classic mistakes, and altero never reads the token's header, so there is nothing there to forge.
-
-This rests on two conditions, both always true here:
-
-- **altero is a confidential client.** It sends a secret with the token request and uses the authorization code flow with PKCE only.
-- **The token comes from the token endpoint**, never from the browser.
-
-Every claim is still checked — issuer, audience, authorized party, nonce, expiry, issue time and subject — and with no signature check, those checks are where the security lies.
-
-**Supporting public clients would require revisiting this first**, since the exemption does not cover them.
+This requires altero to be a confidential client using authorization code and
+PKCE, and to receive the token from the provider rather than the browser.
+Issuer, audience, authorized party, nonce, expiry, issue time and subject are
+still validated. Supporting public clients would require revisiting this choice.
 
 ### Reading a SAML assertion out of what was signed
 
-The code looks as if it does less than it should, which is why this is written down.
+Only claims inside the verified signed portion of a SAML document are read.
+Signature verification is delegated to the XML-signature library. Altero also
+checks success status, validity, audience, recipient, request correlation and
+single use; a signature alone does not establish these.
 
-Signature verification is left to the [signxml](https://github.com/XML-Security/signxml) library; writing it by hand is where implementations grow security holes. The defense against forged assertions is structural: altero reads every claim from the part of the document the library confirmed was signed, never from the document as received. An attacker who wraps a forged assertion around a genuine one still gets only the genuine one read.
-
-A valid signature still proves nothing on its own, so altero also checks:
-
-| Check                       | Why a signature does not cover it                 |
-|-----------------------------|---------------------------------------------------|
-| The status is success       | A failed sign-in is signed too                    |
-| The validity period         | An assertion from last year is still signed       |
-| The intended audience       | It may have been signed for a different service   |
-| The recipient address       | It may be meant for another of altero's addresses |
-| The request it answers      | It may answer a sign-in nobody here started       |
-| That it was not used before | Nothing in SAML prevents presenting one twice     |
-
-Three deliberate limits: sign-in must **start at altero**, because an unsolicited assertion answers no request and accepting one means accepting anything the key ever signed; **encrypted assertions are not supported**, since TLS already protects the connection; and there is **no single logout**, which is unreliable in practice, and altero's session is its own.
+Supported sign-in starts at altero and uses signed, unencrypted assertions.
+Unsolicited assertions, encryption and SAML Single Logout are unsupported.
 
 ### Finishing SAML account linking with the browser session
 
-A SAML assertion arrives as a cross-site POST, which does not carry the existing
-`SameSite=Lax` browser session cookie. An ordinary sign-in can create a session
-there; linking an account or reauthenticating must first recover the session
-that started the request.
+A cross-site assertion POST lacks the existing browser session cookie. For
+account linking and identity confirmation, altero verifies the assertion then
+redirects through a short-lived GET handoff that can recover that session.
 
-For those two purposes, the ACS verifies and spends the assertion, then stores
-only its subject and display name in a separate `AuthRequest` continuation. It
-redirects to `/web/auth/saml/<slug>/complete` with a fresh opaque handle, where a
-top-level GET can present the existing cookie. That session must be authenticated
-and belong to the account that started the trip. A handle alone grants nothing,
-and this step creates no new session or cookie. The continuation expires within
-two minutes or with the original request, whichever comes first, and is consumed
-atomically once. Provider availability and identity ownership are checked again.
-Continuations are refused by both original assertion/code callbacks. Responses
-carrying the handle forbid caching and referrer disclosure.
-
-The continuation lives in the database so another worker can finish it. Ordinary
-sign-in keeps the direct ACS response, and no cookie acquires v3 API authority.
-This adds a nullable `auth_requests.verified_saml` column; existing in-flight
-requests remain unverified and keep their original lifetime.
+The same signed-in account must finish it within two minutes. Handles are
+single-use, stored in the database for worker independence, and grant no access
+without the matching session. Ordinary sign-in can create its session directly.
+No browser cookie acquires Zotero API access.
 
 ## Deliberate differences from zotero.org
 

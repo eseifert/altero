@@ -1,14 +1,14 @@
 # Database schema
 
-This reference explains the data-model decisions that matter for Zotero compatibility. It compares altero with the official dataserver and focuses on substantive differences rather than naming conventions.
+For contributors changing persistence or synchronization. This reference lists
+storage choices that affect API behavior. For migration commands, see the
+[development guide](https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#changing-the-database).
 
 ## Adopted from the dataserver
 
 **Tag type belongs to the tag.** `tags` is unique on
 `(libraryID, name, type)`, so a name added by hand and the same name added by a
-translator are two rows rather than one tag with two links. altero originally
-put `type` on the item/tag link, which would have merged them and reported one
-type for both. Tags also carry an eight-character `key`, like every other
+translator are two rows rather than one tag with two links. Tags also carry an eight-character `key`, like every other
 syncable object.
 
 **Three timestamps per object.** `dateAdded` and `dateModified` are supplied by
@@ -49,11 +49,9 @@ The upside is that one code path stores every field of every item type. The
 cost is that nothing at the database level constrains an attachment to have a
 `linkMode`, where a dedicated table would.
 
-**Relations are stored per item.** The dataserver has a library-scoped
-`relations(subject, predicate, object)` table plus `itemRelated` for
-`dc:relation`. altero stores `(item, predicate, object)`, which produces the same
-`relations` map in JSON but cannot express a relation whose subject is not an
-item in the library.
+**Relations belong to objects.** Items and collections each have relation rows
+that produce their API `relations` maps. This differs from upstream's general
+library-scoped relation table.
 
 **Sort keys are columns on the item.** The dataserver keeps `itemSortFields`
 (`sortTitle` truncated to 79 characters, plus `creatorSummary`) in a side table
@@ -65,15 +63,15 @@ scan.
 counterpart: the dataserver spreads libraries across MySQL servers, and altero
 uses one database.
 
-**Files are stored by digest, not tracked per library.** The dataserver has
-`storageFiles`, `storageFileItems`, `storageFileLibraries` and an upload queue,
-because it hands uploads to S3 and has to account for them. altero writes the
-bytes itself, under `<storage>/<first two characters of the digest>/<digest>`,
-so identical files are stored once and the only table needed is
-`storage_uploads` — one row per authorization, deleted once the upload is
-registered. Nothing counts how many items reference a given file, so removing an
-item leaves its bytes on disk; a collector that deletes unreferenced files is
-not written yet.
+**Files are stored by digest.** Identical registered bytes are stored once at
+`<storage>/<first two digest characters>/<digest>`. Upload authorizations live
+in `storage_uploads` until registration. Each attachment records its registered
+file separately from client-supplied metadata, so a claimed digest does not
+confer access to another library's bytes.
+
+Deleting an item does not immediately remove its stored bytes. Administrators
+can remove unreferenced and abandoned staging files from Storage, with a grace
+period protecting uploads in progress.
 
 **The item type schema is not in the database.** The dataserver stores item
 types, fields and their mappings in `master.sql` tables (`itemTypes`, `fields`,
@@ -92,8 +90,7 @@ dataserver caches these outside the database.
 the dataserver's table of the same purpose, without the reindexing bookkeeping
 that a hosted service needs.
 
-`settings` matches the dataserver's, except that the value is stored as JSON
-text: the server never interprets a setting, so there is nothing to model.
+`settings` stores sync setting values as JSON text rather than separate modeled fields.
 
 ## Delete log
 
@@ -113,15 +110,9 @@ PostgreSQL and dropped on SQLite, which has a single writer anyway. The version
 increment itself is computed by the database rather than in Python, so it stays
 correct even without the lock.
 
-Without that lock, ten simultaneous creates were measured all receiving version
-1, and nine of the ten items were lost — the surviving write overwrote the rest.
-`tests/test_concurrency.py` reproduces this against PostgreSQL.
-
-Two further get-or-create patterns — claiming a write token, and creating a tag
-named by more than one concurrent request — insert first and let the unique
-constraint decide, rather than looking and then inserting. With the library lock
-held these cannot interleave, so the behavior is defense in depth: it keeps
-them correct independently of the locking strategy above.
+Write-token and tag get-or-create operations use unique constraints rather
+than a separate existence check followed by insertion. This preserves their
+correctness independently of library locking.
 
 SQLite is configured with `foreign_keys=ON`, WAL and a busy timeout.
 `BEGIN IMMEDIATE` is deliberately not used: it would close the remaining

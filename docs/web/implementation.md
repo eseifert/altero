@@ -1,24 +1,15 @@
 # Web interface implementation notes
 
-This page covers how the browser interface is built, how it is styled, and what it does not do yet.
+This reference is for contributors changing the browser interface. For user
+tasks, see the [web guide](../web-interface.md).
 
-## Common tasks
-
-- Build the Vue application from `web/` when running from source.
-- Use the shared design system rather than introducing one-off component styling.
-- Check the known-gap list before implementing a browser feature that may already be intentionally out of scope.
-
-## Detailed behavior
-
-The sections below retain the technical and behavioral detail needed for troubleshooting and development. You can stop after the task summary if you only need to use the feature.
-
-### Building it
+## Building it
 
 Built into the container image already. From a source checkout:
 
 ```sh
 cd web
-npm install
+npm ci
 npm run build        # writes into src/altero/web/static
 npm test
 npm run dev          # localhost:5173, proxying the API to :8000
@@ -27,227 +18,48 @@ npm run dev          # localhost:5173, proxying the API to :8000
 Without that build the server still runs and the API is fully usable; `/app/`
 answers 503 and says what to run.
 
-### End-to-end tests
+## End-to-end tests
 
 `npm run e2e` drives the built interface in Chromium, at desktop and phone
 sizes, against a real server on a throwaway SQLite database. It fails on any
 Content-Security-Policy violation and on serious or critical axe findings.
 Build first; the first run needs `npx playwright install chromium`.
 
-Tests reopening an existing fixture use `libraryRow` or `openItem` to load further
-pages with **Show more**. The complete suite shares its seed library across
-desktop and phone, so older items can leave the first page. Drag tests create a
-long collection tree and bring the target into view before dropping; temporary
-paging and tree fixtures are removed after each case.
+Tests cover editing, merging, files, sharing, account security, translated
+controls, right-to-left layout, touch and keyboard interaction, motion, and
+app update behavior. Verify persisted API state as well as rendered feedback.
+These Chromium checks do not establish Safari, native-device or screen-reader
+compatibility, and catalog checks do not replace linguistic review.
 
-API-key checks keep activity metadata inside its card at both viewport sizes
-and create a key through the visible controls. The metadata column can shrink
-so a long last-use line does not widen the page or push Revoke off-screen.
+When reopening a seeded item, use `libraryRow` or `openItem` so fixtures beyond
+the first page are loaded. Scroll drag targets into view. Clean up temporary
+paging and tree fixtures so a test does not depend on suite order.
 
-Language checks exercise German key issuance, import warnings and owner-profile
-text, plus Serbian creator-name edits verified through the API. Merge checks
-cover eight catalogs with former English fallbacks: type warnings, choosing a
-compatible subset, selecting a field value and checking the saved result.
-They check rendering and behavior, not native-speaker approval of every message.
-Finnish merge and type-change checks also verify the corrected field-selection
-instruction and the library's item term in actions and saved confirmations. The master
-label follows “pääversio” in Zotero's Finnish version-selection instruction.
-Slovak and Slovenian merge checks retain the library's `záznam` and `vnos`
-terms in the master-item badge and saved confirmation, choose a field value
-and verify the merged data through the API. The Slovenian action also omits
-its former trailing space. Catalogue checks cover the corresponding field-load
-errors, which use the same item terms.
-Romanian and Turkish merge checks likewise retain `înregistrare` and `eser`,
-including the version-selection instructions and saved confirmations. Turkish
-instructions use the surrounding guidance's polite plural address. Romanian
-item-action checks file, trash and restore an item through translated controls,
-checking each confirmation and the stored membership and trash state.
+## Design
 
-Creator-name checks cover fifteen further catalogs whose hints previously used
-ordinals or shortened stems. They identify both inputs by their translated
-accessible names, edit each independently and verify saved names after reload.
-Portuguese keeps separate Brazilian and European family-name labels.
+Use the shared [design system](../design.md), surface classes and tokens.
+Theme selection follows the operating system unless the user overrides it.
+Style guards check surface use, contrast, fonts and logical CSS properties.
 
-Provider-form checks cover Khmer, Thai and Vietnamese labels, including the
-masked client-secret field. They fill a draft against the real administration
-page; they do not save a provider or establish an external sign-in.
+Fonts are self-hosted IBM Plex Sans, with Japanese, Arabic and Hebrew faces.
+Use the supplied stylesheets and `font-display: swap`; script-specific sheets
+load on demand. Keep package installation scripts disabled to avoid telemetry.
+No font request should reach a third party.
 
-Tagalog checks save and reload a display name, format a note through translated
-controls and inspect provider drafts. Familiar borrowed terms stay in the
-catalog; the checks do not treat every word shared with English as a gap.
+Use logical start/end properties for right-to-left layout. Mixed-language
+content determines its own direction. Verify mouse, touch and splitter-key
+behavior in both directions.
 
-Dutch checks cover formal address on device and connected-application pages.
-They inspect device-page instructions without completing an authorization;
-catalog checks also keep permission and merge terms aligned with library labels.
+Tags share `TagPill.vue`, `styles/tag-pills.css` and ordering in `items/tags.ts`.
+The component owns rename drafts and errors; callers provide library filtering
+or item-only removal. Pending additions and removals project over current tags
+without mutating synced item versions. Queued writes rebase; a refused write
+removes only its own projection. Navigation discards unsent operations.
 
-Polish consent checks use a public OAuth client registered by the test setup and
-actual pending authorization requests with PKCE. They inspect identity-only and
-library permissions, then choose a collection and check the scope instructions.
-Twenty background collections include a long unbroken name so the target is
-below the viewport even in a focused run. The page must fit the viewport and
-its native checkbox must still accept a normal click after scrolling. Consent
-labels wrap within their fieldset and leave the inputs at their native width.
-Neither request is approved. The test server uses its explicit loopback public
-URL so the issuer comes from configuration, as it does on a deployed instance.
-
-Spanish checks cover formal instructions during key issuance, import review,
-owner-profile display and duplicate merging. Publishing checks upload a file,
-answer the translated licence questions and verify the stored licence and
-downloaded bytes. Catalogue guards distinguish direct address from third-person
-descriptions; browser checks establish behavior, not native-speaker approval.
-The account case also checks the current replacement warning for a personal
-library import.
-
-Editing-confirmation checks cover English, Afrikaans and Arabic at both viewport
-sizes, including formal Afrikaans warnings. They detect words split across
-button lines and buttons overflowing the prompt, accept the changes and verify
-the stored type, filename and unchanged downloaded bytes. In narrow fields,
-confirmation buttons can move to another row rather than squeezing their labels.
-Extension tokens use isolated left-to-right text inside the translated prompt
-and buttons. Browser checks compare the dot's painted position with the first
-letter so an Arabic sentence cannot silently display `.pdf` as `pdf.`.
-
-Spanish and European Portuguese password checks use a second browser context
-signed in to a disposable account. Administrator-set passwords and reset links
-both show translated session-ending notices, invalidate that account's old
-session and leave the browser open. The final password must work on sign-in.
-
-Afrikaans, Basque, both Chinese catalogues, Danish, Dutch, both English variants,
-French, Galician, German, Icelandic, Italian, Japanese, both Norwegian catalogues,
-Polish, Portuguese, Russian, Spanish and Swedish deletion checks display the
-replacement warnings and verify that merely choosing replacement leaves data intact. They
-cancel and then confirm deletion of a disposable group, checking that its
-library is gone. These cases do not start a zotero.org migration or restore
-an archive.
-
-The three source messages also state directly that deleted content is not moved
-to the trash. Their English keys are shared across all catalogues; the key
-migration preserves the non-English values. British English keeps “bin”.
-
-Group activity checks create a real group item, then check that the change
-description and actor name have a space between them in Dutch and Arabic on
-desktop and phone. A margin alone would not separate the words when copied or
-read as plain text.
-
-The offline-shell check adds 55 temporary books so its original fixture is
-beyond the first page. It loads later rows before opening that item and checks
-that the cache contains only application paths, then opens the shell offline.
-The extra books are removed after the case.
-
-`pwa-updates.spec.ts` serves the built interface through an isolated HTTP origin
-with two deployment stamps. Only the HTML and worker build ids change; assets
-and API responses come from the real server. Actual service workers install,
-wait and take control. The page clock advances through the five-minute polling
-interval. Checks cover one offer per update, manual reload, a freshly opened tab
-activating quietly, and the older tab's Reload action after that activation.
-This exercises the browser lifecycle, rather than rebuilding Docker images.
-
-The motion checks cover desktop and phone sizes with normal and reduced motion.
-They also exercise dialog focus and dismissal with the native modal API disabled,
-covering the fallback used by older Safari. This does not replace testing on an
-actual older Safari installation.
-
-Row-departure checks cover trash, Undo, filing and duplicate groups, including
-the last row, keyboard recovery and empty views. They sample rendered height
-and opacity during normal motion and verify the reduced-motion duration.
-
-Drag-feedback checks use actual mouse movement and touch holds in English and
-Arabic at both viewport sizes. They hold the write request to verify that a
-counted selection confirms only after saving, check the normal animation and
-steady reduced-motion highlight, and verify persisted collection memberships.
-Cancellation and refused writes produce no confirmation. Unit checks also cover
-late completions after cancellation, another gesture or unmount, and rechecking
-the target at release. This is Chromium evidence; Safari remains unverified.
-
-Feedback checks hold item listings to inspect skeleton rows in English/Arabic
-and normal/reduced motion, then press icon tools with a real mouse, touch and
-Space. Tag checks hold/refuse writes, verify immediate chips and selective
-rollback, and read persisted tags through the API and after reload. Clipboard
-checks copy a real share link, read it back from Chromium's clipboard and keep
-the Copy button's accessible name alongside its live success announcement.
-
-Editing-confirmation and optimistic-tag cases search for their own fixture item
-before page-wide accessibility checks. This bounds the visible library rows as
-earlier cases add data; the scans still include the page's other controls.
-The search toolbar wraps on narrow screens, keeping the filtered row reachable
-by a normal tap. Confirmation cases assert that the open search fits the viewport
-before opening the item.
-
-Touch press feedback supplements native `:active` on standard buttons and icon
-tools. Passive pointer listeners leave clicks and scrolling to the browser;
-release, cancellation, moving away, scrolling and window blur clear the wash.
-Field blur inside the page leaves it visible, and ending the app scope removes
-the listeners. The wash preserves the target's geometry and selected fill.
-
-### Design
-
-The design follows Material 3 with a teal accent, and light and dark follow the
-operating system unless the user picks one. What altero does inside that frame
-is written down in [design.md](../design.md): one rule — fill groups, outline
-controls, hairline separates — three surface steps, one card recipe that every
-screen imports rather than draws itself, and a toolbar around every row of
-icon-only tools, because a glyph on a page says nothing about being pressable
-until a pointer rests on it. `styles/surfaces.node.spec.ts` fails when a
-component draws a surface of its own.
-
-The target is WCAG 2.2 AA. What can be measured is measured in tests that fail
-— every contrast pair the interface puts on screen, and the ordering that keeps
-a hovered row from looking more chosen than a chosen one — and
-[design.md](../design.md#accessibility) says which criteria were decided where,
-including what has not been verified.
-
-Hover is a state layer rather than a color — a translucent wash of the text
-color, one token, laid over whatever is underneath. One wash rather than a
-surface step per depth: it reads the same over the item list as over a dialog's
-raised surface, where a step chosen to separate a row from a white page comes
-to 1.03:1 and a screen at an angle shows nothing at all.
-`styles/contrast.node.spec.ts` measures what the wash comes to on each surface
-it lands on, and checks the one ordering that matters: a selected row is marked
-more strongly than the row under the pointer, or hovering would look like
-choosing.
-
-It is set in IBM Plex Sans, with Plex Sans JP for Japanese, Plex Sans Arabic
-for Arabic, Persian, Urdu and Shahmukhi Punjabi, and Plex Sans Hebrew for Hebrew.
-All are served by this application: no CDN or other third party receives a
-font request. The Latin and Japanese faces are split by `unicode-range`, so a
-page fetches only the subsets its text needs. The Arabic and Hebrew packages
-provide complete faces; regular, medium and bold are included, with italic
-synthesized by the browser. Their stylesheets are deferred alongside Japanese,
-and font files are fetched only when text needs them, including mixed-language
-libraries. Every face uses `font-display: swap`, so system fonts show the text
-while it loads. Fingerprinted assets are cached for later visits. Package
-installation scripts remain disabled to prevent IBM's telemetry hook.
-
-The RTL checks cover Arabic screenshots and axe on desktop and phone, mixed
-item and note directions in both UI directions, public profiles and shares,
-splitter keys, mouse drags and touch holds. Font checks inspect the faces that
-Chromium actually used to draw every script letter in the five RTL catalogues.
-These are Chromium checks at two viewport sizes; Safari and native-device
-verification remain separate.
-Mirroring uses composed transforms and ancestor selectors compatible with the
-build's browser targets. A compiled-selector check keeps scoped CSS from
-applying a splitter transform to the document itself.
-
-Tag pills share `TagPill.vue` and `styles/tag-pills.css`, including color dots,
-solid outlines, hover, focus and touch targets. The component owns inline
-rename state, cancellation and errors. Its caller supplies the existing
-rename operation and enables library filtering or item-only removal. Library
-pills show the item count between the name and pencil. The name reserves its
-space while an overlaid input edits it, preserving pill geometry and background;
-validation errors appear below the pill. Item additions and removals project
-pending operations over the latest server tags without changing the synced
-item or its version. Writes remain queued and rebase onto newer tags; a refusal
-removes only its own projection. Leaving the item discards unsent operations.
-Inline renames keep their draft and error field until the server answers.
-Both panels use `items/tags.ts` to order
-colored tags by position, then emoji tags, then the rest, with locale-aware
-alphabetization. The selector sorts a copy for display, preserving API order.
-
-### Durable sign-in budgets
+## Durable sign-in budgets
 
 `services/loginlimits.py` reserves an account and address allowance in
-`login_attempts`, introduced by migration `ae39b4d8c021`. Reservations commit
-before verification so concurrent requests and worker restarts share a budget;
+`login_attempts`. Reservations commit before verification so concurrent requests and worker restarts share a budget;
 no database lock spans password hashing. Call before changing other state in
 the session. Password sign-in and both TOTP/email completion paths use these
 reservations; the API layer supplies the trusted connection address and maps a
@@ -267,17 +79,12 @@ TOTP and email share a second-factor budget by user id, so a new pending
 session, a resend or a factor switch cannot reset it. The existing five-guess
 limit on each emailed code remains in force independently.
 
-### The note editor
+## The note editor
 
-Notes are edited with Tiptap over a port of Zotero's own note-editor schema
-(`web/src/notes/`), so a note saved here is the HTML Zotero Desktop would save:
-the specs, the HTML reading and writing and the keymap are the original's, and
-a differential run against the original code at the revision Zotero pins found
-no difference. `web/src/notes/corpus/` holds notes as Zotero 10.0.6's shipped
-editor saved them, recorded by the `note-corpus` desktop acceptance scenario,
-and the editor here is tested to save each the same way. The editor is loaded the first time a note is opened. Tiptap's
-injected stylesheet is switched off, because the interface's
-Content-Security-Policy refuses inline styles; `notes/editor.css` carries it.
+The editor uses Tiptap with a port of Zotero's note schema, HTML parsing,
+serialization and keymap in `web/src/notes/`. Differential checks and the
+recorded corpus protect round trips with the desktop editor. Load it on demand.
+Disable Tiptap's injected stylesheet for CSP compatibility; use `notes/editor.css`.
 
 Toolbar menus use fixed viewport positions. Apply those coordinates before
 moving keyboard focus into the menu: focusing the unpositioned list can scroll
@@ -289,7 +96,7 @@ the menu open when its anchor is unchanged. The browser regression opens New
 Note below a populated collection sidebar and checks that the menu stays open
 without moving the page.
 
-### Undoing filing and trash changes
+## Undoing filing and trash changes
 
 `PATCH /web/libraries/{id}/items` returns an `undo` object alongside `items`.
 Its `version` is the committed library watermark; its `items` hold each changed
@@ -321,7 +128,7 @@ a destination edit does. The response contains `undo: null` when the caller
 may copy but cannot remove records there, such as an add-only group member.
 Permissions are checked again when undo runs.
 
-### Duplicate merge endpoint
+## Duplicate merge endpoint
 
 The duplicates listing accepts `grouped=true` with `scope=duplicates`. It returns
 `groups` (lists of item keys), `totalGroups`, and the usual item envelopes and
@@ -343,7 +150,7 @@ identifier can connect records whose titles differ, and a title match can connec
 another record to that group. Membership is a suggestion for review, not a claim
 that every pair has the same identifier or item type.
 
-The comparison follows Zotero 10.0.6's master-and-field-choice model, reviewed in
+The comparison follows the desktop's master-and-field-choice model, reviewed in
 `duplicatesMergePane.js` and `itemBox.js`. The browser uses native select controls
 instead of desktop field popups. Group selection, individual inspection and
 membership changes have ordinary click/tap controls; coarse pointers retain
@@ -417,7 +224,7 @@ duplicate, Zotero removes its survivor's merge-tracking relation itself while
 preserving that date, and can skip the now-redundant remote update. Other
 restored content receives the normal new modification timestamp.
 
-### Not built yet
+## Not built yet
 
 Items, notes and attachments can be created and edited in the browser, and
 duplicate items can be merged. Remaining browser gaps include:
@@ -435,7 +242,4 @@ duplicate items can be merged. Remaining browser gaps include:
 Moving in from zotero.org brings the personal library only; a group has to be
 made here and its members invited.
 
-Making an account for somebody else, resetting a password, suspending an
-account and the operator's view of the instance are under **Administration**
-above. [administration.md](../administration.md) says what the shell covers alone
-and what it shares with the browser.
+For account and server operations, see [Administration](../administration.md).

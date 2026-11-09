@@ -1,113 +1,71 @@
 # Getting started
 
-This guide gets a local altero instance running and connects a **test** Zotero Desktop profile to it.
-
-**Result:** Zotero Desktop is linked to a local altero server and can begin syncing.
+This guide runs altero locally and connects a test Zotero Desktop profile.
+For an existing server, go straight to [Connecting a Zotero client](clients.md).
 
 > [!WARNING]
-> Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
+> Use a separate Zotero profile or a library you can recreate. Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
 
-## 1. Start altero with Docker Compose
+## 1. Start altero
 
-The image is published, so a checkout is optional. In an empty directory:
-
-```sh
-curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/v1.0.0-beta.8/docker/compose.yaml
-ALTERO_IMAGE_TAG=1.0.0-beta.8 docker compose up -d
-```
-
-From a checkout of the repository, name the file where it lives instead:
+With Docker and Docker Compose installed, run:
 
 ```sh
-ALTERO_IMAGE_TAG=1.0.0-beta.8 docker compose -f docker/compose.yaml up -d
+mkdir altero && cd altero
+curl -fsSLO https://raw.githubusercontent.com/eseifert/altero/master/docker/compose.yaml
+docker compose up -d
 ```
 
-This starts PostgreSQL, altero and persistent attachment storage. The API is published on the loopback interface, on port 8000.
+This starts altero and PostgreSQL, with persistent storage. The server is
+available only on your computer at <http://localhost:8000>.
+The default image tag is `latest`, which includes prereleases.
 
-To keep this version pinned for later upgrades, put `ALTERO_IMAGE_TAG=1.0.0-beta.8`
-in `.env` beside the downloaded Compose file, or in `docker/.env` for a checkout.
-Without a pin, Compose follows `latest`, including future prereleases.
+For source installation, Podman, or a server other people can reach, see
+[Deployment](deployment.md).
 
-For a source installation instead, see [Deployment](deployment.md#from-a-source-checkout).
+## 2. Create your account
 
-## 2. Create the first account
+Open <http://localhost:8000/app/> and register. The first account administers
+the instance; public registration then closes unless an administrator enables it.
 
-The first account administers the instance. Create it either way.
-
-**In the browser.** Open <http://localhost:8000/app/> and register. Registration is open only while the instance has no accounts at all, so this works exactly once.
-
-**From a shell.** Two commands, because `altero user add` sets no password:
+Alternatively, create an account from the shell:
 
 ```sh
 docker compose exec altero altero user add <username>
 docker compose exec altero altero user password <username>
 ```
 
-> [!IMPORTANT]
-> `altero user add` creates the account without a password, and creating it also closes browser registration. Run `altero user password` as well, unless the account will sign in through [single sign-on](deployment.md#single-sign-on) or a passkey.
+Run both commands: `user add` does not set a password.
 
-## 3. Point Zotero Desktop at altero
+## 3. Configure Zotero Desktop
 
-In Zotero Desktop, open:
-
-**Settings → Advanced → Config Editor**
-
-Set:
+In your test profile, open **Settings → Advanced → Config Editor** and set:
 
 ```text
 extensions.zotero.api.url = http://localhost:8000/
 extensions.zotero.streaming.url = ws://localhost:8000/stream
 ```
 
-The trailing slash on `api.url` matters.
-
-8000 is the port altero listens on inside the container (`ALTERO_PORT`), and the Compose file publishes it on the host under `ALTERO_PUBLISH_PORT`, also 8000. Change either and both URLs above move with it.
+Keep the trailing slash on the API URL. Restart Zotero.
 
 > [!IMPORTANT]
-> Set the streaming URL as well as the API URL. Zotero resolves the streaming service separately. If the streaming URL is left at its built-in default, Zotero can send the altero API key to zotero.org, where it is not valid.
+> Set both URLs. Leaving the streaming URL unchanged can send your altero API key to zotero.org.
 
-If you do not want streaming updates, disable them instead of leaving the default endpoint in place:
-
-```text
-extensions.zotero.streaming.enabled = false
-```
-
-Restart Zotero after changing these preferences.
+A profile that has already synced needs special care. Read
+[A profile that has synced before](clients.md#a-profile-that-has-synced-before)
+before connecting it.
 
 ## 4. Link the account
 
-> [!WARNING]
-> If this Zotero profile has synced before, with zotero.org or with another server, linking is refused: Zotero sends the account number its data directory remembers. See [A profile that has synced before](clients.md#a-profile-that-has-synced-before).
+Open **Settings → Sync → Link Account** in Zotero. Sign in to altero in the
+browser window that opens and approve the connection.
 
-Open:
+Create an item, a collection and an attachment in Zotero. Sync, then open
+altero's browser interface to check that they arrived.
 
-**Settings → Sync → Link Account**
+## Next steps
 
-Zotero opens altero in the browser. Sign in with the account you created and approve the client.
-
-The desktop client receives an API key and begins using altero for synchronization.
-
-## 5. Confirm that the instance is healthy
-
-The readiness endpoint is:
-
-```text
-GET http://localhost:8000/health
-```
-
-A healthy instance returns a JSON response with `status: "ok"` plus version and database-revision information.
-
-## 6. Test with disposable data
-
-Create a few items, collections and attachments in the test profile and let them sync. For a stronger test, connect a second Zotero profile and follow [Syncing two desktop clients](testing-two-clients.md).
-
-## What to read next
-
-- [Connecting a Zotero client](clients.md) — the client settings and login flow in more detail.
-- [Deployment](deployment.md) — TLS, PostgreSQL, upgrades, reverse proxies and production settings.
-- [What works](status.md) — implemented and missing functionality.
-- [Web interface](web-interface.md) — browser features for users and administrators.
-
-## What this setup does not support
-
-The official Zotero iOS and Android applications cannot be pointed at another API host at runtime, so this guide covers the desktop application. The apps reach altero only through a build of your own; see [Mobile apps](clients.md#mobile-apps).
+- [Connect a second client](testing-two-clients.md) to check synchronization in both directions.
+- [Use the browser interface](web-interface.md) to manage your library.
+- [Prepare a server for everyday use](deployment.md), including HTTPS and backups.
+- [Check features and limits](status.md), including mobile-app support.
