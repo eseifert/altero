@@ -4,6 +4,8 @@
 
 [![CI](https://github.com/eseifert/altero/actions/workflows/ci.yml/badge.svg)](https://github.com/eseifert/altero/actions/workflows/ci.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-006a6a)](LICENSE)
+[![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-006a6a)](https://www.python.org/)
+[![GitHub stars](https://img.shields.io/github/stars/eseifert/altero?style=flat&logo=github)](https://github.com/eseifert/altero/stargazers)
 [![Documentation](https://img.shields.io/badge/docs-altero.run-006a6a)](https://altero.run/)
 
 altero is a self-hosted synchronization server for Zotero. Use the normal
@@ -34,7 +36,7 @@ Open <http://localhost:8000/app/> and register the first account. That account
 administers the instance. The default image tag is `latest`, including prereleases.
 
 > [!IMPORTANT]
-> Set the streaming URL too. Leaving it unchanged can send your altero API key to zotero.org. A profile that has synced before also needs [special handling](docs/clients.md#a-profile-that-has-synced-before).
+> Set the streaming URL too. Leaving it unchanged can send your altero API key to zotero.org. A profile that has synced before also needs [special handling](https://altero.run/latest/clients/#a-profile-that-has-synced-before).
 
 In a test Zotero Desktop profile, open **Settings → Advanced → Config Editor**
 and set both preferences:
@@ -47,7 +49,7 @@ extensions.zotero.streaming.url = ws://localhost:8000/stream
 Keep the API URL's trailing slash and restart Zotero. Then open
 **Settings → Sync → Link Account**, sign in through the browser and approve.
 
-This setup is local to your computer. Follow [Deployment](docs/deployment.md)
+This setup is local to your computer. Follow [Deployment](https://altero.run/latest/deployment/)
 before making it available to other people. That guide also covers source
 installation, image pinning, HTTPS, upgrades and backups.
 
@@ -55,14 +57,14 @@ installation, image pinning, HTTPS, upgrades and backups.
 
 altero hosts the synchronization service itself. WebDAV hosts only personal
 attachment files while library data still goes through zotero.org. See
-[Why altero exists](docs/motivation.md) for the tradeoffs.
+[Why altero exists](https://altero.run/latest/motivation/) for the tradeoffs.
 
 The desktop application works without patches. Official mobile apps do not
 offer a server setting and need a separate build; altero does not distribute
-one. See [client setup](docs/clients.md#mobile-apps).
+one. See [client setup](https://altero.run/latest/clients/#mobile-apps).
 
 The browser covers everyday reference management. Use Zotero Desktop for offline
-access, PDF annotation and other reader workflows. [What works](docs/status.md)
+access, PDF annotation and other reader workflows. [What works](https://altero.run/latest/status/)
 describes features, known limits and links to recorded compatibility checks.
 
 ## Documentation
@@ -71,18 +73,18 @@ Read the full documentation at **<https://altero.run/>**, or start here:
 
 | Goal | Guide |
 | --- | --- |
-| Install and connect Zotero | [Getting started](docs/getting-started.md) |
-| Use altero in a browser | [Web interface](docs/web-interface.md) |
-| Run and maintain a server | [Deployment](docs/deployment.md) |
-| Manage accounts and policies | [Administration](docs/administration.md) |
-| Find a setting | [Configuration](docs/configuration.md) |
-| Develop or help test | [Contributing](CONTRIBUTING.md) |
+| Install and connect Zotero | [Getting started](https://altero.run/latest/getting-started/) |
+| Use altero in a browser | [Web interface](https://altero.run/latest/web-interface/) |
+| Run and maintain a server | [Deployment](https://altero.run/latest/deployment/) |
+| Manage accounts and policies | [Administration](https://altero.run/latest/administration/) |
+| Find a setting | [Configuration](https://altero.run/latest/configuration/) |
+| Develop or help test | [Contributing](https://altero.run/latest/#for-contributors) |
 
 ## Help improve altero
 
 Testing another operating system, reviewing these guides or improving a
-translation is as useful as writing code. [CONTRIBUTING.md](CONTRIBUTING.md)
-explains how to get started.
+translation is as useful as writing code. The [contributor guides](https://altero.run/latest/#for-contributors)
+explain how to get started.
 
 For a bug report, include what you expected, what happened, steps to reproduce,
 and the altero and client versions, operating system and deployment method.
