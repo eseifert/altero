@@ -234,7 +234,7 @@ Warnings must say whether content goes to Trash or is permanently deleted.
 | Portuguese | Preserve regional terms, including Brazilian sobrenome and European apelido |
 | Swedish | Library items are källor; keep creation, navigation and merge labels consistent |
 | Latvian | Library items are vienumi; activity records are ieraksti; Trash is Miskaste |
-| Ukrainian | Library items are документи; retain записи for accounts and activity records |
+| Ukrainian | Library items are документи; retain записи for accounts and activity records; Trash is Кошик |
 
 Use complete creator-name labels: they are also accessible input names.
 Keep third-person descriptions and quoted interface labels intact. English-looking

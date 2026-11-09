@@ -473,6 +473,11 @@ describe('Ukrainian item terminology', () => {
   })
 })
 
+it('uses the Ukrainian library Trash term in the merge warning', () => {
+  expect(uk.Trash).toBe('Кошик')
+  expect(uk['Other versions will be moved to the trash.']).toContain('до Кошика')
+})
+
 describe('Turkish merge instructions', () => {
   it.each([
     'Choose the version of the item to use as the master item:',
@@ -536,6 +541,7 @@ describe.each([
   ['pt-PT', ptPT, /à volta/iu],
   ['ru', ru, /вокруг/iu, /корзин/iu],
   ['sv', sv, /runt/iu],
+  ['uk', uk, /Кошика (?:для цього )?немає/u, /кошик/iu, /Нічого не переміщується до Кошика\./u],
   ['zh-CN', zhCN, /外面/u, undefined, /不会移入回收站/u],
   ['zh-TW', zhTW, /外面/u, undefined, /不會移至垃圾筒/u],
 ] as const)('destructive warnings in %s', (_tag, catalogue, spatialTranslation, trashTerm: string | RegExp = catalogue.Trash.toLowerCase(), bypassesTrash?: RegExp) => {

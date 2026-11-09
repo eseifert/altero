@@ -39,6 +39,7 @@ const labels = {
     merged: 'Документи об’єднано.', master: 'Основний документ',
     versionInstruction: 'Виберіть версію документа, яку слід використати як основний документ:',
     instruction: 'Виберіть поля для збереження з інших версій документа:',
+    trashWarning: 'Інші версії буде переміщено до Кошика.',
   },
   vi: { duplicates: 'Các mục trùng lặp', merge: 'Gộp các mục', select: 'Chọn', merged: 'Đã gộp các mục.' },
 }

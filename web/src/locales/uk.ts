@@ -20,7 +20,7 @@ export default {
   "Merged items must all be of the same item type.": "Документи для об'єднання повинні мати однаковий тип.",
   "Creators": "Творці",
   "Items merged.": "Документи об’єднано.",
-  "Other versions will be moved to the trash.": "Інші версії буде переміщено до смітника.",
+  "Other versions will be moved to the trash.": "Інші версії буде переміщено до Кошика.",
   "Could not load the item fields.": "Не вдалося завантажити поля документа.",
   ' from {address}': ' з {address}',
   '(empty)': '(порожньо)',
@@ -310,11 +310,11 @@ export default {
   'Everything else': 'Усе інше',
   'Everything here is filed in a collection.': 'Тут усе розкладено по колекціях.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Усе, що в ній є, зникає разом із нею: документи, колекції, теги та вкладення. Для бібліотеки Кошика немає.',
+    'Увесь вміст бібліотеки видаляється: документи, колекції, теги та вкладення. Нічого не переміщується до Кошика.',
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Усе у вашій тутешній бібліотеці спершу видаляється, разом із файлами, і Кошика для цього немає.',
+    'Увесь вміст вашої бібліотеки на цьому сервері спершу видаляється, включно з файлами. Нічого не переміщується до Кошика.',
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Усе в {name} спершу видаляється, разом із файлами, і Кошика для цього немає.',
+    'Увесь вміст {name} спершу видаляється, включно з файлами. Нічого не переміщується до Кошика.',
   'Everything the permissions above cover': 'Усе, що охоплюють дозволи вище',
   'Exit Full Screen': 'Вийти з повноекранного режиму',
   'Expand': 'Розгорнути',

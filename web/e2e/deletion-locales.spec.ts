@@ -1,6 +1,12 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  uk: {
+    personal: 'Увесь вміст вашої бібліотеки на цьому сервері спершу видаляється, включно з файлами. Нічого не переміщується до Кошика.',
+    named: (name: string) => `Увесь вміст ${name} спершу видаляється, включно з файлами. Нічого не переміщується до Кошика.`,
+    group: 'Увесь вміст бібліотеки видаляється: документи, колекції, теги та вкладення. Нічого не переміщується до Кошика.',
+    delete: 'Видалити', cancel: 'Скасувати', deleted: 'Групу видалено.',
+  },
   lv: {
     personal: 'Vispirms tiek dzēsts viss jūsu bibliotēkas saturs šajā serverī, arī faili. Nekas netiek pārvietots uz miskasti.',
     named: (name: string) => `Vispirms tiek dzēsts viss bibliotēkas ${name} saturs, arī faili. Nekas netiek pārvietots uz miskasti.`,
