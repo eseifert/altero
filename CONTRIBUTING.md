@@ -232,6 +232,7 @@ Warnings must say whether content goes to Trash or is permanently deleted.
 | Serbian | Cyrillic prose and controls; preserve product names and identifiers |
 | Tagalog | Keep established loanwords such as library, email, password and time zone |
 | Portuguese | Preserve regional terms, including Brazilian sobrenome and European apelido |
+| Swedish | Library items are källor; keep creation, navigation and merge labels consistent |
 
 Use complete creator-name labels: they are also accessible input names.
 Keep third-person descriptions and quoted interface labels intact. English-looking

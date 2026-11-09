@@ -401,6 +401,25 @@ describe('Romanian item terminology', () => {
   })
 })
 
+describe('Swedish item terminology', () => {
+  it.each([
+    'Master item',
+    'Items merged.',
+    'Could not load the item fields.',
+    'Add Related',
+    'Remove Related',
+    'New Item',
+    'New Item Note',
+    'First or last item',
+    'Previous or next item',
+    'Ten items up or down',
+    'Show the item’s details',
+  ] as const)('keeps the library item term in “%s”', (key) => {
+    expect(sv.Items).toBe('Källor')
+    expect(sv[key]).toMatch(/käll/iu)
+  })
+})
+
 describe('Turkish merge instructions', () => {
   it.each([
     'Choose the version of the item to use as the master item:',

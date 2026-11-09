@@ -19,6 +19,7 @@ const labels = {
   },
   sk: { duplicates: 'Duplicitné záznamy', merge: 'Zlúčiť záznamy', select: 'Vybrať', merged: 'Záznamy boli zlúčené.', master: 'Hlavný záznam' },
   sl: { duplicates: 'Podvojeni vnosi', merge: 'Spoji vnose', select: 'Izberi', merged: 'Vnosi so spojeni.', master: 'Glavni vnos' },
+  sv: { duplicates: 'Källdubbletter', merge: 'Sammanfoga källor', select: 'Markera', merged: 'Källor sammanfogade.', master: 'Huvudkälla' },
   th: { duplicates: 'รายการซ้ำ', merge: 'รวมรายการ', select: 'เลือก', merged: 'รวมรายการแล้ว' },
   tr: {
     duplicates: 'Yinelenmiş Eserler', merge: 'Eserleri Birleştir', select: 'Seç',

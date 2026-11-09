@@ -1,5 +1,29 @@
 import { accessibilityProblems, expect, openItem, signIn, state, test } from './state'
 
+test.describe('Swedish item controls', () => {
+  test.use({ locale: 'sv' })
+
+  test('uses the library item term in creation and keyboard help', async ({ page }, info) => {
+    await signIn(page)
+    await expect(page.locator('html')).toHaveAttribute('lang', 'sv')
+    await page.getByRole('button', { name: 'Ny källa', exact: true }).click()
+    await expect(page.getByRole('menu', { name: 'Ny källa', exact: true })).toBeVisible()
+    await page.keyboard.press('Escape')
+    await page.keyboard.press('?')
+    const dialog = page.getByRole('dialog')
+    for (const label of [
+      'Föregående eller nästa källa',
+      'Första eller sista källan',
+      'Tio källor upp eller ned',
+      'Visa källans detaljer',
+    ]) {
+      await expect(dialog.getByText(label, { exact: true })).toBeVisible()
+    }
+    await page.screenshot({ path: info.outputPath('sv-item-shortcuts.png'), fullPage: true })
+    expect(await accessibilityProblems(page)).toEqual([])
+  })
+})
+
 test.describe('Romanian item confirmations', () => {
   test.use({ locale: 'ro' })
 
