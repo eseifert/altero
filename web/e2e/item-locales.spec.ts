@@ -1,6 +1,10 @@
 import { accessibilityProblems, expect, openItem, signIn, state, test } from './state'
 
 const itemControls = {
+  ru: {
+    create: 'Новая запись',
+    shortcuts: ['Предыдущая или следующая запись', 'Первая или последняя запись', 'На десять записей вверх или вниз', 'Показать сведения о записи'],
+  },
   sv: {
     create: 'Ny källa',
     shortcuts: ['Föregående eller nästa källa', 'Första eller sista källan', 'Tio källor upp eller ned', 'Visa källans detaljer'],

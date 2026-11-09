@@ -473,6 +473,22 @@ describe('Ukrainian item terminology', () => {
   })
 })
 
+describe('Russian item terminology', () => {
+  it.each([
+    'Merge Items',
+    'Choose the version of the item to use as the master item:',
+    'Select fields to keep from other versions of the item:',
+    'New Item',
+    'First or last item',
+    'Previous or next item',
+    'Ten items up or down',
+    'Show the item’s details',
+  ] as const)('uses the library item term in “%s”', (key) => {
+    expect(ru.Items).toBe('Записи')
+    expect(ru[key]).toMatch(/запис/iu)
+  })
+})
+
 it('uses the Ukrainian library Trash term in the merge warning', () => {
   expect(uk.Trash).toBe('Кошик')
   expect(uk['Other versions will be moved to the trash.']).toContain('до Кошика')

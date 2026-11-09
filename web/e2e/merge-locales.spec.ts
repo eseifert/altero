@@ -24,6 +24,12 @@ const labels = {
     merged: 'Înregistrările au fost unite.', master: 'Înregistrare principală',
     versionInstruction: 'Alege versiunea înregistrării pe care o vei folosi ca înregistrare principală:',
   },
+  ru: {
+    duplicates: 'Дубликаты записей', merge: 'Объединить записи', select: 'Выделить',
+    merged: 'Записи объединены.', master: 'Основная запись',
+    versionInstruction: 'Выберите версию записи, которую следует использовать как основную запись:',
+    instruction: 'Выберите поля для сохранения из других версий записи:',
+  },
   sk: { duplicates: 'Duplicitné záznamy', merge: 'Zlúčiť záznamy', select: 'Vybrať', merged: 'Záznamy boli zlúčené.', master: 'Hlavný záznam' },
   sl: { duplicates: 'Podvojeni vnosi', merge: 'Spoji vnose', select: 'Izberi', merged: 'Vnosi so spojeni.', master: 'Glavni vnos' },
   sv: { duplicates: 'Källdubbletter', merge: 'Sammanfoga källor', select: 'Markera', merged: 'Källor sammanfogade.', master: 'Huvudkälla' },
