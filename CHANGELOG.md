@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Align Japanese library and merge messages with Zotero's 項目 term and use ごみ箱 consistently for Trash.
 - Use Koš consistently in Slovenian merge warnings and explain that library deletion and replacement bypass Trash.
 - Keep Russian creation, navigation and merge labels consistent with the library's item term.
 - Use Кошик consistently in Ukrainian merge warnings and explain that library deletion and replacement bypass Trash.

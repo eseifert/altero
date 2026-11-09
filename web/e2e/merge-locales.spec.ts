@@ -10,6 +10,10 @@ const labels = {
   },
   hr: { duplicates: 'Duplicirane stavke', merge: 'Spoji stavke', select: 'Odaberi', merged: 'Stavke su spojene.' },
   id: { duplicates: 'Item duplikat', merge: 'Gabungkan Item', select: 'Pilih', merged: 'Item digabungkan.' },
+  ja: {
+    duplicates: '重複項目', merge: '項目の統合', select: '選択', merged: '項目を統合しました。', master: 'マスター項目',
+    trashWarning: '他のバージョンはごみ箱に移動されます。',
+  },
   km: { duplicates: 'ឯកសារត្រួត', merge: 'បញ្ចូលឯកសារចូលគ្នា', select: 'ជ្រើសរើស', merged: 'បានបញ្ចូលឯកសារចូលគ្នា។' },
   lv: {
     duplicates: 'Vienumu dublikāti', merge: 'Apvienot vienumus', select: 'Atlasīt',

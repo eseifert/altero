@@ -494,6 +494,51 @@ describe('Russian item terminology', () => {
   })
 })
 
+describe('Japanese library terminology', () => {
+  it.each([
+    'Items moved to trash.',
+    'Items filed.',
+    'Items restored.',
+    'Master item',
+    'Items merged.',
+    'Could not load the item fields.',
+    'Add, change and remove things in your library',
+    'Days an item stays in the trash',
+    'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.',
+    'Deleting them cannot be undone. Anything uploaded in the last day is left alone, because a file reaches the disk before the item that refers to it.',
+    'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.',
+    'Items',
+    'Items added or changed',
+    'Items deleted',
+    'No items carry the selected tags.',
+    'No items match this search and the selected tags.',
+    'No items match this search.',
+    'Only their own items',
+    'The items in it stay in the library.',
+    'Who may add and change items',
+    'Your page is hidden. Your items stay in My Publications, so it can be opened again.',
+    '{count} item added or changed | {count} items added or changed',
+    '{count} item deleted | {count} items deleted',
+    '{count} items out of the trash',
+  ] as const)('uses Zotero’s item term in “%s”', (key) => {
+    expect(ja[key]).toContain('項目')
+    expect(ja[key]).not.toContain('アイテム')
+  })
+
+  it.each([
+    'Items moved to trash.',
+    'Other versions will be moved to the trash.',
+    'Days an item stays in the trash',
+    'Deleting an item out of the trash is a write like any other: the library takes a new version and every client learns what went. There is no undo.',
+    'In the trash',
+    'Zero keeps the trash for good, which is what this server does until you say otherwise. zotero.org uses 30.',
+    '{count} items out of the trash',
+  ] as const)('uses the sidebar Trash spelling in “%s”', (key) => {
+    expect(ja.Trash).toBe('ごみ箱')
+    expect(ja[key]).toContain(ja.Trash)
+  })
+})
+
 it('uses the Ukrainian library Trash term in the merge warning', () => {
   expect(uk.Trash).toBe('Кошик')
   expect(uk['Other versions will be moved to the trash.']).toContain('до Кошика')

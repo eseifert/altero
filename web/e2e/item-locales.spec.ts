@@ -40,37 +40,44 @@ for (const [tag, translated] of Object.entries(itemControls)) {
   })
 }
 
-test.describe('Latvian Trash confirmations', () => {
-  test.use({ locale: 'lv' })
+const trashConfirmations = {
+  lv: { trash: 'Miskaste', move: 'Pārvietot uz miskasti', moved: 'Vienumi pārvietoti uz miskasti.', restore: 'Atjaunot bibliotēkā', restored: 'Vienumi atjaunoti.' },
+  ja: { trash: 'ごみ箱', move: 'ごみ箱に移動', moved: '項目をごみ箱に移動しました。', restore: 'ライブラリへ復元', restored: '項目を復元しました。' },
+}
 
-  test('names the library Trash when moving an item and restores it', async ({ page, request }, info) => {
-    const title = `Latvian Trash ${info.project.name}`
-    const headers = { 'Zotero-API-Key': state().key }
-    const made = await request.post('/users/1/items', { headers, data: [{ itemType: 'book', title }] })
-    expect(made.ok()).toBe(true)
-    const body = await made.json()
-    expect(body.failed).toEqual({})
-    const key = body.successful['0'].key as string
-    const stored = async () => {
-      const response = await request.get(`/users/1/items/${key}`, { headers })
-      expect(response.ok()).toBe(true)
-      return (await response.json()).data
-    }
-    await signIn(page)
-    await expect(page.locator('html')).toHaveAttribute('lang', 'lv')
-    await openItem(page, title)
-    await page.locator('.detail').getByRole('button', { name: 'Pārvietot uz miskasti', exact: true }).click()
-    await expect(page.locator('.toasts')).toContainText('Vienumi pārvietoti uz miskasti.')
-    expect((await stored()).deleted).toBe(1)
-    await page.locator('.library__scope').filter({ hasText: 'Miskaste' }).click()
-    await openItem(page, title)
-    await page.locator('.detail').getByRole('button', { name: 'Atjaunot bibliotēkā', exact: true }).click()
-    await expect(page.locator('.toasts')).toContainText('Vienumi atjaunoti.')
-    expect((await stored()).deleted ?? 0).toBe(0)
-    await page.screenshot({ path: info.outputPath('lv-trash-restored.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
+for (const [tag, translated] of Object.entries(trashConfirmations)) {
+  test.describe(`Trash confirmations in ${tag}`, () => {
+    test.use({ locale: tag })
+
+    test('names the library Trash when moving an item and restores it', async ({ page, request }, info) => {
+      const title = `Localized Trash ${tag} ${info.project.name}`
+      const headers = { 'Zotero-API-Key': state().key }
+      const made = await request.post('/users/1/items', { headers, data: [{ itemType: 'book', title }] })
+      expect(made.ok()).toBe(true)
+      const body = await made.json()
+      expect(body.failed).toEqual({})
+      const key = body.successful['0'].key as string
+      const stored = async () => {
+        const response = await request.get(`/users/1/items/${key}`, { headers })
+        expect(response.ok()).toBe(true)
+        return (await response.json()).data
+      }
+      await signIn(page)
+      await expect(page.locator('html')).toHaveAttribute('lang', tag)
+      await openItem(page, title)
+      await page.locator('.detail').getByRole('button', { name: translated.move, exact: true }).click()
+      await expect(page.locator('.toasts')).toContainText(translated.moved)
+      expect((await stored()).deleted).toBe(1)
+      await page.locator('.library__scope').filter({ hasText: translated.trash }).click()
+      await openItem(page, title)
+      await page.locator('.detail').getByRole('button', { name: translated.restore, exact: true }).click()
+      await expect(page.locator('.toasts')).toContainText(translated.restored)
+      expect((await stored()).deleted ?? 0).toBe(0)
+      await page.screenshot({ path: info.outputPath(`${tag}-trash-restored.png`), fullPage: true })
+      expect(await accessibilityProblems(page)).toEqual([])
+    })
   })
-})
+}
 
 test.describe('Romanian item confirmations', () => {
   test.use({ locale: 'ro' })
