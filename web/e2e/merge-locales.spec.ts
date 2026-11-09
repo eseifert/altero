@@ -11,6 +11,12 @@ const labels = {
   hr: { duplicates: 'Duplicirane stavke', merge: 'Spoji stavke', select: 'Odaberi', merged: 'Stavke su spojene.' },
   id: { duplicates: 'Item duplikat', merge: 'Gabungkan Item', select: 'Pilih', merged: 'Item digabungkan.' },
   km: { duplicates: 'ឯកសារត្រួត', merge: 'បញ្ចូលឯកសារចូលគ្នា', select: 'ជ្រើសរើស', merged: 'បានបញ្ចូលឯកសារចូលគ្នា។' },
+  lv: {
+    duplicates: 'Vienumu dublikāti', merge: 'Apvienot vienumus', select: 'Atlasīt',
+    merged: 'Vienumi apvienoti.', master: 'Galvenais vienums',
+    versionInstruction: 'Izvēlieties vienuma versiju, ko izmantot kā galveno vienumu:',
+    instruction: 'Atlasiet laukus, kurus paturēt no citām vienuma versijām:',
+  },
   mn: { duplicates: 'Давхардсан зүйлс', merge: 'Зүйлсийг нэгтгэх', select: 'Сонгох', merged: 'Зүйлсийг нэгтгэлээ.' },
   ro: {
     duplicates: 'Înregistrări duplicate', merge: 'Unește înregistrările', select: 'Selectează',

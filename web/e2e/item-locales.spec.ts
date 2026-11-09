@@ -1,28 +1,36 @@
 import { accessibilityProblems, expect, openItem, signIn, state, test } from './state'
 
-test.describe('Swedish item controls', () => {
-  test.use({ locale: 'sv' })
+const itemControls = {
+  sv: {
+    create: 'Ny källa',
+    shortcuts: ['Föregående eller nästa källa', 'Första eller sista källan', 'Tio källor upp eller ned', 'Visa källans detaljer'],
+  },
+  lv: {
+    create: 'Jauns vienums',
+    shortcuts: ['Iepriekšējais vai nākamais vienums', 'Pirmais vai pēdējais vienums', 'Desmit vienumi uz augšu vai leju', 'Rādīt vienuma informāciju'],
+  },
+}
 
-  test('uses the library item term in creation and keyboard help', async ({ page }, info) => {
-    await signIn(page)
-    await expect(page.locator('html')).toHaveAttribute('lang', 'sv')
-    await page.getByRole('button', { name: 'Ny källa', exact: true }).click()
-    await expect(page.getByRole('menu', { name: 'Ny källa', exact: true })).toBeVisible()
-    await page.keyboard.press('Escape')
-    await page.keyboard.press('?')
-    const dialog = page.getByRole('dialog')
-    for (const label of [
-      'Föregående eller nästa källa',
-      'Första eller sista källan',
-      'Tio källor upp eller ned',
-      'Visa källans detaljer',
-    ]) {
-      await expect(dialog.getByText(label, { exact: true })).toBeVisible()
-    }
-    await page.screenshot({ path: info.outputPath('sv-item-shortcuts.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
+for (const [tag, translated] of Object.entries(itemControls)) {
+  test.describe(`item controls in ${tag}`, () => {
+    test.use({ locale: tag })
+
+    test('uses the library item term in creation and keyboard help', async ({ page }, info) => {
+      await signIn(page)
+      await expect(page.locator('html')).toHaveAttribute('lang', tag)
+      await page.getByRole('button', { name: translated.create, exact: true }).click()
+      await expect(page.getByRole('menu', { name: translated.create, exact: true })).toBeVisible()
+      await page.keyboard.press('Escape')
+      await page.keyboard.press('?')
+      const dialog = page.getByRole('dialog')
+      for (const label of translated.shortcuts) {
+        await expect(dialog.getByText(label, { exact: true })).toBeVisible()
+      }
+      await page.screenshot({ path: info.outputPath(`${tag}-item-shortcuts.png`), fullPage: true })
+      expect(await accessibilityProblems(page)).toEqual([])
+    })
   })
-})
+}
 
 test.describe('Romanian item confirmations', () => {
   test.use({ locale: 'ro' })

@@ -420,6 +420,26 @@ describe('Swedish item terminology', () => {
   })
 })
 
+describe('Latvian item terminology', () => {
+  it.each([
+    'Master item',
+    'Merge Items',
+    'Choose the version of the item to use as the master item:',
+    'Select fields to keep from other versions of the item:',
+    'Merged items must all be of the same item type.',
+    'Items merged.',
+    'Could not load the item fields.',
+    'New Item',
+    'First or last item',
+    'Previous or next item',
+    'Ten items up or down',
+    'Show the item’s details',
+  ] as const)('keeps the library item term in “%s”', (key) => {
+    expect(lv.Items).toBe('Vienumi')
+    expect(lv[key]).toMatch(/vienum/iu)
+  })
+})
+
 describe('Turkish merge instructions', () => {
   it.each([
     'Choose the version of the item to use as the master item:',
