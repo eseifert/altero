@@ -387,6 +387,8 @@
       
         
       
+        
+      
     
     
     
@@ -1396,6 +1398,8 @@
       
         
       
+        
+      
     
     
     
@@ -1579,6 +1583,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" class="md-nav__link">
         
   
@@ -1731,13 +1762,13 @@
 
 
 <h1 id="database-schema">Database schema<a class="headerlink" href="#database-schema" title="Permanent link">&para;</a></h1>
-<p>This reference explains the data-model decisions that matter for Zotero compatibility. It compares altero with the official dataserver and focuses on substantive differences rather than naming conventions.</p>
+<p>For contributors changing persistence or synchronization. This reference lists
+storage choices that affect API behavior. For migration commands, see the
+<a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md#changing-the-database">development guide</a>.</p>
 <h2 id="adopted-from-the-dataserver">Adopted from the dataserver<a class="headerlink" href="#adopted-from-the-dataserver" title="Permanent link">&para;</a></h2>
 <p><strong>Tag type belongs to the tag.</strong> <code>tags</code> is unique on
 <code>(libraryID, name, type)</code>, so a name added by hand and the same name added by a
-translator are two rows rather than one tag with two links. altero originally
-put <code>type</code> on the item/tag link, which would have merged them and reported one
-type for both. Tags also carry an eight-character <code>key</code>, like every other
+translator are two rows rather than one tag with two links. Tags also carry an eight-character <code>key</code>, like every other
 syncable object.</p>
 <p><strong>Three timestamps per object.</strong> <code>dateAdded</code> and <code>dateModified</code> are supplied by
 the client and round-trip through the API; <code>serverDateModified</code> is set by the
@@ -1769,11 +1800,9 @@ the published schema, so the set each type accepts is declared in
 <p>The upside is that one code path stores every field of every item type. The
 cost is that nothing at the database level constrains an attachment to have a
 <code>linkMode</code>, where a dedicated table would.</p>
-<p><strong>Relations are stored per item.</strong> The dataserver has a library-scoped
-<code>relations(subject, predicate, object)</code> table plus <code>itemRelated</code> for
-<code>dc:relation</code>. altero stores <code>(item, predicate, object)</code>, which produces the same
-<code>relations</code> map in JSON but cannot express a relation whose subject is not an
-item in the library.</p>
+<p><strong>Relations belong to objects.</strong> Items and collections each have relation rows
+that produce their API <code>relations</code> maps. This differs from upstream's general
+library-scoped relation table.</p>
 <p><strong>Sort keys are columns on the item.</strong> The dataserver keeps <code>itemSortFields</code>
 (<code>sortTitle</code> truncated to 79 characters, plus <code>creatorSummary</code>) in a side table
 and joins <code>itemData</code> for date sorting. altero keeps <code>sort_title</code>, <code>sort_creator</code>
@@ -1782,15 +1811,14 @@ scan.</p>
 <p><strong>No sharding.</strong> <code>shards</code>, <code>shardHosts</code> and <code>shardLibraries</code> have no
 counterpart: the dataserver spreads libraries across MySQL servers, and altero
 uses one database.</p>
-<p><strong>Files are stored by digest, not tracked per library.</strong> The dataserver has
-<code>storageFiles</code>, <code>storageFileItems</code>, <code>storageFileLibraries</code> and an upload queue,
-because it hands uploads to S3 and has to account for them. altero writes the
-bytes itself, under <code>&lt;storage&gt;/&lt;first two characters of the digest&gt;/&lt;digest&gt;</code>,
-so identical files are stored once and the only table needed is
-<code>storage_uploads</code> — one row per authorization, deleted once the upload is
-registered. Nothing counts how many items reference a given file, so removing an
-item leaves its bytes on disk; a collector that deletes unreferenced files is
-not written yet.</p>
+<p><strong>Files are stored by digest.</strong> Identical registered bytes are stored once at
+<code>&lt;storage&gt;/&lt;first two digest characters&gt;/&lt;digest&gt;</code>. Upload authorizations live
+in <code>storage_uploads</code> until registration. Each attachment records its registered
+file separately from client-supplied metadata, so a claimed digest does not
+confer access to another library's bytes.</p>
+<p>Deleting an item does not immediately remove its stored bytes. Administrators
+can remove unreferenced and abandoned staging files from Storage, with a grace
+period protecting uploads in progress.</p>
 <p><strong>The item type schema is not in the database.</strong> The dataserver stores item
 types, fields and their mappings in <code>master.sql</code> tables (<code>itemTypes</code>, <code>fields</code>,
 <code>baseFieldMappings</code>, …). altero reads them from the vendored <code>schema.json</code>
@@ -1804,8 +1832,7 @@ dataserver caches these outside the database.</p>
 <p><code>item_fulltext</code> holds the text a client extracted from an attachment, matching
 the dataserver's table of the same purpose, without the reindexing bookkeeping
 that a hosted service needs.</p>
-<p><code>settings</code> matches the dataserver's, except that the value is stored as JSON
-text: the server never interprets a setting, so there is nothing to model.</p>
+<p><code>settings</code> stores sync setting values as JSON text rather than separate modeled fields.</p>
 <h2 id="delete-log">Delete log<a class="headerlink" href="#delete-log" title="Permanent link">&para;</a></h2>
 <p><code>syncDeleteLogKeys(libraryID, objectType, key, timestamp, version)</code> backs
 <code>/deleted?since=</code>, with <code>objectType</code> one of <code>collection</code>, <code>creator</code>, <code>item</code>,
@@ -1820,14 +1847,9 @@ atomic with respect to its library. <code>SELECT ... FOR UPDATE</code> is emitte
 PostgreSQL and dropped on SQLite, which has a single writer anyway. The version
 increment itself is computed by the database rather than in Python, so it stays
 correct even without the lock.</p>
-<p>Without that lock, ten simultaneous creates were measured all receiving version
-1, and nine of the ten items were lost — the surviving write overwrote the rest.
-<code>tests/test_concurrency.py</code> reproduces this against PostgreSQL.</p>
-<p>Two further get-or-create patterns — claiming a write token, and creating a tag
-named by more than one concurrent request — insert first and let the unique
-constraint decide, rather than looking and then inserting. With the library lock
-held these cannot interleave, so the behavior is defense in depth: it keeps
-them correct independently of the locking strategy above.</p>
+<p>Write-token and tag get-or-create operations use unique constraints rather
+than a separate existence check followed by insertion. This preserves their
+correctness independently of library locking.</p>
 <p>SQLite is configured with <code>foreign_keys=ON</code>, WAL and a busy timeout.
 <code>BEGIN IMMEDIATE</code> is deliberately not used: it would close the remaining
 lock-upgrade hole, but takes the write lock for read-only transactions too, so a

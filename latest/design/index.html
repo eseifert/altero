@@ -387,6 +387,8 @@
       
         
       
+        
+      
     
     
     
@@ -1291,6 +1293,8 @@
       
         
       
+        
+      
     
     
     
@@ -1645,6 +1649,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" class="md-nav__link">
         
   
@@ -1863,292 +1894,218 @@
 
 
 <h1 id="the-design-system">The design system<a class="headerlink" href="#the-design-system" title="Permanent link">&para;</a></h1>
-<p>This is the implementation reference for altero's browser UI. The short rule is: <strong>fill groups, outline controls, hairline separates</strong>. Shared surfaces and tokens should be reused rather than redrawn in individual components.</p>
+<p>For contributors styling the browser interface. Reuse shared tokens and styles
+from <code>web/src/styles/</code> rather than defining a separate visual language per component.</p>
 <h2 id="the-one-rule">The one rule<a class="headerlink" href="#the-one-rule" title="Permanent link">&para;</a></h2>
-<p><strong>Fill groups, outline controls, hairline separates.</strong></p>
+<p><strong>Fill groups, outline controls, use hairlines between rows.</strong></p>
 <ul>
-<li>A group of related things — a card, a panel, a callout — is marked by a
-  <strong>fill</strong>. Never by a border.</li>
-<li>A <strong>border</strong> means something you can operate: a text field, the search box
-  once it is open, a select. It is drawn in <code>outline</code>, which
-  <code>contrast.node.spec.ts</code> holds to 3:1 because WCAG 1.4.11 asks that of the
-  part of a control that identifies it.</li>
-<li>Rows <em>inside</em> a group are separated by a <strong>hairline</strong> in <code>outline-variant</code>,
-  which is a divider and is exempt from that ratio. A hairline never bounds a
-  group; it only divides one.</li>
+<li>Cards, panels and callouts use a background fill without an enclosing border.</li>
+<li>Operable controls use the <code>outline</code> color for boundaries.</li>
+<li>Internal dividers use <code>outline-variant</code>; they do not enclose groups.</li>
 </ul>
-<p>If a new screen needs a bounded area, it is a card. If it needs to stand out
-more than that, it is not a card — it floats, and <code>dialog.css</code> already says what
-that looks like.</p>
+<p>Use <code>dialog.css</code> for floating menus and dialogs.</p>
 <h2 id="surfaces-in-order">Surfaces, in order<a class="headerlink" href="#surfaces-in-order" title="Permanent link">&para;</a></h2>
-<p>The page is <code>surface</code> — white in light, near-black in dark. Everything else
-steps <em>away</em> from the page in one direction, so depth reads the same in both
-schemes:</p>
 <table>
 <thead>
 <tr>
 <th>Layer</th>
 <th>Token</th>
-<th>Where</th>
+<th>Shared class</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>The page</td>
+<td>Page</td>
 <td><code>surface</code></td>
-<td>behind everything</td>
+<td>Page background</td>
 </tr>
 <tr>
-<td>A card, a pane, a block, a table's heading, the app bar</td>
+<td>Card, pane, block or table heading</td>
 <td><code>surface-container</code></td>
 <td><code>.card</code>, <code>.pane</code>, <code>.block</code>, <code>.table-head</code></td>
 </tr>
 <tr>
-<td>Inside one of those, and every toolbar</td>
+<td>Inset or toolbar</td>
 <td><code>surface-container-high</code></td>
 <td><code>.card__inset</code>, <code>.toolbar</code></td>
 </tr>
 <tr>
-<td>Floating</td>
-<td><code>surface-container-high</code> + a shadow</td>
-<td>dialogs and menus, in <code>dialog.css</code></td>
+<td>Floating menu or dialog</td>
+<td><code>surface-container-high</code> with shadow</td>
+<td>Rules in <code>dialog.css</code></td>
 </tr>
 </tbody>
 </table>
-<p>Three steps, and a component may not reach for a fourth. <code>surface-container-low</code>
-and <code>-lowest</code> exist in the token file because Material defines them; the
-interface does not use them — over a white page <code>-low</code> is 1.03:1, so whatever
-it was meant to separate was not separated — and the guard test says so.</p>
-<p>The other containers are not depth, they are meaning, and they keep their jobs:
-<code>secondary-container</code> marks the row you have chosen, <code>error-container</code> marks
-what has gone wrong or what cannot be undone, <code>primary</code> is what you are meant to
-press.</p>
+<p>Do not use <code>surface-container-low</code> or <code>-lowest</code>. Use <code>secondary-container</code> for
+selection, <code>error-container</code> for errors and destructive warnings, and <code>primary</code>
+for the main action.</p>
 <h2 id="the-card">The card<a class="headerlink" href="#the-card" title="Permanent link">&para;</a></h2>
-<div class="language-css highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">.</span><span class="nc">card</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="k">display</span><span class="p">:</span><span class="w"> </span><span class="kc">flex</span><span class="p">;</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="k">flex-direction</span><span class="p">:</span><span class="w"> </span><span class="kc">column</span><span class="p">;</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="k">gap</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--md-spacing-</span><span class="mi">3</span><span class="p">);</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">  </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--md-spacing-</span><span class="mi">5</span><span class="p">);</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="k">border-radius</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--md-sys-shape-corner-medium</span><span class="p">);</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">  </span><span class="k">background</span><span class="p">:</span><span class="w"> </span><span class="nf">var</span><span class="p">(</span><span class="nv">--md-sys-color-surface-container</span><span class="p">);</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="p">}</span>
-</span></code></pre></div>
-<p>It lives in <code>web/src/styles/surfaces.css</code> and is imported by the components that
-use it, the way <code>auth-form.css</code> and <code>dialog.css</code> are. A component <strong>does not
-write this rule itself</strong>: a card that is a different height or a different gray
-on one screen reads as a seam between two applications.</p>
-<ul>
-<li><code>.card__title</code> — the heading inside a card: <code>title-medium</code>, medium weight, no
-  margin. Cards are titled by their content, not by their size.</li>
-<li><code>.card__note</code> — the quiet line under a control: <code>body-small</code>,
-  <code>on-surface-variant</code>. This is where an explanation goes; it is not a smaller
-  paragraph of body text.</li>
-<li><code>.card__inset</code> — a block inside a card that is its own thing: an API key shown
-  once, a link to hand over, a warning. <code>surface-container-high</code>, corner-small.</li>
-<li><code>.card__warning</code> — an inset that says what cannot be undone, in
-  <code>error-container</code>. Before the button, never after it.</li>
-<li><code>.card--interactive</code> — a card you can press, such as a group in the list. It
-  answers the pointer with the same wash a row does.</li>
-<li><code>.card__rows</code> — rows inside a card, divided by hairlines and bounded by the
-  card's own edge.</li>
-<li>A button inside a card is as wide as its label. Stretched across the card it
-  reads as the card's own edge rather than as something to press.</li>
-</ul>
-<p>Two more words for things that are not cards but are painted the same:</p>
-<ul>
-<li><code>.pane</code> — a column of a screen rather than a group on one: the item list's
-  detail pane. The same fill, no opinion about padding, because a pane's
-  contents arrange themselves and usually scroll.</li>
-<li><code>.block</code> — one thing on a page rather than a group of them: a rendered
-  citation, a note, the answer to "what would this delete". Card fill, small
-  corner.</li>
-<li><code>.chip</code> — a word about the thing beside it: a key's last four characters, a
-  role, <em>Suspended</em>. <code>secondary-container</code>, because a chip carries meaning
-  rather than depth; <code>.chip--warning</code> for what is out of service.</li>
-</ul>
+<p>Import <code>surfaces.css</code> and use <code>.card</code>. Its shared recipe defines padding,
+spacing, rounding and fill.</p>
+<table>
+<thead>
+<tr>
+<th>Class</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.card__title</code></td>
+<td>Card heading</td>
+</tr>
+<tr>
+<td><code>.card__note</code></td>
+<td>Supporting text below a control</td>
+</tr>
+<tr>
+<td><code>.card__inset</code></td>
+<td>Nested content such as a newly issued key</td>
+</tr>
+<tr>
+<td><code>.card__warning</code></td>
+<td>Destructive warning, placed before its action</td>
+</tr>
+<tr>
+<td><code>.card--interactive</code></td>
+<td>A card that acts as a control</td>
+</tr>
+<tr>
+<td><code>.card__rows</code></td>
+<td>Rows separated by hairlines</td>
+</tr>
+<tr>
+<td><code>.pane</code></td>
+<td>A screen column whose contents arrange their own spacing</td>
+</tr>
+<tr>
+<td><code>.block</code></td>
+<td>A single content block such as a citation</td>
+</tr>
+<tr>
+<td><code>.chip</code></td>
+<td>A role or short status; use <code>--warning</code> for an unavailable state</td>
+</tr>
+</tbody>
+</table>
+<p>Buttons within cards fit their labels rather than stretching across the card.</p>
 <h2 id="tables">Tables<a class="headerlink" href="#tables" title="Permanent link">&para;</a></h2>
-<p>The item list is the one thing that is not a card, and the reason is that a
-fill behind a dense list tints the thing being read. What bounds it instead:</p>
-<ul>
-<li><strong>A filled heading strip</strong> (<code>.table-head</code>) — the one part of a table that is
-  chrome rather than content, so it takes the card's fill and rounds its top
-  corners. The rule beneath it is what the rows hang from.</li>
-<li><strong>A hairline between each pair of rows, and one to close the last</strong>
-  (<code>.table-rows</code>), so the table ends rather than stops.</li>
-<li><strong>The rows themselves on the page</strong>, which is what keeps the text on the
-  surface the hover wash was measured against.</li>
-</ul>
-<p>The hairline belongs to the <strong>line</strong> rather than to the row. A row is always the
-last child of its line, whether or not a checkbox sits beside it, so a rule
-drawn on the row and taken off <code>:last-child</code> is taken off every row and the
-list becomes a wall of text.</p>
-<p><strong>The current row</strong> carries <code>.row--current</code>: the <code>secondary-container</code> fill, and
-a <code>primary</code> bar down its leading edge. The bar is not decoration. A state told
-in color alone is told to fewer people than it needs to be, which is WCAG
-1.4.1, and on a long list an edge is found faster than a wash.</p>
+<p>Use a filled <code>.table-head</code> above rows on the page surface. <code>.table-rows</code>
+provides internal and closing hairlines. Put the divider on the line wrapper,
+so rows with checkboxes retain it.</p>
+<p>Mark the current row with <code>.row--current</code>: selection fill and a bar on the
+leading edge. Selection must remain stronger than hover and recognizable
+without color alone.</p>
 <h2 id="icon-buttons-and-toolbars">Icon buttons and toolbars<a class="headerlink" href="#icon-buttons-and-toolbars" title="Permanent link">&para;</a></h2>
-<p>Material 3's icon button comes with a container or without one. Without one it
-is a glyph on a page, and a glyph on a page says nothing about being pressable
-until a pointer happens to rest on it — which a finger never does.</p>
-<p>So the <strong>group</strong> carries the container. A row of icon-only controls is a
-<code>.toolbar</code>: the inset fill, fully rounded, holding <code>.icon-button</code>s that stay
-plain. That is the standard treatment, and it keeps a row of six tools from
-becoming six filled circles competing with the content they act on.</p>
-<ul>
-<li><code>.toolbar</code> takes <code>surface-container-high</code> wherever it sits — on the page it
-  is a container inside the page, and inside a card it steps up from the card.
-  One value that works in both places beats two that have to be chosen right.</li>
-<li><code>.icon-button</code> is 2.25rem around a 22px glyph, growing to 2.5rem where the
-  pointer is coarse. <code>.icon-button--on</code> stays lit for a tool that is switched
-  on, which is the only thing telling a reader it is theirs to switch off;
-  <code>.icon-button--danger</code> is red at rest rather than only under a pointer, which
-  a finger never produces.</li>
-<li>An icon button that dismisses the thing it sits in — the close on a pane —
-  stands outside the toolbar, because it does not act on the contents.</li>
-<li>Every icon-only control carries its name twice: <code>aria-label</code>, which a screen
-  reader announces, and <code>title</code>, which a pointer reveals. A control with
-  neither is a rebus.</li>
-</ul>
+<p>Group related icon actions in <code>.toolbar</code>, with plain <code>.icon-button</code> controls.
+A close button for the surrounding pane stays outside its content toolbar.</p>
+<p>Use <code>--on</code> for an active toggle and <code>--danger</code> for destructive actions.
+Every icon-only control needs <code>aria-label</code> and <code>title</code>. Decorative icons beside
+text use <code>aria-hidden</code>.</p>
 <h2 id="icons">Icons<a class="headerlink" href="#icons" title="Permanent link">&para;</a></h2>
-<p>Single-weight line glyphs on a 24-unit grid, <code>stroke-width: 1.5</code>, round caps and
-joins, no fill. Small controls use slightly heavier strokes. Controls and sidebar
-rows draw them at 22px, and at 20px inline beside text; item type icons keep the
-sizes of the desktop's item tree. The library's
-are drawn to read like the desktop client's sidebar; the ones with no
-counterpart there follow the same rules so they sit with them. They are drawn
-rather than copied: Zotero's assets are the client's and carry its license.</p>
-<p>Edit the SVG files in <code>web/src/assets/icons/</code>: <code>items/</code> is named by schema item
-type, <code>sidebar/</code> by row or action, and <code>controls/</code> holds the remaining controls.
-<code>controls/edit.svg</code> is the pencil shared by tag, collection and licence editing.
-Keep each file's <code>viewBox</code>, <code>currentColor</code> and descriptive <code>&lt;title&gt;</code>; its root
-attributes and shapes are rendered directly, including groups, circles and
-rectangles. The title supplies the label when needed; the component supplies
-the displayed size. SVG files are bundled locally and can be opened in a vector
-editor or changed by hand. Logos and favicons remain in <code>web/src/assets/</code>.</p>
-<p>A glyph that is the only thing in a control carries a label
-(<code>aria-label</code>); one that sits beside text is <code>aria-hidden</code>, because a screen
-reader saying "trash trash" is worse than silence.</p>
+<p>Edit SVG assets in <code>web/src/assets/icons/</code>: <code>items/</code>, <code>sidebar/</code> and <code>controls/</code>.
+Use a 24-unit grid, rounded caps and joins, no fill, and the established stroke
+weight. Preserve <code>viewBox</code>, <code>currentColor</code> and descriptive <code>&lt;title&gt;</code> elements.
+Components set the display size.</p>
+<p>Use the shared pencil for editing. Logos and favicons live separately in
+<code>web/src/assets/</code>.</p>
 <h2 id="rows">Rows<a class="headerlink" href="#rows" title="Permanent link">&para;</a></h2>
-<p>A list of things you can act on — libraries in the sidebar, sections in a panel,
-accounts, groups — is rows, not cards. One row is:</p>
-<ul>
-<li>separated from the next by nothing at all, or by a hairline where the rows are
-  tall enough to need it;</li>
-<li><code>--md-sys-state-hover-surface</code> under the pointer, which is a translucent wash
-  of the text color rather than another surface step, so it reads the same over
-  a white list as over a dialog;</li>
-<li><code>secondary-container</code> when it is the current one, which is deliberately
-  stronger than the hover wash: <code>contrast.node.spec.ts</code> asserts that ordering,
-  because a row under the pointer that looks more chosen than the chosen row is
-  a lie about where you are.</li>
-</ul>
-<p>The settings panel and the administration panel are the same rows as the
-library's sidebar, to the pixel, from <code>components/SectionPanel.vue</code>. Two
-sidebars that differ slightly read as two applications.</p>
-<p>Collection and global tag counts use the shared <code>count-badge</code> surface: a small
-rounded neutral fill with tabular digits, distinct from the name and from the
-selected row or pill in either theme.</p>
+<p>Use rows for navigation and actionable lists. Reuse <code>SectionPanel.vue</code> for
+settings and administration panels. Hover uses the shared translucent state
+layer; current rows use the selection fill.</p>
+<p>Collection and tag counts use <code>count-badge</code>, with tabular digits and a neutral
+fill distinct from selection.</p>
 <h2 id="spacing-and-shape">Spacing and shape<a class="headerlink" href="#spacing-and-shape" title="Permanent link">&para;</a></h2>
-<p>Spacing comes from <code>--md-spacing-1</code> to <code>-7</code> (4, 8, 12, 16, 24, 32, 48). Inside a
-card the gap is <code>-3</code>; between cards, <code>-4</code>; a card's own padding is <code>-5</code>. A page's
-sections are <code>-5</code> apart. Nothing uses a bare pixel value for space.</p>
-<p>Corners: <code>corner-small</code> (8px) for something inside a card, <code>corner-medium</code>
-(12px) for the card itself, <code>corner-full</code> for a pill or a round icon button.
-<code>corner-large</code> and <code>-extra-large</code> are for dialogs.</p>
+<p>Use <code>--md-spacing-1</code> through <code>-7</code>: 4, 8, 12, 16, 24, 32 and 48 pixels.
+Card gaps use <code>-3</code>, space between cards uses <code>-4</code>, and card padding and page
+section gaps use <code>-5</code>.</p>
+<p>Use <code>corner-small</code> for insets, <code>corner-medium</code> for cards, <code>corner-full</code> for
+pills, and the larger shared corners for dialogs.</p>
 <h2 id="type">Type<a class="headerlink" href="#type" title="Permanent link">&para;</a></h2>
-<p>The IBM Plex Sans family and its Japanese, Arabic and Hebrew cuts are served by
-this application — see <a href="../web/implementation/#design">Web implementation notes</a>
-for how fonts are loaded. The scale
-is in the tokens; what matters here is which step means what:</p>
-<ul>
-<li><code>title-large</code> — the name of a screen, once.</li>
-<li><code>title-medium</code> — the heading of a card.</li>
-<li><code>body-medium</code> — everything you read.</li>
-<li><code>body-small</code> — a note under a control, a timestamp, a count.</li>
-<li><code>label-medium</code> — a chip.</li>
-</ul>
-<p>Nothing sets <code>text-transform</code>, and nothing invents a size. A number that wants
-to line up in a column gets <code>font-variant-numeric: tabular-nums</code>.</p>
+<p>Use the self-hosted IBM Plex fonts and shared type scale:</p>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>title-large</code></td>
+<td>Screen title</td>
+</tr>
+<tr>
+<td><code>title-medium</code></td>
+<td>Card title</td>
+</tr>
+<tr>
+<td><code>body-medium</code></td>
+<td>Body text</td>
+</tr>
+<tr>
+<td><code>body-small</code></td>
+<td>Supporting text, timestamps and counts</td>
+</tr>
+<tr>
+<td><code>label-medium</code></td>
+<td>Chips</td>
+</tr>
+</tbody>
+</table>
+<p>Avoid custom sizes and text transforms. Use <code>font-variant-numeric: tabular-nums</code>
+for aligned numbers. See <a href="../web/implementation/#design">font loading</a>.</p>
 <h2 id="accessibility">Accessibility<a class="headerlink" href="#accessibility" title="Permanent link">&para;</a></h2>
-<p>The target is <strong>WCAG 2.2 level AA</strong>, and the parts of it that are decisions
-about design rather than about markup are settled here.</p>
-<p><strong>Contrast (1.4.3, 1.4.11).</strong> <code>styles/contrast.node.spec.ts</code> reads the tokens
-and measures every pair the interface actually puts on screen: 4.5:1 for text,
-3:1 for the parts of a control that identify it — its border, its focus ring,
-the bar on the current row. It also holds one ordering that is not a ratio: the
-current row is marked more strongly than the row under the pointer, or hovering
-would look like choosing.</p>
-<p><strong>Color is never the only signal (1.4.1).</strong> A suspended account carries the
-word <em>Suspended</em>, not only a red chip. The current row carries a bar as well as
-a fill. A failure carries <code>role="alert"</code> as well as an error fill. A tool that
-is switched on is both lit and <code>aria-pressed</code>.</p>
-<p><strong>Focus (2.4.7, 2.4.11).</strong> One ring everywhere, <code>primary</code> at 2px with an offset
-so it is not confused with a control's own border, on <code>:focus-visible</code> with a
-<code>:focus</code> fallback for Safari before 15.4. The application bar is sticky, so
-<code>html { scroll-padding-block-start: 4rem }</code> keeps anything scrolled into view
-clear of it.</p>
-<p><strong>Targets (2.5.8).</strong> Nothing you can press is smaller than 24 by 24 CSS pixels,
-and the controls a finger reaches for grow past that on a coarse pointer. The
-smallest ones — a pencil on a tag, a twisty in the tree — sit at exactly 24 with
-their glyphs unchanged.</p>
-<p><strong>Dragging has an alternative (2.5.7).</strong> Everything a drag of the item list can
-express can also be done without one: filing and copying through <strong>Move or
-copy…</strong>, trashing and deleting through the tools, and a collection is moved by a
-picker rather than dragged at all. See
-<a href="../web/library/#by-touch">web/library.md</a>.</p>
-<p><strong>Authentication (3.3.8).</strong> Nothing asks a reader to solve a puzzle, transcribe
-an image or remember anything but their password, and nothing prevents pasting
-into a field — including the one-time code.</p>
-<p>Buttons and icon tools show a foreground wash while held with a pointer,
-finger or Space. The target stays in place, and disabled buttons do not show
-the press layer. This feedback remains immediate with reduced motion.</p>
-<p><strong>Motion (2.3.3).</strong> <code>prefers-reduced-motion</code> turns the transitions off, at
-0.01ms rather than zero so that a transition end event nothing else waits for
-still fires.</p>
-<p>Motion says where something came from or went, and nothing else. The named
-transitions are in <code>styles/motion.css</code> — <code>FadeScale</code> for something appearing in
-place, <code>Collapse</code> for a section opening by its height, and row and toast exits — on the
-<code>--md-sys-motion-*</code> tokens, 150 to 250 ms. A toast reports an errand that just
-happened and offers to undo it where it can; it stays while the pointer or focus
-is on it (2.2.1), sits in a live region that is always on the page, and never
-replaces the trash as the way to take back a deletion. Pointer and keyboard
-focus hold it independently: moving the pointer away cannot expire a focused
-action, and tabbing between its buttons does not restart the clock.
-While a list loads, its
-rows are drawn as shapes beside the status message a screen reader hears: the
-list's own rows and columns, each bar as tall as the text's capitals and as
-wide as what the column usually holds, so it reads as the table that is coming.</p>
-<p>What this cannot claim: none of it has been through a screen reader or a real
-audit. The measurable parts are measured, in tests that fail — including axe
-over the sign-in, library, settings, administration and profile pages at desktop
-and phone sizes, which fails on any serious or critical finding; the rest is
-careful work by somebody who cannot see the result. The item list is a list of
-buttons rather than a <code>role="grid"</code>, so a reader hears each row's values in
-order without hearing the column names — a deliberate trade, and the first
-thing to revisit if this is ever tested with assistive technology.</p>
+<p>The target is WCAG AA. The checks below cover measurable parts; the interface
+has not had a full accessibility audit or screen-reader verification.</p>
+<ul>
+<li><strong>Contrast:</strong> at least 4.5:1 for text and 3:1 for identifying control boundaries and focus indicators.</li>
+<li><strong>Status:</strong> accompany color with text, shape or semantics. Errors use <code>role="alert"</code>; toggles use <code>aria-pressed</code>.</li>
+<li><strong>Focus:</strong> use the shared visible ring. Keep focused content clear of the sticky header and restore focus after closing dialogs.</li>
+<li><strong>Targets:</strong> at least 24 by 24 CSS pixels; grow touch controls for coarse pointers.</li>
+<li><strong>Alternatives:</strong> provide controls for every drag operation. Use logical start/end CSS so direction changes work.</li>
+<li><strong>Authentication:</strong> permit pasting, including into one-time-code inputs. Do not add puzzles or transcription tasks.</li>
+<li><strong>Motion:</strong> use shared transitions in <code>motion.css</code> and respect <code>prefers-reduced-motion</code>. Press feedback must not move its target.</li>
+<li><strong>Messages:</strong> keep toast announcements in a persistent live region. Pause expiry while pointer or keyboard focus is on the toast, independently.</li>
+</ul>
+<p>Loading skeletons follow the list's structure and accompany an accessible status
+message. Undo messages supplement Trash/Restore; they are not the only way to
+recover a trashed item.</p>
+<p>The item list uses buttons rather than a grid, so screen readers hear values
+without column names. Review this tradeoff during assistive-technology testing.</p>
 <h2 id="what-keeps-this">What keeps this<a class="headerlink" href="#what-keeps-this" title="Permanent link">&para;</a></h2>
-<p><code>web/src/styles/surfaces.node.spec.ts</code> reads every component in the tree and
-fails on three things: a component that paints a surface step of its own
-(<code>background: var(--md-sys-color-surface-container…)</code> outside the shared
-stylesheets), anything that reaches for the steps below the page, and an area
-bounded in the divider color, which is a group drawn as an outline rather than
-a fill. A control's own border in <code>outline</code> is untouched by that last rule,
-which is the distinction <code>contrast.node.spec.ts</code> draws: <code>outline</code> bounds
-something you can operate, <code>outline-variant</code> divides things you cannot.</p>
-<p>Three components are listed there as exceptions, each for its own reason: the
-application bar is chrome rather than a card, the theme menu floats, and the
-publications dialog fills a step above the dialog it sits in. A fourth is a
-deliberate line in a test rather than a CSS block somebody copied.</p>
-<p>That is the same shape as the two guards already in <code>web/src/styles</code>:
-<code>fonts.node.spec.ts</code>, which fails if a font is ever fetched from somebody else's
-machine, and <code>contrast.node.spec.ts</code>, which fails if the palette stops being
-readable. A design system nobody can accidentally leave is worth more than one
-written down.</p>
-<p><code>logical.node.spec.ts</code> keeps the interface ready to be mirrored for
-right-to-left languages: new CSS says a side as start or end
-(<code>margin-inline-start</code>, <code>text-align: start</code>), never as left or right. The files
-that predate it are listed with how many physical declarations each still has,
-and a file may only lose them.</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Protects</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>surfaces.node.spec.ts</code></td>
+<td>Shared surfaces, allowed layers and divider use</td>
+</tr>
+<tr>
+<td><code>contrast.node.spec.ts</code></td>
+<td>Text/control contrast and selection stronger than hover</td>
+</tr>
+<tr>
+<td><code>fonts.node.spec.ts</code></td>
+<td>Self-hosted fonts</td>
+</tr>
+<tr>
+<td><code>logical.node.spec.ts</code></td>
+<td>Logical CSS properties; existing physical declarations may only decrease</td>
+</tr>
+<tr>
+<td>Browser tests with axe</td>
+<td>Serious and critical findings at desktop and phone sizes</td>
+</tr>
+</tbody>
+</table>
+<p>Review explicit guard exceptions before adding one. Passing automated checks
+does not establish complete accessibility or support in every browser.</p>
 
 
 

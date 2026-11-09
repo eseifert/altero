@@ -387,6 +387,8 @@
       
         
       
+        
+      
     
     
     
@@ -1462,6 +1464,8 @@
       
         
       
+        
+      
     
     
     
@@ -1626,6 +1630,33 @@
     
   
   Web interface implementation notes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
 
     
   </span>
@@ -1863,7 +1894,7 @@
 
 
 <h1 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h1>
-<p>Every altero setting has a working default. A personal instance needs <code>ALTERO_PUBLIC_URL</code> and nothing else; the rest exist for deployments that need them.</p>
+<p>Use this reference to look up a setting and its default. For a new server, start with <a href="../deployment/#production-settings-to-change-first">Deployment</a>.</p>
 <h2 id="where-a-setting-comes-from">Where a setting comes from<a class="headerlink" href="#where-a-setting-comes-from" title="Permanent link">&para;</a></h2>
 <p>Three sources, in increasing order of precedence:</p>
 <ol>
@@ -1882,7 +1913,7 @@
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nv">ALTERO_PORT</span><span class="o">=</span><span class="m">9000</span><span class="w"> </span><span class="nv">ALTERO_DEBUG</span><span class="o">=</span><span class="nb">true</span><span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>altero
 </span></code></pre></div>
 <h2 id="in-docker">In Docker<a class="headerlink" href="#in-docker" title="Permanent link">&para;</a></h2>
-<p><code>docker/.env</code>, beside <code>docker/compose.yaml</code>, holds the settings for the Compose stack. Every <code>ALTERO_</code> setting in it reaches the container:</p>
+<p>Put <code>.env</code> beside your Compose file: <code>docker/.env</code> for the repository layout, or <code>.env</code> beside a downloaded <code>compose.yaml</code>. Every <code>ALTERO_</code> setting in it reaches the container:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">POSTGRES_PASSWORD</span><span class="o">=</span>a-real-password
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">ALTERO_PUBLIC_URL</span><span class="o">=</span>https://zotero.example.org
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nv">ALTERO_SMTP_URL</span><span class="o">=</span>smtp://mail.example.org:587
@@ -1892,7 +1923,7 @@
 </span></code></pre></div>
 <p>The file is handed to the container whole, so keep out of it anything the application should not hold. <code>ALTERO_IMAGE_TAG</code> and <code>ALTERO_PUBLISH_PORT</code> belong there too, though they are read by Compose rather than by altero.</p>
 <p>No <code>.env</code> is needed at all: an instance running on the defaults never writes one.</p>
-<p>A variable exported in the shell wins over the file for <code>ALTERO_DATABASE_URL</code>, <code>ALTERO_SMTP_URL</code>, <code>ALTERO_MAIL_FROM</code> and <code>ALTERO_PUBLIC_URL</code>, which <code>compose.yaml</code> names itself. <code>ALTERO_DATABASE_URL</code> is always the stack's own database; point altero at an external one with a second Compose file rather than with <code>.env</code>:</p>
+<p>A variable exported in the shell wins over the file for <code>ALTERO_SMTP_URL</code>, <code>ALTERO_MAIL_FROM</code>, <code>ALTERO_PUBLIC_URL</code> and <code>ALTERO_SSO_ONLY</code>, which <code>compose.yaml</code> names itself. <code>ALTERO_DATABASE_URL</code> is always the stack's own database; point altero at an external one with a second Compose file rather than with <code>.env</code>:</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># docker/compose.settings.yaml</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nt">services</span><span class="p">:</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">  </span><span class="nt">altero</span><span class="p">:</span>
@@ -1973,12 +2004,12 @@
 <tr>
 <td><code>ALTERO_OPEN_REGISTRATION</code></td>
 <td><code>false</code></td>
-<td>Whether anybody may register from the browser. The first account is always allowed, and so is anybody holding an unanswered group invitation, so a fresh instance is reachable without shell access either way.</td>
+<td>Whether anybody may register from the browser. First-account and invited-address registration are also available, except in SSO-only mode.</td>
 </tr>
 <tr>
 <td><code>ALTERO_PASSWORD_RESET</code></td>
 <td><code>false</code></td>
-<td>Whether somebody who has forgotten their password may ask for a link. It makes the mail relay part of the authentication, requires <code>ALTERO_SMTP_URL</code> and <code>ALTERO_PUBLIC_URL</code>, and does nothing for an unconfirmed address. An administrator can issue the same link whatever this says.</td>
+<td>Offer self-service password reset for confirmed addresses. Requires SMTP and a public URL. Administrators can issue reset links independently, except in SSO-only mode.</td>
 </tr>
 <tr>
 <td><code>ALTERO_SSO_ONLY</code></td>
@@ -2055,7 +2086,7 @@
 <tr>
 <td><code>ALTERO_TRASH_RETENTION_DAYS</code></td>
 <td><code>0</code></td>
-<td>How long an item stays in the trash before the server deletes it for good. zotero.org uses 30.</td>
+<td>Days before permanent trash deletion; zero keeps trash indefinitely.</td>
 </tr>
 <tr>
 <td><code>ALTERO_ACTIVITY_RETENTION_DAYS</code></td>
@@ -2121,7 +2152,7 @@
 <tr>
 <td><code>ALTERO_IMAGE_TAG</code></td>
 <td><code>docker/compose.yaml</code></td>
-<td>Which published image to run: <code>latest</code>, a release such as <code>1.0.0-beta.8</code>, or <code>dev</code> for master.</td>
+<td>Which published image to run: <code>latest</code>, a chosen release tag, or <code>dev</code> for master.</td>
 </tr>
 <tr>
 <td><code>ALTERO_PUBLISH_PORT</code></td>

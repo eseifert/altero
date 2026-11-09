@@ -387,6 +387,8 @@
       
         
       
+        
+      
     
     
     
@@ -1278,17 +1280,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#how-to-use-this-reference" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        How to use this reference
-      </span>
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#api-queries-and-response-behavior" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2178,6 +2169,8 @@
       
         
       
+        
+      
     
     
     
@@ -2361,6 +2354,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" class="md-nav__link">
         
   
@@ -2427,17 +2447,6 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#how-to-use-this-reference" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        How to use this reference
-      </span>
-    </span>
-  </a>
-  
-</li>
       
         <li class="md-nav__item">
   <a href="#api-queries-and-response-behavior" class="md-nav__link">
@@ -3295,28 +3304,22 @@
 
 
 <h1 id="compatibility-reference">Compatibility reference<a class="headerlink" href="#compatibility-reference" title="Permanent link">&para;</a></h1>
-<p>This page records how altero behaves where the published Zotero API documentation is silent, vague or wrong, and where altero deliberately does something different.</p>
-<h2 id="how-to-use-this-reference">How to use this reference<a class="headerlink" href="#how-to-use-this-reference" title="Permanent link">&para;</a></h2>
-<p>altero is built for the unmodified Zotero desktop application. One rule decides every disagreement:</p>
-<blockquote>
-<p>When the published documentation and what the real client needs disagree, the real client wins.</p>
-</blockquote>
-<p>The evidence comes from three places, in this order:</p>
-<ul>
-<li>the live API at <code>https://api.zotero.org</code>, compared response by response;</li>
-<li>the source of the official <a href="https://github.com/zotero/dataserver">dataserver</a>; and</li>
-<li>real Zotero clients and libraries, where the first two say nothing.</li>
-</ul>
-<p>Each section says what altero does and why. The later sections cover features zotero.org does not have, such as finer group roles, renaming tags and the authorization server, and record the decisions behind them.</p>
+<p>Use this reference when integrating a client or investigating behavior that
+differs from Zotero's published API documentation. Each decision describes the
+observable result and its reason.</p>
+<p>altero targets unmodified Zotero Desktop. Where documentation disagrees with
+behavior clients depend on, compatibility wins. Evidence includes the live API,
+the <a href="https://github.com/zotero/dataserver">reference dataserver</a> and real-client
+checks. Inferences and untested behavior are marked explicitly.</p>
+<p>For setup and ordinary use, start with <a href="../clients/">Clients</a> or the
+<a href="../web-interface/">web guide</a>.</p>
 <h2 id="api-queries-and-response-behavior">API queries and response behavior<a class="headerlink" href="#api-queries-and-response-behavior" title="Permanent link">&para;</a></h2>
 <h3 id="omitted-note-content-in-partial-writes">Omitted note content in partial writes<a class="headerlink" href="#omitted-note-content-in-partial-writes" title="Permanent link">&para;</a></h3>
 <p>A partial write that leaves out <code>note</code> keeps the existing note text, for notes and attachments alike. Sending <code>note: ""</code> clears it. A full replacement (<code>PUT</code>) still replaces everything. This matches the dataserver, which only touches the note when the property is present.</p>
 <h3 id="empty-creators-in-item-responses">Empty creators in item responses<a class="headerlink" href="#empty-creators-in-item-responses" title="Permanent link">&para;</a></h3>
-<p>Regular-item responses include <code>creators: []</code> when there are no creators.
-The dataserver's response serializer calls <code>toJSON</code> with <code>includeEmpty=true</code>;
-its default of omitting an empty list applies elsewhere. Omitting this property
-from a sync response makes an existing desktop retain the creators it already
-has. Notes, attachments and annotations do not carry a creator list.</p>
+<p>Regular items include <code>creators: []</code> when empty. Omitting it from a sync
+response makes an existing desktop retain its previous creators. Notes,
+attachments and annotations have no creator list.</p>
 <h3 id="racing-zip-archives-of-different-sizes">Racing ZIP archives of different sizes<a class="headerlink" href="#racing-zip-archives-of-different-sizes" title="Permanent link">&para;</a></h3>
 <p>When the client uploads a web snapshot, <code>md5</code> describes the file inside the archive and <code>zipMD5</code> the archive itself. Two clients zipping the same snapshot produce archives of different sizes with the same <code>md5</code>.</p>
 <p>Each archive is stored under its own <code>zipMD5</code>, as on zotero.org, so neither replaces the other: both registrations succeed, and each attachment downloads the archive its own client sent.</p>
@@ -3326,42 +3329,34 @@ has. Notes, attachments and annotations do not carry a creator list.</p>
 <p><strong><code>||</code> only separates when there is whitespace on both sides.</strong> <code>tag=a||b</code> is one tag literally named <code>a||b</code>, and so is <code>tag=a ||b</code>. This lets a tag containing <code>||</code> round-trip. Every documented example uses the spaced form, so clients are unaffected.</p>
 <p>A leading hyphen is escaped as <code>\-</code>. Only the whole value is trimmed, once, so inner spacing in <code>tag=foo bar || bar</code> survives.</p>
 <h3 id="quick-search-and-full-text-search">Quick search and full-text search<a class="headerlink" href="#quick-search-and-full-text-search" title="Permanent link">&para;</a></h3>
-<p><code>q</code> follows its own rules.</p>
-<p><strong>Words are combined with AND, fields with OR.</strong> Each word must appear somewhere in the title, a note's title, a creator's name or the year. <code>q=call me</code> needs both words, not the phrase; <code>q="call me"</code> needs the phrase. Single quotes never group words.</p>
-<p><strong><code>q=0</code> matches everything.</strong> The dataserver drops an unquoted <code>0</code> before searching, so a query of just <code>0</code> filters nothing. <code>q="0"</code> searches for it. Copied rather than corrected.</p>
-<p><strong><code>qmode=everything</code> also searches attachments' text.</strong> The matching item is the attachment itself, not the item it belongs to.</p>
-<p>zotero.org answers this from Elasticsearch. altero does not run a search cluster — that is exactly the kind of dependency <a href="../motivation/">Motivation</a> rules out — so it matches the stored text as a substring, using a trigram index in the database (see <a href="../deployment/#database-requirements">Database requirements</a>). Three differences follow:</p>
+<p>Quick search combines words with AND across the title, note title, creators
+and year. Double quotes group a phrase; single quotes do not. As upstream,
+unquoted <code>q=0</code> applies no filter, while <code>q="0"</code> searches for zero.</p>
+<p>With <code>qmode=everything</code>, altero also searches stored attachment text and every
+item field. It uses database substring matching instead of a separate search
+service. The differences are:</p>
 <ul>
-<li><strong>Characters, not words.</strong> zotero.org matches whole words, with the last one as a prefix. altero matches characters, which cuts both ways: <code>q=equod</code> finds <em>Pequod</em>, which zotero.org would not, but <code>q="Pequod sailed"</code> does not find <em>Pequod, sailed</em>, which zotero.org would. Neither server stems, so <code>q=sailing</code> finds <em>sailed</em> on neither.</li>
+<li>Character substrings match: <code>equod</code> finds <em>Pequod</em>. Punctuation can interrupt a phrase match.</li>
+<li>Accents are significant; case is ignored across alphabets. Chinese and Japanese terms require consecutive characters.</li>
+<li><code>%</code> and <code>_</code> act as wildcards. Terms shorter than three characters require a slower scan.</li>
+<li>All fields are searched, including fields upstream omits.</li>
+<li>There is no upstream-style 300-hit full-text cap.</li>
 </ul>
-<p><strong>Accents are not folded, and Chinese and Japanese text matches as a phrase.</strong> <code>q=cafe</code> does not find <em>café</em>, here or on zotero.org. Zotero 9 made the <em>desktop's</em> own search ignore accents, but that is its local copy; the API is accent-sensitive on both servers. <code>量子計算</code> needs those four characters in a row, which is the behavior the desktop had to be fixed to produce. What zotero.org's analyzer does is taken from Elasticsearch's documented defaults, not observed.</p>
-<p><strong>Case is ignored in every alphabet, on every database</strong>: <code>über</code> finds <code>ÜBER</code>, in attachments' text and in every field.</p>
-<p>A search term shorter than three characters cannot use the index and reads every text, which is slower. <code>%</code> and <code>_</code> act as wildcards, in the text as in the fields: <code>q=col_ur</code> finds <em>colour</em>. zotero.org has no wildcards.
-- <strong>No 300-result cap.</strong> zotero.org asks Elasticsearch for 300 hits and silently drops the rest. altero returns every match: the limit is an accident of how zotero.org fetches hits, not part of what the API means.
-- <strong>More fields are searched.</strong> zotero.org searches the title, creators, year and attachment text. altero searches every field, so a match on <code>publisher</code> is found here only. This is a superset, so no client breaks on it.</p>
-<p><strong><code>/top</code> answers with the parent of whatever matched.</strong> When a search can match a child item — through <code>q</code>, <code>tag</code>, <code>itemKey</code> or <code>itemType</code> — a hit in an attachment's text or a child note's title returns the top-level item it belongs to. Otherwise full-text hits would never appear in the top-level list clients actually show.</p>
-<p>Two consequences, both copied from zotero.org:</p>
-<ul>
-<li>All words must match the same item. A word in the parent's title plus a word in its attachment's text is not a match.</li>
-<li><code>since</code> does not climb to the parent. Syncing clients send it, and reporting a parent whose own version did not change would be wrong.</li>
-</ul>
-<p>Neither the matched item nor the parent it resolves to may be in the trash, so a hit inside a trashed item's PDF does not bring it back.</p>
-<p><strong>A tag search minds case.</strong> <code>/tags?q=fic</code> does not find <em>Fiction</em>, as on zotero.org and in the desktop's own local API. <code>%</code> and <code>_</code> act as wildcards there too, and <code>\</code> escapes them: searching for <code>50\%</code> finds <em>50%</em> but not <em>500</em>.</p>
+<p>Upstream's documented analyzer defaults imply different word and phrase behavior;
+that analyzer comparison is an inference, not a direct measurement.</p>
+<p><code>/top</code> returns the parent of a matching child for <code>q</code>, <code>tag</code>, <code>itemKey</code> and
+<code>itemType</code>. All words must match the same item. <code>since</code> does not promote a
+child to its parent. Neither a trashed match nor a trashed parent is returned.</p>
+<p>Tag-name search is case-sensitive: <code>/tags?q=fic</code> does not find <em>Fiction</em>.
+It also accepts <code>%</code> and <code>_</code> wildcards, escaped with a backslash when literal.</p>
 <h3 id="tag-counts-and-the-trash">Tag counts and the trash<a class="headerlink" href="#tag-counts-and-the-trash" title="Permanent link">&para;</a></h3>
-<p><strong>Library-wide tag counts include trashed items.</strong> <code>/users/&lt;id&gt;/tags</code> and
-<code>/groups/&lt;id&gt;/tags</code>, including a tag fetched by name, retain
-<a href="https://github.com/zotero/dataserver/issues/51">dataserver#51</a>. A tag on one
-live item and one trashed item reports <code>meta.numItems: 2</code>; a tag carried only
-by trash remains listed. <code>includeTrashed=0</code> does not change these library-wide
-counts. The reviewed <a href="https://github.com/zotero/dataserver/blob/6e091852b8a3e369056f390ba69e5de90cda1134/model/Tag.inc.php#L487-L493">tag serializer</a>
-counts linked items without filtering the deletion flag. This is source
-evidence, not a new live zotero.org measurement.</p>
-<p>Use <code>/items/tags</code> for tags counted over non-trashed items, or
-<code>/items/trash/tags</code> for the trash alone. altero counts item-scoped tags over
-the matching items: <code>includeTrashed=1</code> widens <code>/items/tags</code>, and collection
-scopes keep their own counts. The browser uses these scoped counts. Confined
-OAuth grants still restrict which items any count may include; the quirk never
-bypasses a grant's collection restrictions.</p>
+<p>Library-wide <code>/tags</code> counts include trashed items, even with
+<code>includeTrashed=0</code>. A tag carried only by trashed items remains listed. This
+matches reviewed upstream behavior (<a href="https://github.com/zotero/dataserver/issues/51">dataserver#51</a>);
+it is source evidence, not a new live measurement.</p>
+<p>Use <code>/items/tags</code> for live-item counts or <code>/items/trash/tags</code> for Trash.
+<code>includeTrashed=1</code> widens the former. Collection scopes and restricted OAuth
+grants still limit which items are counted. The browser uses item-scoped counts.</p>
 <h3 id="who-added-an-item-and-who-last-changed-it">Who added an item, and who last changed it<a class="headerlink" href="#who-added-an-item-and-who-last-changed-it" title="Permanent link">&para;</a></h3>
 <p>In group libraries, an item's <code>meta</code> names who created it and who last changed it. Both behaviors below are copied, including the parts that look like oversights.</p>
 <ul>
@@ -3439,39 +3434,63 @@ bypasses a grant's collection restrictions.</p>
 <h3 id="timestamps">Timestamps<a class="headerlink" href="#timestamps" title="Permanent link">&para;</a></h3>
 <p><code>dateAdded</code> and <code>dateModified</code> come from the client and are stored unchanged, so uploading an existing library keeps its history. <code>serverDateModified</code> is always the server's own time, so no client can reorder results by changing its own clock.</p>
 <h3 id="citations-and-bibliographies">Citations and bibliographies<a class="headerlink" href="#citations-and-bibliographies" title="Permanent link">&para;</a></h3>
-<p>zotero.org sends items to a separate citation server. altero formats citations itself, with <a href="https://github.com/brechtm/citeproc-py">citeproc-py</a> and a packaged copy of the Citation Style Language styles (<a href="https://github.com/inveniosoftware/citeproc-py-styles">citeproc-py-styles</a>). Nothing is fetched while answering a request, so an instance without internet access can still use every published style.</p>
-<p><strong>Items are mapped to CSL the way Zotero maps them</strong>, using the tables in Zotero's own schema. A schema update therefore changes the output with it.</p>
-<p><strong>A field is text in <code>bib</code> and <code>citation</code>.</strong> Markup in a title or a name is escaped, except the rich-text tags the citation processor zotero.org uses also reads as formatting: <code>&lt;i&gt;</code>, <code>&lt;b&gt;</code>, <code>&lt;sup&gt;</code>, <code>&lt;sub&gt;</code>, small caps and <code>nocase</code>. A field cannot add an element, so a page that shows the HTML cannot be made to run a script.</p>
-<p><strong><code>format=csljson</code> always wraps items</strong> in <code>{"items": [ ... ]}</code>, even a single one, as zotero.org does.</p>
-<p><strong><code>format=bib</code> is one document.</strong> It carries <code>Total-Results</code> but no <code>Link</code> header, refuses <code>sort</code>, <code>direction</code>, <code>start</code>, <code>limit</code> and <code>order</code> with a 400, and holds at most 150 items.</p>
-<p><strong><code>include</code> is checked.</strong> <code>data</code>, <code>bib</code>, <code>citation</code>, <code>csljson</code>, <code>none</code> and every export format are accepted. <code>include=none</code> cannot be combined with anything, <code>include</code> outside <code>format=json</code> is a 400, and so is an unknown value. zotero.org also accepts <code>html</code>, which needs Atom and is requested through <code>content</code> here.</p>
-<p><strong>Every export format zotero.org offers is available.</strong> zotero.org runs Zotero's JavaScript translators; altero has a Python port of each of the sixteen formats, checked against what zotero.org returns for the same item:</p>
+<p>Citation rendering runs locally with packaged CSL styles. No network fetch is
+needed during a request. CSL field mapping follows Zotero's schema.</p>
+<table>
+<thead>
+<tr>
+<th>Request</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>format=csljson</code></td>
+<td>Wraps entries in <code>{"items": [...]}</code>, including a single item</td>
+</tr>
+<tr>
+<td><code>format=bib</code></td>
+<td>One document, at most 150 items; <code>Total-Results</code> but no pagination links</td>
+</tr>
+<tr>
+<td><code>format=bib</code> with sorting or paging parameters</td>
+<td>400</td>
+</tr>
+<tr>
+<td><code>include</code> outside JSON, an unknown include, or <code>none</code> combined with another</td>
+<td>400</td>
+</tr>
+<tr>
+<td>Unknown style name</td>
+<td>404; renamed styles retain their aliases</td>
+</tr>
+<tr>
+<td>Style supplied as a URL</td>
+<td>400; arbitrary remote styles are not fetched</td>
+</tr>
+</tbody>
+</table>
+<p><code>include</code> accepts <code>data</code>, <code>bib</code>, <code>citation</code>, <code>csljson</code>, <code>none</code> and supported
+export formats. Atom uses <code>content</code> for HTML. Titles and names escape markup
+except supported rich-text formatting such as italics, bold, superscript,
+subscript, small caps and <code>nocase</code>.</p>
+<p>The server provides Zotero's bibliography export formats. API exports omit
+attachment bytes and child-note bundles; individual notes or attachments are
+handled as each format permits. BibTeX, BibLaTeX and RIS use CSL data, so some
+types become <code>@misc</code> or <code>GEN</code>. Citation keys use author, year and title with
+collision suffixes; an explicit <code>citationKey</code> takes precedence.</p>
+<p>Deliberate output differences:</p>
 <ul>
-<li>Refer/BibIX, RefWorks Tagged, Wikipedia citation templates, COinS, MODS and TEI match byte for byte.</li>
-<li>CSV and EndNote XML match except for one deliberate difference each, listed below.</li>
-<li>The three RDF formats match statement for statement, apart from whitespace.</li>
-<li>BibTeX, BibLaTeX and RIS are produced from the item's CSL data instead of ported. Nothing these formats can hold is lost, but a type CSL calls <code>document</code> becomes <code>@misc</code> or <code>GEN</code>. Citation keys are author, year and the first significant title word, with a letter added where two collide; a <code>citationKey</code> field on the item always wins. Tags become keywords.</li>
+<li>EndNote XML and Evernote identify altero as the writer.</li>
+<li>XML and RDF preserve content without matching upstream whitespace.</li>
+<li>CSV's Date Added contains the added date rather than the modified date.</li>
+<li>Bookmarks and Evernote escape special characters correctly; Evernote dates have one trailing <code>Z</code>, and missing URLs are empty.</li>
+<li>Multiple ISBNs do not create an extra empty RDF entry.</li>
+<li>Duplicate TEI IDs receive suffixes as they are streamed.</li>
 </ul>
-<p>Like Zotero, altero hands the TEI translator the item exactly as the API serves it, and every other translator the older field names they expect.</p>
-<p>Eight deliberate differences in the exported files. The first names the program that wrote the file; the rest avoid copying something broken:</p>
-<ul>
-<li><strong>Files say altero wrote them</strong>, in EndNote XML and Evernote, where zotero.org's name Zotero.</li>
-<li><strong>XML and RDF files match in content, not whitespace.</strong> No XML or RDF reader can tell the difference.</li>
-<li><strong>CSV's <code>Date Added</code> column holds the date added.</strong> zotero.org writes the date modified there.</li>
-<li><strong>Bookmarks are escaped</strong>, so an ampersand in a title no longer produces a file HTML readers misread.</li>
-<li><strong>Evernote escapes ampersands once</strong>, not twice, so a title with <code>&lt;</code> no longer reads <code>&amp;lt;</code>.</li>
-<li><strong>An Evernote <code>&lt;updated&gt;</code> ends in one <code>Z</code></strong>, and an item without a URL has an empty <code>&lt;source-url&gt;</code> instead of the text <code>undefined</code>.</li>
-<li><strong>An ISBN field holding two numbers separated by two spaces gives two Bibliontology entries</strong>, not two plus an empty one.</li>
-<li><strong>TEI entry ids:</strong> when two entries would get the same <code>xml:id</code>, the second gets the letter, because a file written in batches cannot go back and rename an entry already sent.</li>
-</ul>
-<p>Exports over the API carry neither attached files nor child notes, on either server: each item is exported on its own. Whether a format writes anything for a note, attachment or annotation is left as Zotero's translator decides.</p>
-<p>Three differences in formatted citations:</p>
-<ul>
-<li><strong>Old style names still work.</strong> The API's default style, <code>chicago-note-bibliography</code>, was renamed years ago; altero follows the CSL project's list of renamed styles. An unknown style answers <code>404 Style not found</code>.</li>
-<li><strong>A style given as a URL is refused</strong> with <code>400 Invalid style</code>. zotero.org fetches it, but fetching any URL on request would turn the server into a proxy for anyone holding a key.</li>
-<li><strong>Hanging indents and line spacing are written as zotero.org writes them</strong>, but the alignment some numbered styles use for their numbers (<code>second-field-align</code>) is not reproduced.</li>
-</ul>
-<p>APA bibliographies can repeat an item's title when it has no author. This <a href="https://github.com/citeproc-py/citeproc-py/issues/91">known citeproc-py limitation</a> remains unresolved.</p>
+<p>Formatted citations preserve hanging indents and line spacing but do not
+reproduce numbered-style <code>second-field-align</code>. APA may repeat a title when an
+item lacks an author, a <a href="https://github.com/citeproc-py/citeproc-py/issues/91">known processor limitation</a>.</p>
 <h3 id="item-type-schema">Item type schema<a class="headerlink" href="#item-type-schema" title="Permanent link">&para;</a></h3>
 <p>These came from comparing all 163 schema responses with the live API.</p>
 <ul>
@@ -3518,30 +3537,34 @@ bypasses a grant's collection restrictions.</p>
 </table>
 <p>The desktop reads these headers from the redirect and nowhere else. Answering 200 with the bytes makes every download fail with "A file sync error occurred". The redirect also lets the client skip the download entirely when the modification time shows its copy is current.</p>
 <h5 id="the-location-has-to-be-a-credential">The location has to be a credential<a class="headerlink" href="#the-location-has-to-be-a-credential" title="Permanent link">&para;</a></h5>
-<p>The desktop does not follow the redirect itself. It reads the headers, then makes a <em>new</em> request to the location, sending no API key with it. zotero.org can do that because its location is a pre-signed S3 address, which is a credential in itself.</p>
-<p>So altero's location is one too: a short-lived permission for that one file, at <code>/storage/download/&lt;key&gt;</code>. It expires after five minutes, is valid only for the file the redirect described, and is marked so that no shared cache stores it. It can be used more than once, because the desktop retries the same address after a server error or a dropped connection.</p>
-<p>The location is a full URL, because the desktop accepts nothing else here.</p>
-<p>Appending the caller's API key to the location (<code>?key=…</code>) would also work, and was rejected. An API key grants the whole account and never expires, and reverse proxies write every requested address into their access logs.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Before Zotero's April 2026 rewrite the desktop followed this redirect itself and sent its key along. The older location, <code>&lt;prefix&gt;/items/&lt;key&gt;/file/content</code>, is still served for callers with a key that want the bytes directly.</p>
-</div>
+<p>The desktop makes a new request to the redirect location without its API key.
+altero therefore issues a full URL at <code>/storage/download/&lt;key&gt;</code> that grants
+access to just that file for five minutes. It permits retries and forbids
+shared caching.</p>
+<p>The URL never contains the account's long-lived API key. Callers that already
+hold a key can also fetch bytes directly at <code>&lt;prefix&gt;/items/&lt;key&gt;/file/content</code>.</p>
 <h4 id="telling-an-archive-from-a-file">Telling an archive from a file<a class="headerlink" href="#telling-an-archive-from-a-file" title="Permanent link">&para;</a></h4>
 <p>The desktop zips a web snapshot before uploading it. If a download then says <code>Zotero-File-Compressed: No</code>, the client saves the ZIP itself under the attachment's name, and the snapshot is quietly lost.</p>
 <p>altero records which is which when the file is registered: an upload that came with a <code>zipMD5</code> is an archive around the attachment's file, and a <code>.docx</code> or <code>.epub</code> — a ZIP itself — uploaded without one is served as it is. An archive restored into a library is one when its own digest is not the name the archive filed it under and it starts like a ZIP, which is how earlier altero versions stored snapshots.</p>
 <h2 id="authentication-and-client-login">Authentication and client login<a class="headerlink" href="#authentication-and-client-login" title="Permanent link">&para;</a></h2>
 <h3 id="obtaining-a-key">Obtaining a key<a class="headerlink" href="#obtaining-a-key" title="Permanent link">&para;</a></h3>
-<p>To link an account, the desktop creates a login session (<code>POST /keys/sessions</code>), opens the <code>loginURL</code> it receives in a browser, and polls the session until the response carries <code>apiKey</code>, <code>userID</code> and <code>username</code>, alongside <code>displayName</code> and <code>emails</code>. None of these fields is in the published documentation; they were found in the client source, and altero sends all of them.</p>
-<p>At zotero.org the browser window signs in to zotero.org. Here it opens altero's own interface, which asks the signed-in person to confirm and then issues the key. The client sees the same exchange either way.</p>
-<p><strong>Confirming takes a fresh proof of identity</strong>: the password, or, for an account without one, signing in again at its identity provider within the last five minutes. What is handed over is a full-access key that outlives the browser session, so an already open tab should not be able to approve it just by visiting a link.</p>
-<p><strong>Usernames and email addresses are separate</strong>, as at zotero.org. A username may not contain <code>@</code>, because signing in accepts either and decides which by the shape of what was typed. An account holds at most one address, reported only once confirmed.</p>
-<p><strong>Changing a username does not unlink a client.</strong> The client identifies an account by its numeric <code>userID</code> and accepts a changed username silently.</p>
-<p><strong><code>loginURL</code> carries a query</strong>, as zotero.org's does. The Android app appends <code>&amp;app=1</code> to it as text; without an existing query that landed in the path and the app opened a 404 page.</p>
-<p>The command line still works, and is the way in when the web interface has not been built: <code>loginURL</code> then shows the <code>altero login approve</code> instructions.</p>
-<p><strong>A re-authentication for one account cannot be approved for another.</strong> Handing a client somebody else's key makes it warn, offer to reset its data directory and quit. The confirmation screen says so before offering a button, and the server refuses it anyway.</p>
-<p><strong>The key covers group libraries too</strong>, as zotero.org's does. A key without group access makes the client think the server has lost the groups.</p>
-<p><code>POST /keys</code> (a key from a username and password) is not implemented. The client only uses it when migrating a profile that still holds a sync password from before 2016.</p>
-<p><strong>Managing keys was never part of the v3 API.</strong> <code>/users/&lt;id&gt;/keys</code> exists at zotero.org but only answers zotero.org's own signed-in web pages; an API key gets 403. altero offers the same under <strong>Settings → API keys</strong> in the browser, plus <code>altero key add</code> and <code>altero key revoke</code>. An API key can do to itself what zotero.org allows: read <code>/keys/current</code> and delete itself.</p>
+<p>The desktop creates a login session with <code>POST /keys/sessions</code>, opens its
+<code>loginURL</code>, and polls until approved. A completed response includes <code>apiKey</code>,
+<code>userID</code>, <code>username</code>, <code>displayName</code> and <code>emails</code>.</p>
+<p>Approval in altero requires fresh identity confirmation before issuing a
+long-lived key. The key includes group access so the client does not mistake
+unreadable groups for lost libraries. Shell approval remains available when
+the browser interface is not built.</p>
+<p>A profile requesting one account number cannot be approved for another: the
+client would offer to reset its data directory. Changing the username alone
+is safe because the client identifies the account by number.</p>
+<p>Usernames cannot contain <code>@</code>; sign-in distinguishes usernames from email
+addresses by that character. An account has at most one email address and
+reports it only after confirmation. <code>loginURL</code> always has a query so mobile
+clients can append <code>&amp;app=1</code>.</p>
+<p>Legacy password-to-key <code>POST /keys</code> is unsupported. Key management is available
+in Settings and the CLI, rather than through <code>/users/&lt;id&gt;/keys</code>. A key may
+read <code>/keys/current</code> and revoke itself.</p>
 <h3 id="a-credential-that-gave-up-notes-or-files">A credential that gave up notes or files<a class="headerlink" href="#a-credential-that-gave-up-notes-or-files" title="Permanent link">&para;</a></h3>
 <p>A credential says four things about a library: whether it may read it, write to it, read its notes, and download its files. An API key carries them as <code>library</code>, <code>write</code>, <code>notes</code> and <code>files</code>; an OAuth token as the scopes <code>library.read</code>, <code>library.write</code>, <code>notes.read</code> and <code>files.read</code>. Notes and files only ever narrow reading: without read access there are no notes or files either.</p>
 <p><strong>A hidden note is hidden completely.</strong> Without note access, a note answers 404 by key and is missing from every listing, export, key list and version list. <code>numChildren</code> does not count it, and a tag carried only by hidden notes disappears from item-scoped tag lists. This is what zotero.org does. Serving the note with its text blanked would tell the caller it exists.</p>
@@ -3559,21 +3582,27 @@ bypasses a grant's collection restrictions.</p>
 </ul>
 <p>None of this changes what the desktop sees: the keys it receives, and every key made in the browser or on the command line, carry all four permissions. Only an OAuth token can lack them.</p>
 <h3 id="what-the-desktop-client-actually-sends">What the desktop client actually sends<a class="headerlink" href="#what-the-desktop-client-actually-sends" title="Permanent link">&para;</a></h3>
-<p>These were found by running the real client, not by reading the documentation.</p>
-<p><strong><code>mtime</code> is in milliseconds and needs a 64-bit number.</strong> PostgreSQL refused it in a 32-bit column, so uploads worked in development on SQLite and failed in every container deployment.</p>
-<p><strong><code>mtime</code> is served as a number</strong>, as on zotero.org, although every other field is a string. The desktop requires a number when it resolves a file conflict in favor of the local copy.</p>
-<p><strong>Full text is uploaded in batches.</strong> The documentation describes <code>GET</code>/<code>PUT</code> on one item's full text, but the client uploads with <code>POST &lt;prefix&gt;/fulltext</code>, carrying a list of entries and requiring <code>If-Unmodified-Since-Version</code>. Each entry reported back must be an object with a <code>key</code>, not a bare key.</p>
-<p>zotero.org advances the library version once per item in the batch; altero once per request. The client cannot tell the difference, because it only uses the final version.</p>
-<p><strong>Recreating a deleted setting clears its deletion record</strong>, as on zotero.org. The desktop downloads settings before deletions, so a leftover record for <code>tagColors</code> would throw away the colors it just downloaded.</p>
-<p><strong>Tag deletions arrive without naming the tag.</strong> Because of a quirk in the client, <code>DELETE &lt;prefix&gt;/tags?tags=a||b</code> reaches the server as a bare <code>DELETE &lt;prefix&gt;/tags</code>. zotero.org answers 204 having deleted nothing, and the client accepts only 204 or 412 here, so altero answers 204 too. It also understands <code>tags=a||b</code> in case the client ever stops dropping it.</p>
-<p><strong>Uploads are compressed.</strong> The client gzips large request bodies, including full-text batches, which the documentation never mentions. altero decompresses them first; a body that does not decompress is a 400. Because this happens before authentication, compressed bodies and what they expand to are both limited to 128 MiB (413 beyond that). The client's largest write — 50 notes at zotero.org's length limit — is about 100 MB.</p>
-<p><strong>Snapshots arrive as ZIPs, with two digests.</strong> <code>md5</code> describes the original file and <code>zipMD5</code> the archive actually sent. altero checks the transfer against <code>zipMD5</code>, stores the archive under it, and records <code>md5</code> on the item, which is what the client sends back next time.</p>
-<p><strong>The upload address must be a full URL.</strong> The client refuses a bare path.</p>
-<p><strong>Uploads are changes, not whole objects.</strong> After the first sync the client uploads only what changed — for example <code>{key, version, lastRead, dateModified}</code> with no <code>itemType</code>. A batch entry naming an existing item without <code>itemType</code> is therefore a partial update. A new item must still state its type. See <a href="#a-posted-batch-is-a-batch-of-patches">A POSTed batch is a batch of patches</a>.</p>
-<p><strong>Registering a file upload advances the library version.</strong> The full-text upload that follows can then arrive with an outdated version and get 412. The client syncs and retries successfully — one wasted round trip. zotero.org does the same, and not advancing the version would hide file changes from anyone asking what changed <code>since</code>.</p>
-<p><strong>A client may be ahead of the server.</strong> If the client's library version is higher than the server's, the write is accepted, as on zotero.org. zotero.org never gets into that state, but altero can, when a database is recreated while a client remembers a later version. The client then refuses the server's answer ("cannot decrease"), and re-uploads the same objects on every sync. "Restore to server" fails the same way. The only way out is to raise the server's counter above what the client remembers, with <code>altero library set-version</code>. Objects the client believes are already synced are not uploaded again, so anything written before the reset can be missing afterwards. Neither the check nor the answer is changed to avoid this: both are zotero.org's.</p>
-<p><strong>Two services the client uses are not part of the dataserver.</strong> <code>GET /retractions/list</code>, which flags retracted papers, answers 404. An empty list would claim that nothing in the library has been retracted, which altero cannot know. The client logs the failure and syncs normally. The streaming API is served — see below.</p>
-<p><strong>Pointing the client at altero does not redirect its streaming connection.</strong> The streaming address is set separately, by <code>extensions.zotero.streaming.url</code>, and defaults to <code>wss://stream.zotero.org</code>. A client configured only with altero's API address therefore opens a connection to zotero.org and sends it the API key — a full-access credential handed to a third party, though zotero.org rejects it as unknown. The symptom is a log line: <code>WebSocket connection closed: 4403 Invalid API key</code>. Set <code>streaming.url</code> to altero's own endpoint, as <a href="../clients/">Clients</a> describes; <code>extensions.zotero.streaming.enabled = false</code> also stops it.</p>
+<p>The desktop relies on behavior beyond the published request examples:</p>
+<ul>
+<li><code>mtime</code> is a numeric millisecond timestamp and requires 64-bit storage.</li>
+<li>Full text is uploaded as a <code>POST &lt;prefix&gt;/fulltext</code> batch with <code>If-Unmodified-Since-Version</code>. Result entries are objects containing <code>key</code>.</li>
+<li>Recreating a setting clears its deletion record, so deletion processing does not erase the new value.</li>
+<li>A bare <code>DELETE &lt;prefix&gt;/tags</code> answers 204 without deleting anything. The client can drop the query naming the tags; it accepts only 204 or 412. An explicit <code>tags=a||b</code> is also supported.</li>
+<li>Gzipped bodies are accepted. Compressed and expanded bodies are each limited to 128 MiB; invalid compression returns 400 and excess size returns 413.</li>
+<li>Snapshots carry <code>md5</code> for the main file and <code>zipMD5</code> for the archive. Transfer validation uses the archive digest.</li>
+<li>Upload addresses must be absolute URLs.</li>
+<li>Batch uploads contain partial changes after the first sync; see <a href="#a-posted-batch-is-a-batch-of-patches">patch semantics</a>.</li>
+<li>File registration advances the library version. A following stale full-text upload can receive 412 and retry after syncing.</li>
+</ul>
+<p>A client's version ahead of the server is accepted, as upstream. The desktop
+then refuses a lower response version. Raising the server counter resolves
+that mismatch but recreates no data; follow the
+<a href="../administration/#after-recreating-the-database">recovery procedure</a>.</p>
+<p>Retraction-list requests return 404 because altero has no retraction data.
+The client logs the error and continues syncing.</p>
+<p>The streaming URL is independent of the API URL. Configure both, or disable
+streaming explicitly, to avoid sending the altero key to Zotero's default
+streaming service. See <a href="../clients/">client setup</a>.</p>
 <h3 id="the-streaming-api">The streaming API<a class="headerlink" href="#the-streaming-api" title="Permanent link">&para;</a></h3>
 <p>Served at <code>/stream</code>, not on a separate host, and the client is pointed at it with <code>extensions.zotero.streaming.url</code>. It follows the <a href="https://www.zotero.org/support/dev/web_api/v3/streaming_api">published protocol</a>. Both ways of subscribing work: an API key in the handshake, and <code>createSubscriptions</code> naming a key and no topics, which is what the desktop sends.</p>
 <p><strong>Three topics that are not libraries</strong> are accepted, because the client asks for them on every connection:</p>
@@ -3620,7 +3649,7 @@ bypasses a grant's collection restrictions.</p>
 <p><code>publications/collections</code> and <code>publications/searches</code> answer 404, as on zotero.org. Nothing can be written here: an item joins the list by being saved in the library with <code>inPublications</code> set.</p>
 <p>There is no group version. My Publications belongs to a person, which is also why <code>inPublications</code> is refused on a group item.</p>
 <p><code>publications/settings</code> and <code>publications/deleted</code> are served and always empty, because the client polls both and treats anything but 200 as a failed sync.</p>
-<p>zotero.org also answers <code>publications/settings</code> with a 400 — "Please upgrade to the latest Zotero 5.0 beta" — once a user has published anything. That was a temporary guard for an old kind of publications library that altero never had. Copying it would refuse every current client that has published something.</p>
+<p>An obsolete upstream publications guard returned 400 for some libraries. altero does not reproduce that legacy refusal, which would break current clients.</p>
 <h4 id="who-may-read-my-publications">Who may read My Publications<a class="headerlink" href="#who-may-read-my-publications" title="Permanent link">&para;</a></h4>
 <p>At zotero.org anybody can. altero keeps that as the default and lets each account narrow it, because a personal server is not a public service — see <a href="../web/sharing/#who-can-see-it">Sharing</a>. The setting applies to the API as well as to the profile page:</p>
 <table>
@@ -3762,7 +3791,7 @@ bypasses a grant's collection restrictions.</p>
 </table>
 <p>Treated as complete objects, the first would be refused for lacking a name — stopping the whole library's sync — and the second would wipe every field, creator, tag and collection it did not mention.</p>
 <p><strong>Leaving a property out means "unchanged"; sending it empty clears it.</strong> That matters for the four list properties: <code>creators</code>, <code>tags</code>, <code>collections</code> and <code>relations</code>. The desktop really sends <code>collections: []</code> to take an item out of its last collection — for example after saving into a collection with the browser connector and then switching the save target to the library root. Treating empty as absent would leave the item filed, and the client would upload the same change on every sync forever.</p>
-<p>An item without creators has no <code>creators</code> property at all, while <code>tags</code>, <code>collections</code> and <code>relations</code> appear even when empty. That inconsistency is zotero.org's and is copied.</p>
+<p>Regular-item sync responses include empty <code>creators</code>, <code>tags</code>, <code>collections</code> and <code>relations</code>; see <a href="#empty-creators-in-item-responses">Empty creators</a>.</p>
 <p><strong>Changing an item's type keeps what the new type can hold.</strong> A field the new type lacks moves to its equivalent there, as a book's <code>publisher</code> becomes a report's <code>institution</code>, or is cleared. A creator whose role the new type lacks becomes a <code>contributor</code>. A field sent empty is accepted even if the new type lacks it, because that is how the desktop clears one: it uploads <code>{key, version, itemType}</code> with every field the item lost set to <code>""</code>. Fields and creators sent with the type are taken as sent.</p>
 <p><strong><code>parentItem: false</code> makes a child top-level.</strong> The desktop sends it when a note or attachment is moved out to the library. As on zotero.org, a patch that files a child in a collection without mentioning <code>parentItem</code> does the same, since a child cannot be in a collection.</p>
 <h3 id="objects-that-were-sent-again-without-changing">Objects that were sent again without changing<a class="headerlink" href="#objects-that-were-sent-again-without-changing" title="Permanent link">&para;</a></h3>
@@ -3878,17 +3907,11 @@ bypasses a grant's collection restrictions.</p>
 <p><strong>A key's "all groups" means the groups its owner belongs to</strong>, never every group on the server.</p>
 <p>Changing a group's details or its members advances the library's version. zotero.org keeps a separate group version; altero reports the library's for both. A role change therefore costs connected clients one sync that finds nothing new — the cheaper mistake, since a client that has not noticed a demotion still believes it may write.</p>
 <h4 id="group-renames-notify-connected-clients">Group renames notify connected clients<a class="headerlink" href="#group-renames-notify-connected-clients" title="Permanent link">&para;</a></h4>
-<p>altero deliberately sends the committed library-version notification for a
-rename too. <a href="https://github.com/zotero/dataserver/issues/92">dataserver#92</a>
-reports a missing name-change notification upstream, but was itself filed as
-unverified. The reviewed <a href="https://github.com/zotero/dataserver/blob/6e091852b8a3e369056f390ba69e5de90cda1134/model/Group.inc.php#L518-L663">group save path</a>
-increments the separate group version; its notification calls concern owner
-transfers. We have not retested the hosted service's rename notifications.</p>
-<p>Retain altero's existing version bump and <code>/groups/&lt;id&gt;</code> <code>topicUpdated</code> event.
-The desktop uses <code>/users/&lt;id&gt;/groups?format=versions</code> to decide whether to
-fetch the group again. A rename therefore refreshes the cached name without
-waiting for an unrelated item write. The event, group response and version
-listing agree on the new version; item versions need not change.</p>
+<p>A group rename advances its advertised version and sends a committed
+<code>topicUpdated</code> event, so clients refresh their cached group name. Item versions
+need not change. Upstream's missing-notification report is unverified against
+the hosted service; altero deliberately keeps this behavior
+(<a href="https://github.com/zotero/dataserver/issues/92">dataserver#92</a>).</p>
 <h4 id="who-the-client-finds-in-a-group">Who the client finds in a group<a class="headerlink" href="#who-the-client-finds-in-a-group" title="Permanent link">&para;</a></h4>
 <p><strong>Group listings always carry a <code>Link</code> header</strong>, even when empty or a single page. The desktop's account settings read it unconditionally and fail without it. zotero.org always includes an <code>alternate</code> link to itself; altero includes <code>self</code> instead. A page holds 25 groups by default; <code>format=versions</code> is unlimited.</p>
 <p>A group's JSON lists <code>admins</code> and <code>members</code> as user ids, and the desktop needs them: it makes a group library editable for the owner, for administrators, and for members when the group lets members edit. Anyone found in neither list syncs the library read-only. The owner is in neither list, as on zotero.org, and empty lists are left out. The lists are read-only; membership has its own endpoints.</p>
@@ -3970,29 +3993,43 @@ listing agree on the new version; item versions need not change.</p>
 <li><strong>The old name is recorded as deleted</strong>, as if it had been deleted, and any deletion record for the new name is cleared. Otherwise one sync could tell a client both "remove this tag" and "here are items with it".</li>
 </ul>
 <p><code>If-Unmodified-Since-Version</code> is required. Renaming a tag to its own name changes nothing and does not advance the library version. An unknown tag is a 404; an empty name, or one longer than 255 characters, is a 400.</p>
-<p>The browser's tag list uses the same rename — see <a href="../web-interface/#tags">Tags</a>.</p>
+<p>The browser uses the same operation; see <a href="../web/library/#tags">Tags</a>.</p>
 <h3 id="the-desktop-clients-three-extra-views">The desktop client's three extra views<a class="headerlink" href="#the-desktop-clients-three-extra-views" title="Permanent link">&para;</a></h3>
-<p>The desktop's sidebar shows <strong>Recently Read</strong>, <strong>Duplicate Items</strong> and <strong>Unfiled Items</strong>, all worked out from its local copy of the library. zotero.org's API has none of them, so altero's versions exist only in its browser interface; the v3 API is unchanged.</p>
-<p><strong>Unfiled Items</strong> needs no interpretation: top-level items in no collection and not in the trash.</p>
-<p><strong>Keep Unfiled out of the v3 API.</strong> The upstream request remains
-<a href="https://github.com/zotero/dataserver/issues/11">dataserver#11</a>. altero serves
-the view at <code>/web/libraries/&lt;id&gt;/items?scope=unfiled</code>, authenticated by browser
-session. There is no v3 <code>/items/unfiled</code> endpoint. Unknown v3 query parameters
-are ignored, so adding <code>scope=unfiled</code> or <code>unfiled=1</code> to <code>/items</code> still returns
-the ordinary item listing. Applications must not treat those parameters as a
-filter. Desktop synchronization continues to download the library and compute
-Unfiled locally; no extension is needed for that workflow.</p>
-<p><strong>Duplicate Items</strong> is a judgment. Two items count as the same work if they share a DOI or ISBN (ignoring punctuation, case and any <code>https://doi.org/</code> prefix), or if they share a title (ignoring punctuation and case) <em>and</em> a creator surname or year. A title alone is not enough, because many works are called "Introduction"; only when neither item has a creator or a year does the title stand alone. Item types are not compared, so a book and a chapter of it appear as a pair. Notes, attachments and annotations are never compared.</p>
-<p><strong>Recently Read</strong> is a guess. Zotero 7 records when an attachment was last read and syncs it, but which items the desktop lists, and over what period, is not documented. altero lists items whose attachments were read in the last 90 days, newest first where the sort allows, and stand-alone attachments themselves. <strong>The 90 days is a guess</strong>, chosen so the view does not grow into "everything ever opened".</p>
+<p>These views exist only in the browser. Zotero computes them from its local
+library; its API has no corresponding scopes.</p>
+<table>
+<thead>
+<tr>
+<th>View</th>
+<th>altero behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unfiled Items</td>
+<td>Untrashed top-level items in no collection</td>
+</tr>
+<tr>
+<td>Duplicate Items</td>
+<td>Shared normalized DOI/ISBN, or normalized title plus matching surname or year; title alone only when neither has creators or year</td>
+</tr>
+<tr>
+<td>Recently Read</td>
+<td>Items with attachments read within 90 days, and standalone attachments read in that period</td>
+</tr>
+</tbody>
+</table>
+<p>Duplicate detection compares regular items across types. It suggests candidates,
+not proof that they are the same work. The 90-day reading window is an explicit
+guess; the desktop's exact rule is undocumented.</p>
+<p>There is no v3 <code>/items/unfiled</code>. Unknown query parameters are ignored, so
+<code>scope=unfiled</code> or <code>unfiled=1</code> on a v3 item listing does not filter it.</p>
 <h3 id="merging-pdfs-with-embedded-notes">Merging PDFs with embedded notes<a class="headerlink" href="#merging-pdfs-with-embedded-notes" title="Permanent link">&para;</a></h3>
 <p>When deduplication would both move a surviving PDF to the master and transfer
 another PDF's embedded note to it, altero keeps both PDFs under the master.
 Each keeps its original note and annotations. Other PDF matching follows the
 desktop's byte and common-word checks.</p>
-<p>Zotero 10.0.6 can save the changed note while losing the attachment's parent
-change, leaving the surviving file under the trashed duplicate. This was
-reproduced with zotero.org and without a server. Keeping both files avoids
-that combination without detaching the note from its original PDF.</p>
+<p>A recorded desktop defect can save the note while losing the parent change. Keeping both files avoids leaving the survivor under a trashed duplicate. See the <a href="../client-compatibility/#successfully-tested-matrix">historical desktop evidence</a>.</p>
 <h3 id="reading-a-library-out-of-zoteroorg">Reading a library out of zotero.org<a class="headerlink" href="#reading-a-library-out-of-zoteroorg" title="Permanent link">&para;</a></h3>
 <p>The migration reads a personal library from api.zotero.org and turns it into the same archive <code>altero library export</code> writes, then restores that archive. It makes no writes to zotero.org.</p>
 <p><strong>It needs an API key.</strong> zotero.org offers no password sign-in for software, and OAuth would require every altero instance to register with Zotero. The key is used for the import and then forgotten.</p>
@@ -4042,7 +4079,7 @@ It would need to apply upstream changes and deletions through altero's own
 versioned writes so already-connected clients can observe them. Local edits
 would need an explicit refusal or overwrite policy. This is a design
 assessment, not an implemented or tested refresh feature; scheduling and its
-implementation are deferred beyond 1.0.</p>
+implementation remain future work.</p>
 <p>Today, the CLI and browser offer a one-time personal-library import. Repeating
 it with <code>--replace</code> restores a whole snapshot and can discard altero-only
 changes. It does not perform incremental reconciliation, and raising the
@@ -4080,11 +4117,13 @@ usable; revoking a refresh token invalidates its whole family.</p>
 <p><code>GET /users/&lt;id&gt;/groups</code> lists only granted groups, and the <code>groups</code> claim in user info and ID tokens is narrowed the same way.</p>
 <p><strong>The restriction belongs to the grant</strong>, not to a token, so a refreshed token keeps it; otherwise an application could simply wait for it to expire. Deleting the last collection a grant named leaves it reaching less, never everything.</p>
 <h3 id="signing-id-tokens-while-still-not-verifying-them">Signing ID tokens while still not verifying them<a class="headerlink" href="#signing-id-tokens-while-still-not-verifying-them" title="Permanent link">&para;</a></h3>
-<p>These two decisions look contradictory, but are not.</p>
-<p>As a <em>client</em> of somebody else's identity provider, altero does not verify the signature on the ID tokens it receives — see <a href="#not-verifying-the-id-tokens-signature">below</a>. As an <em>identity provider</em>, it signs the ID tokens it issues (RS256), publishes its key at <code>/oauth/jwks.json</code>, and checks its own signature when a token comes back during sign-out.</p>
-<p>Every reason for not verifying other providers' tokens concerns input somebody else controls: a token claiming no algorithm, confusion between key types, a key chosen by the attacker. Signing its own tokens and checking them against its own keys involves none of these: the algorithm is fixed and no key is looked up from the token. The implementation is tested against the published examples in the relevant standards (RFC 7515 and RFC 7638).</p>
+<p>As a client, altero accepts an ID token delivered directly by a trusted
+provider over TLS under the conditions <a href="#not-verifying-the-id-tokens-signature">below</a>.
+As a provider, it signs its own ID tokens with RS256 and verifies its own
+signatures during logout, using only its stored keys and fixed algorithm.</p>
 <h3 id="no-dynamic-client-registration">No dynamic client registration<a class="headerlink" href="#no-dynamic-client-registration" title="Permanent link">&para;</a></h3>
-<p>Applications cannot register themselves (RFC 7591), and never will. The list of addresses an authorization code may be sent to is the whole security of the sign-in flow; a list anyone can add to protects nothing. An administrator registers applications from the command line.</p>
+<p>Applications must be registered by an operator. Redirect addresses and allowed
+scopes are reviewed at registration; no dynamic registration endpoint is provided.</p>
 <h3 id="pkce-is-required-and-s256-is-the-only-method">PKCE is required, and <code>S256</code> is the only method<a class="headerlink" href="#pkce-is-required-and-s256-is-the-only-method" title="Permanent link">&para;</a></h3>
 <p>The <code>plain</code> method makes the challenge identical to the secret it protects, so anyone who intercepts the code has everything needed to use it. altero neither offers nor accepts it, and requires PKCE from every application, including those with a client secret.</p>
 <h3 id="scopes-are-refused-rather-than-narrowed">Scopes are refused rather than narrowed<a class="headerlink" href="#scopes-are-refused-rather-than-narrowed" title="Permanent link">&para;</a></h3>
@@ -4092,73 +4131,28 @@ usable; revoking a refresh token invalidates its whole family.</p>
 <p>There is no <code>annotations.*</code> scope: annotations are items, and the API has no separate permission for them.</p>
 <h2 id="identity-provider-security-notes">Identity-provider security notes<a class="headerlink" href="#identity-provider-security-notes" title="Permanent link">&para;</a></h2>
 <h3 id="not-verifying-the-id-tokens-signature">Not verifying the ID token's signature<a class="headerlink" href="#not-verifying-the-id-tokens-signature" title="Permanent link">&para;</a></h3>
-<p>Not a compatibility question — zotero.org has no single sign-on — but recorded here because it looks wrong and is deliberate.</p>
-<p>altero does <strong>not</strong> verify the signature on OpenID Connect ID tokens. It fetches the token itself, directly from the provider's token endpoint over TLS, and the OpenID Connect standard (Core §3.1.3.7, item 6) allows the TLS connection to vouch for the token in exactly that case. Not verifying keeps a signature implementation out of altero, along with its classic mistakes, and altero never reads the token's header, so there is nothing there to forge.</p>
-<p>This rests on two conditions, both always true here:</p>
-<ul>
-<li><strong>altero is a confidential client.</strong> It sends a secret with the token request and uses the authorization code flow with PKCE only.</li>
-<li><strong>The token comes from the token endpoint</strong>, never from the browser.</li>
-</ul>
-<p>Every claim is still checked — issuer, audience, authorized party, nonce, expiry, issue time and subject — and with no signature check, those checks are where the security lies.</p>
-<p><strong>Supporting public clients would require revisiting this first</strong>, since the exemption does not cover them.</p>
+<p>altero does not verify signatures on ID tokens received from an external
+provider. OpenID Connect Core §3.1.3.7 item 6 permits reliance on TLS for a token
+received directly from the token endpoint in this flow.</p>
+<p>This requires altero to be a confidential client using authorization code and
+PKCE, and to receive the token from the provider rather than the browser.
+Issuer, audience, authorized party, nonce, expiry, issue time and subject are
+still validated. Supporting public clients would require revisiting this choice.</p>
 <h3 id="reading-a-saml-assertion-out-of-what-was-signed">Reading a SAML assertion out of what was signed<a class="headerlink" href="#reading-a-saml-assertion-out-of-what-was-signed" title="Permanent link">&para;</a></h3>
-<p>The code looks as if it does less than it should, which is why this is written down.</p>
-<p>Signature verification is left to the <a href="https://github.com/XML-Security/signxml">signxml</a> library; writing it by hand is where implementations grow security holes. The defense against forged assertions is structural: altero reads every claim from the part of the document the library confirmed was signed, never from the document as received. An attacker who wraps a forged assertion around a genuine one still gets only the genuine one read.</p>
-<p>A valid signature still proves nothing on its own, so altero also checks:</p>
-<table>
-<thead>
-<tr>
-<th>Check</th>
-<th>Why a signature does not cover it</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>The status is success</td>
-<td>A failed sign-in is signed too</td>
-</tr>
-<tr>
-<td>The validity period</td>
-<td>An assertion from last year is still signed</td>
-</tr>
-<tr>
-<td>The intended audience</td>
-<td>It may have been signed for a different service</td>
-</tr>
-<tr>
-<td>The recipient address</td>
-<td>It may be meant for another of altero's addresses</td>
-</tr>
-<tr>
-<td>The request it answers</td>
-<td>It may answer a sign-in nobody here started</td>
-</tr>
-<tr>
-<td>That it was not used before</td>
-<td>Nothing in SAML prevents presenting one twice</td>
-</tr>
-</tbody>
-</table>
-<p>Three deliberate limits: sign-in must <strong>start at altero</strong>, because an unsolicited assertion answers no request and accepting one means accepting anything the key ever signed; <strong>encrypted assertions are not supported</strong>, since TLS already protects the connection; and there is <strong>no single logout</strong>, which is unreliable in practice, and altero's session is its own.</p>
+<p>Only claims inside the verified signed portion of a SAML document are read.
+Signature verification is delegated to the XML-signature library. Altero also
+checks success status, validity, audience, recipient, request correlation and
+single use; a signature alone does not establish these.</p>
+<p>Supported sign-in starts at altero and uses signed, unencrypted assertions.
+Unsolicited assertions, encryption and SAML Single Logout are unsupported.</p>
 <h3 id="finishing-saml-account-linking-with-the-browser-session">Finishing SAML account linking with the browser session<a class="headerlink" href="#finishing-saml-account-linking-with-the-browser-session" title="Permanent link">&para;</a></h3>
-<p>A SAML assertion arrives as a cross-site POST, which does not carry the existing
-<code>SameSite=Lax</code> browser session cookie. An ordinary sign-in can create a session
-there; linking an account or reauthenticating must first recover the session
-that started the request.</p>
-<p>For those two purposes, the ACS verifies and spends the assertion, then stores
-only its subject and display name in a separate <code>AuthRequest</code> continuation. It
-redirects to <code>/web/auth/saml/&lt;slug&gt;/complete</code> with a fresh opaque handle, where a
-top-level GET can present the existing cookie. That session must be authenticated
-and belong to the account that started the trip. A handle alone grants nothing,
-and this step creates no new session or cookie. The continuation expires within
-two minutes or with the original request, whichever comes first, and is consumed
-atomically once. Provider availability and identity ownership are checked again.
-Continuations are refused by both original assertion/code callbacks. Responses
-carrying the handle forbid caching and referrer disclosure.</p>
-<p>The continuation lives in the database so another worker can finish it. Ordinary
-sign-in keeps the direct ACS response, and no cookie acquires v3 API authority.
-This adds a nullable <code>auth_requests.verified_saml</code> column; existing in-flight
-requests remain unverified and keep their original lifetime.</p>
+<p>A cross-site assertion POST lacks the existing browser session cookie. For
+account linking and identity confirmation, altero verifies the assertion then
+redirects through a short-lived GET handoff that can recover that session.</p>
+<p>The same signed-in account must finish it within two minutes. Handles are
+single-use, stored in the database for worker independence, and grant no access
+without the matching session. Ordinary sign-in can create its session directly.
+No browser cookie acquires Zotero API access.</p>
 <h2 id="deliberate-differences-from-zoteroorg">Deliberate differences from zotero.org<a class="headerlink" href="#deliberate-differences-from-zoteroorg" title="Permanent link">&para;</a></h2>
 <h3 id="deliberate-differences">Deliberate differences<a class="headerlink" href="#deliberate-differences" title="Permanent link">&para;</a></h3>
 <p>Seven places where altero does not copy zotero.org:</p>

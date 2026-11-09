@@ -387,6 +387,8 @@
       
         
       
+        
+      
     
     
     
@@ -1452,6 +1454,8 @@
       
         
       
+        
+      
     
     
     
@@ -1616,6 +1620,33 @@
     
   
   Web interface implementation notes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
 
     
   </span>
@@ -1865,24 +1896,16 @@ community basic-sync report, with broader coverage still unverified; see
 <p>Restart Zotero after changing the preferences.</p>
 <h2 id="link-the-account">Link the account<a class="headerlink" href="#link-the-account" title="Permanent link">&para;</a></h2>
 <p>In Zotero, open <strong>Settings → Sync → Link Account</strong>.</p>
-<p>The client then:</p>
-<ol>
-<li>asks altero to create a temporary login session;</li>
-<li>opens altero's browser interface;</li>
-<li>waits while you sign in and approve the client; and</li>
-<li>receives an API key for synchronization.</li>
-</ol>
-<p>The key can access the personal and group libraries available to that account, as Zotero expects.</p>
-<p>Approving the client asks you to prove who you are again, even if the browser is already signed in. The API key remains valid until it is revoked, so approval requires a fresh proof of identity:</p>
-<ul>
-<li>an account with a password enters it;</li>
-<li>an account created through a <a href="../administration/#sign-in-providers">sign-in provider</a> has no password, so the page offers <strong>Confirm with <provider></strong>. The provider asks you to sign in again and returns you to the approval page, where <strong>Connect</strong> works for five minutes.</li>
-</ul>
-<p>Signing out and in again does not count, because a provider can answer an ordinary sign-in from its own session without asking anything.</p>
+<p>Use the browser window Zotero opens to sign in and approve the connection.
+Zotero receives an API key that covers the account's personal and group libraries.</p>
+<p>Approval requires fresh identity confirmation. Enter your password when asked,
+or use <strong>Confirm with &lt;provider&gt;</strong> for a provider-linked account without a
+password. Complete the approval within five minutes of provider confirmation.
+On an institutional-only instance, confirmation always uses the provider.</p>
 <h3 id="a-profile-that-has-synced-before">A profile that has synced before<a class="headerlink" href="#a-profile-that-has-synced-before" title="Permanent link">&para;</a></h3>
 <p>Zotero remembers the numeric account id its data directory last synced under, and sends it when linking. altero refuses to hand a key to a different account, because the desktop client reacts to a changed id by offering to reset the data directory and quitting.</p>
-<p>A profile that has synced with zotero.org, or with another altero instance, therefore asks for an account this server does not have. Linking is refused and the message names the id.</p>
-<p>Two ways past it:</p>
+<p>If the remembered account number differs from your altero account number, linking is refused and the message names the expected number.</p>
+<p>To continue:</p>
 <ul>
 <li><strong>Create the account with that id.</strong> <code>altero user add &lt;username&gt; --id &lt;id&gt;</code> gives the profile the account it is asking for, and it carries on. This is also what <a href="../administration/#move-a-personal-library-from-zoteroorg">moving a personal library from zotero.org</a> relies on.</li>
 <li><strong>Link from a data directory that has never synced.</strong> A fresh Zotero profile sends no id. Nothing is carried over by doing this; the old library stays where it is.</li>
@@ -1894,16 +1917,16 @@ community basic-sync report, with broader coverage still unverified; see
 <p>A personal library <a href="../administration/#move-a-personal-library-from-zoteroorg">migrated from zotero.org</a> keeps its item keys and each attachment's <code>md5</code> and <code>mtime</code>, so the <code>&lt;KEY&gt;.zip</code> and <code>&lt;KEY&gt;.prop</code> files already on the WebDAV server still match.</p>
 <h3 id="moving-files-from-webdav-into-altero">Moving files from WebDAV into altero<a class="headerlink" href="#moving-files-from-webdav-into-altero" title="Permanent link">&para;</a></h3>
 <p>Files stored on WebDAV are never present on zotero.org, so a migration cannot bring them across. Move them from a client whose Zotero data directory still holds them:</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This uploads the whole attachment store in one sync. altero accepts up to 1 GiB per file by default (<a href="../configuration/#server-and-storage"><code>ALTERO_MAX_UPLOAD_MB</code></a>); a reverse proxy needs its own request-size limit raised, as described under <a href="../deployment/#behind-a-reverse-proxy">Behind a reverse proxy</a>.</p>
+</div>
 <ol>
 <li>Set <strong>Settings → Sync → File Syncing → Sync attachment files in My Library using Zotero</strong>.</li>
 <li>Open <strong>Settings → Sync → Sync Reset → Show Reset Options…</strong>, select the library, and run <strong>Reset File Sync History</strong>.</li>
 <li>Sync.</li>
 </ol>
 <p>Step 2 is required. Zotero otherwise treats the files as already synchronized, because the migrated attachments carry the same <code>md5</code> and <code>mtime</code> the WebDAV server recorded, and uploads nothing. The reset marks every attachment whose file is present locally for upload.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This uploads the whole attachment store in one sync. altero accepts up to 1 GiB per file by default (<a href="../configuration/#server-and-storage"><code>ALTERO_MAX_UPLOAD_MB</code></a>); a reverse proxy needs its own request-size limit raised, as described under <a href="../deployment/#behind-a-reverse-proxy">Behind a reverse proxy</a>.</p>
-</div>
 <p>An attachment whose file no longer exists anywhere stays a metadata-only item. altero answers 404 for its bytes, and Zotero records it as in sync rather than reporting an error.</p>
 <h2 id="command-line-approval">Command-line approval<a class="headerlink" href="#command-line-approval" title="Permanent link">&para;</a></h2>
 <p>If the browser interface is not built, the same login can be approved from the server shell:</p>
@@ -1915,28 +1938,34 @@ community basic-sync report, with broader coverage still unverified; see
 <p>Two Zotero installations on one machine can use separate profiles and data directories. This is useful for testing whether changes really travel through the server rather than only exercising one side of sync.</p>
 <p>See <a href="../testing-two-clients/">Syncing two desktop clients</a>.</p>
 <h2 id="mobile-apps">Mobile apps<a class="headerlink" href="#mobile-apps" title="Permanent link">&para;</a></h2>
-<p>The official Zotero iOS and Android applications compile <code>https://api.zotero.org</code> and <code>wss://stream.zotero.org</code> into the application and have no setting for another host. To use one with altero, you need a build of your own that sends both to your server. altero does not provide one.</p>
-<p>For Android, <a href="https://github.com/raphaelbahat/zotero-self-hosted-sync">zotero-self-hosted-sync</a> is a patch bundle for <a href="https://morphe.software/">Morphe</a> that rewrites both addresses to a server you name when patching. It is a third-party project, not maintained or reviewed here, and it supports specific app versions only (1.0.0-247 at the time of writing); check its README for the current list. The patched app holds your API key, so treat it as you would any client you give one to.</p>
-<p>With such a build, the app signs in, syncs and uploads files as the desktop client does. This is <strong>unofficial but supported</strong>: neither Zotero nor altero publishes such a build, but altero serves the protocol the apps speak, and an app that fails against altero where it works against zotero.org is a bug worth <a href="https://github.com/eseifert/altero/issues">reporting</a>.</p>
+<p>The official iOS and Android apps have no setting for a different server.
+They need a separate build that sends both API and streaming traffic to altero;
+altero does not distribute one.</p>
+<p>For Android, the third-party
+<a href="https://github.com/raphaelbahat/zotero-self-hosted-sync">zotero-self-hosted-sync</a>
+patch bundle can change those addresses. Check its README for supported app
+releases. It is not maintained or reviewed by altero and will hold your API key.</p>
 <table>
 <thead>
 <tr>
 <th>App</th>
-<th>Status</th>
+<th>Evidence</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Android</td>
-<td>Sync in both directions, including file uploads, reported working on a device (app 1.0.0-247)</td>
+<td>Sync and file uploads reported working on a device with a redirected build</td>
 </tr>
 <tr>
 <td>iOS</td>
-<td>Checked against the app's source, not yet on a device</td>
+<td>Checked against source; no device test recorded</td>
 </tr>
 </tbody>
 </table>
-<p>Sign-in works as on the desktop: the app opens altero's sign-in page and receives an API key once you approve it. For what the apps require of the server, see <a href="../compatibility/#the-file-protocol">The file protocol</a> and <a href="../compatibility/#obtaining-a-key">Obtaining a key</a>.</p>
+<p>This route is unofficial, but protocol differences from zotero.org are worth
+<a href="https://github.com/eseifert/altero/issues">reporting</a>. Sign-in uses browser
+approval as on the desktop.</p>
 
 
 

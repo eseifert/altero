@@ -387,6 +387,8 @@
       
         
       
+        
+      
     
     
     
@@ -1468,21 +1470,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#why-trash-cleanup-is-a-normal-delete" class="md-nav__link">
+  <a href="#what-cleanup-removes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Why trash cleanup is a normal delete
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rows-that-carry-their-own-expiry" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Rows that carry their own expiry
+        What cleanup removes
       </span>
     </span>
   </a>
@@ -1807,6 +1798,8 @@
       
         
       
+        
+      
     
     
     
@@ -1971,6 +1964,33 @@
     
   
   Web interface implementation notes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
 
     
   </span>
@@ -2419,21 +2439,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#why-trash-cleanup-is-a-normal-delete" class="md-nav__link">
+  <a href="#what-cleanup-removes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Why trash cleanup is a normal delete
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#rows-that-carry-their-own-expiry" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Rows that carry their own expiry
+        What cleanup removes
       </span>
     </span>
   </a>
@@ -2554,7 +2563,7 @@
 
 <h1 id="administration">Administration<a class="headerlink" href="#administration" title="Permanent link">&para;</a></h1>
 <p>This page covers operations that affect the altero instance, accounts, groups or complete libraries.</p>
-<p><strong>For ordinary account settings:</strong> see <a href="../web-interface/">Web interface</a>.</p>
+<p>For your own password, sign-in methods and preferences, use <a href="../web/account/">Accounts and personal settings</a>.</p>
 <h2 id="what-an-instance-administrator-can-do">What an instance administrator can do<a class="headerlink" href="#what-an-instance-administrator-can-do" title="Permanent link">&para;</a></h2>
 <p>Most altero permissions belong to a library. The <strong>instance administrator</strong> role is different: it can operate the server itself.</p>
 <p>An instance administrator can manage accounts, retention, identity providers, registered applications and storage information. The role does <strong>not</strong> grant automatic access to other users' library contents. An administrator can count and operate libraries without being allowed to read their items, notes or files.</p>
@@ -2662,21 +2671,9 @@ API key from <strong>Settings → API keys</strong>.</p>
 OIDC callbacks, SAML assertion recipients and the SAML service-provider identity
 always use it; request host headers cannot supply a substitute.</p>
 <p>A callback mismatch is rejected by the provider before altero can complete sign-in.</p>
-<p>OIDC and signed SAML sign-in have a real Keycloak integration test, including
-returning to the same account and keeping browser sessions out of the v3 API.
-The <a href="https://github.com/eseifert/altero/blob/master/tests/idp/README.md">test setup</a>
-documents its scope. Account creation, required-group checks and sign-in-time
-deprovisioning are exercised for both protocols, including retained and revoked
-API keys. SAML signing-key rollover, callback replay and the five-minute
-validity tolerance are also checked against Keycloak-issued responses. The
-clock tests adjust altero's validator clock; they do not test machine clock
-synchronization.</p>
-<p>A second SAML integration test uses SimpleSAMLphp 2.5.3.1 on patched PHP 8.4.27,
-with both response and assertion signed. It covers persistent identity, required
-groups, provisioning policy, account linking, forced reauthentication and
-refusal of replayed or altered responses. This fixture does not establish
-compatibility with other providers or with encrypted assertions, artifact
-binding or signed AuthnRequests.</p>
+<p>Live integration tests cover Keycloak and SimpleSAMLphp. Other provider recipes
+below are marked unverified. See the <a href="https://github.com/eseifert/altero/blob/master/tests/idp/README.md">fixture scope</a>
+for the flows actually checked.</p>
 <h3 id="openid-connect">OpenID Connect<a class="headerlink" href="#openid-connect" title="Permanent link">&para;</a></h3>
 <p>Store the client credentials and provider settings in the administration screen. Client secrets are write-only: the interface can replace a secret but does not display the existing value.</p>
 <p>Copy the provider's exact <code>issuer</code> value from its discovery document, including
@@ -2684,45 +2681,26 @@ any trailing slash. Issuers must match in configuration, discovery and ID
 tokens, as required by
 <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationValidation">OpenID Connect Discovery</a>.</p>
 <h3 id="sso-only-mode">SSO-only mode<a class="headerlink" href="#sso-only-mode" title="Permanent link">&para;</a></h3>
-<p>The v3 API still accepts API keys and OAuth access tokens, never browser
-sessions. Desktop clients obtain a key from <strong>Settings → API keys</strong>; this
-setting changes browser authentication rather than the sync protocol.</p>
-<p>Set <code>ALTERO_SSO_ONLY=true</code> (<code>SSO_ONLY = True</code> in <code>config.py</code>) to require the
-configured OIDC/SAML providers for every browser sign-in. The default is
-<code>false</code>. <code>ALTERO_PUBLIC_URL</code> is required; Compose forwards the setting from
-<code>.env</code> or the shell.</p>
-<p>Configure and test the provider first, enable account provisioning if desired,
-and connect existing accounts under <strong>Settings → Security</strong> before switching.
-Email claims never attach a directory identity to an existing account. A new
-subject is provisioned or refused according to the provider's policy. An empty
-provider list or a disabled provider offers no fallback sign-in. The first
-local registration is disabled too; set up the instance before enabling this
-mode.</p>
-<p>The sign-in page offers only provider links. Direct HTTP requests cannot use
-local passwords, passkeys, registration, password-reset links (including links
-issued earlier), email confirmation/change, or local authenticator/email-code
-flows. Local MFA belongs at the identity provider in this mode. Administrators
-cannot issue local passwords or reset links through the web interface either.
-Existing credentials are retained so disabling the setting restores the normal
-behavior; API keys and OAuth grants remain usable.</p>
-<p>Sessions created before the SSO-provenance migration, and sessions established
-with local credentials, must sign in again through a provider. Only a recent
-SSO proof authorizes key creation, archive restore, zotero.org migration,
-desktop linking and protected administrator actions. <strong>Confirm it is you</strong>
-returns through the connected provider using OIDC <code>prompt=login</code> or SAML
-<code>ForceAuthn</code>; the proof lasts five minutes and is bound to that browser. A
-local password or passkey cannot extend it. Connecting another directory also
-requires recent proof from an existing identity; a linking callback cannot
-extend that proof. Migration still needs the separate
-zotero.org API key; after a provider round trip, reselect any archive or reenter
-form data that navigation cleared. Removing the last enabled provider connected
-to an account is refused even when that account has a stored local password.</p>
-<p>Display names and email addresses are copied when an account is provisioned;
-this setting does not add continuous directory synchronization or rename
-existing usernames. To recover from a provider outage or configuration mistake,
-an operator with shell access can disable <code>ALTERO_SSO_ONLY</code>, restart, and use
-the existing account-recovery commands. There is no public break-glass password
-route while the setting is enabled.</p>
+<p>Set <code>ALTERO_SSO_ONLY=true</code> to require an OIDC or SAML provider for browser
+sign-in. <code>ALTERO_PUBLIC_URL</code> is required. Desktop API keys and connected
+applications continue working; this setting controls browser authentication.</p>
+<p>Before enabling it:</p>
+<ol>
+<li>Configure and test an enabled provider, including fresh identity confirmation for sensitive actions.</li>
+<li>Connect existing accounts under <strong>Settings → Sign-in and security</strong>, or choose whether the provider may create accounts.</li>
+<li>Keep shell access for recovery, then enable the setting and restart.</li>
+</ol>
+<p>Matching email addresses never links identities. With no working provider,
+users cannot sign in. Initial local registration is disabled too.</p>
+<p>In this mode, local passwords, passkeys, registration, reset links, email
+changes and local second factors are unavailable. Manage second factors at the
+provider. Old local sessions must sign in through a provider; sensitive actions
+require fresh provider confirmation, valid for five minutes. After a provider
+round trip, reselect an archive or reenter form data if navigation cleared it.</p>
+<p>The last enabled provider linked to an account cannot be removed. Existing
+local credentials are retained: to recover from provider failure, disable
+<code>ALTERO_SSO_ONLY</code> from the server shell, restart, and use account-recovery
+commands. This mode does not add continuous directory synchronization.</p>
 <h3 id="saml-20">SAML 2.0<a class="headerlink" href="#saml-20" title="Permanent link">&para;</a></h3>
 <p>A SAML provider requires:</p>
 <ul>
@@ -2735,11 +2713,10 @@ route while the setting is enabled.</p>
 (ACS), using HTTP-POST. For a provider whose short name is <code>campus</code>, this is
 <code>&lt;public_url&gt;/web/auth/saml/campus/acs</code>. The service provider entity ID is
 <code>public_url</code> without a trailing slash.</p>
-<p>Linking an existing account and confirming identity return through a short-lived
-GET handoff after the assertion POST, so the browser can present its existing
-session cookie. The same signed-in account must complete it within two minutes;
-an expired or already-used handoff requires starting again. See the
-<a href="../compatibility/#finishing-saml-account-linking-with-the-browser-session">SAML session handoff</a>.</p>
+<p>When linking an account or confirming identity, complete the return to altero
+in the same signed-in browser within two minutes. An expired handoff requires
+starting again. See the <a href="../compatibility/#finishing-saml-account-linking-with-the-browser-session">SAML session handoff</a>
+for protocol details.</p>
 <p>The SAML implementation is deliberately limited to:</p>
 <ul>
 <li>SP-initiated sign-in;</li>
@@ -2792,11 +2769,9 @@ Matching an email address never links accounts automatically. <strong>Required c
 names a literal top-level claim or SAML attribute; <strong>Required value</strong> must match
 the string or one entry in its list exactly.</p>
 <h4 id="keycloak">Keycloak<a class="headerlink" href="#keycloak" title="Permanent link">&para;</a></h4>
-<p><strong>Verification:</strong> OIDC and SAML passed with Keycloak 26.8.1 in
-<a href="https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185">hosted CI at <code>fcf8460</code></a>,
-alongside the second SAML provider, SimpleSAMLphp. See the
-<a href="https://github.com/eseifert/altero/blob/master/tests/idp/README.md">test scope</a>
-for the exercised flows and browser limitations.</p>
+<p><strong>Tested provider:</strong> OIDC and SAML integration tests cover Keycloak.
+See <a href="https://github.com/eseifert/altero/blob/master/tests/idp/README.md">test scope</a>
+for the exercised flows and limits.</p>
 <p>For OIDC, create an <code>openid-connect</code> client in the chosen realm. Enable client
 authentication and the standard authorization-code flow, require S256, and
 register the exact callback. Copy the client ID and generated secret into
@@ -2900,19 +2875,18 @@ restoring the claim alone does not reinstate it. An administrator must
 reinstate the account. This is still a sign-in-time check, not continuous
 deprovisioning. See <a href="#account-creation-and-deprovisioning">account creation and deprovisioning</a>.</p>
 <h2 id="third-party-applications">Third-party applications<a class="headerlink" href="#third-party-applications" title="Permanent link">&para;</a></h2>
-<p>Sign-in providers are how somebody proves who they are <em>to</em> altero. The authorization server is the other direction: how somebody else's application is given access to a library, without ever being handed a password or a long-lived API key.</p>
-<p>An application has to be registered before it can ask for anything. Nothing self-registers, because the list of addresses an authorization code may be sent to is the only thing that keeps the code from going somewhere else.</p>
-<p>Set <code>ALTERO_PUBLIC_URL</code> before registering anything. It decides the <code>iss</code> claim on every ID token, there is deliberately no fallback to the address a request arrived on, and without it these endpoints refuse to answer rather than guess.</p>
+<p>Register applications that should receive limited, expiring library access.
+Set <code>ALTERO_PUBLIC_URL</code> first, then use:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>add<span class="w"> </span>notebook<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span>--name<span class="w"> </span><span class="s2">&quot;Notebook&quot;</span><span class="w"> </span><span class="se">\</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span>--redirect-uri<span class="w"> </span>https://notebook.example.com/auth/callback<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span>--scope<span class="w"> </span>openid<span class="w"> </span>--scope<span class="w"> </span>profile<span class="w"> </span>--scope<span class="w"> </span>library.read
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>list
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>disable<span class="w"> </span>notebook
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>rotate-key
 </span></code></pre></div>
-<p>A person approves an application in their browser and can disconnect it at any time under <strong>Settings → Connected applications</strong>. Disconnecting takes effect immediately.</p>
-<p>Full details, including the scope table and what a client developer needs: <a href="../oauth/">Connecting other applications</a>.</p>
+<p>Account holders approve access in their browsers and can disconnect an
+application under <strong>Settings → Connected applications</strong>. See
+<a href="../oauth/">Connecting other applications</a> for scopes, registration and developer details.</p>
 <h2 id="retention">Retention<a class="headerlink" href="#retention" title="Permanent link">&para;</a></h2>
 <p>Retention starts conservatively: the default trash-retention period is <strong>never delete automatically</strong>.</p>
 <p>Configuration values:</p>
@@ -2928,17 +2902,16 @@ deprovisioning. See <a href="#account-creation-and-deprovisioning">account creat
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>run<span class="w"> </span>--dry-run<span class="w"> </span>--trash<span class="w"> </span><span class="m">30</span>
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>run
 </span></code></pre></div>
-<h3 id="why-trash-cleanup-is-a-normal-delete">Why trash cleanup is a normal delete<a class="headerlink" href="#why-trash-cleanup-is-a-normal-delete" title="Permanent link">&para;</a></h3>
-<p>When retention removes trashed Zotero objects, the library advances by one version and the deletions are recorded. A client that later asks <code>/deleted?since=</code> can therefore learn what disappeared.</p>
-<p>Items restored or changed while a sweep waits are checked again before deletion.</p>
-<p>Removing database rows without the deletion log would leave offline clients holding objects the server had silently forgotten.</p>
-<p>Unreferenced attachment files are not deleted by the timed retention sweep. They are handled separately from the Storage screen to avoid racing uploads that have written their bytes before committing their item rows.</p>
-<h3 id="rows-that-carry-their-own-expiry">Rows that carry their own expiry<a class="headerlink" href="#rows-that-carry-their-own-expiry" title="Permanent link">&para;</a></h3>
-<p>Browser sessions, sign-in codes, confirmation links, unanswered invitations and attachment download permissions have no retention period of their own. Each records when it expires, and the sweep removes it once it has: an expired session is already nobody's session, and an expired download permission opens nothing.</p>
-<p>The same sweep removes expired browser merge snapshots. A library keeps at most
-one, usable by its author for five minutes while the library remains unchanged.
-These private snapshots are not included in library archives.</p>
-<p>Download permissions are the highest-volume of these. A client syncing its files is granted one per attachment it fetches, so the sweep is what keeps that table from growing for as long as the instance runs. See <a href="../compatibility/#the-location-has-to-be-a-credential">the file protocol</a> for what they are and why the redirect cannot simply point at a URL carrying the API key.</p>
+<h3 id="what-cleanup-removes">What cleanup removes<a class="headerlink" href="#what-cleanup-removes" title="Permanent link">&para;</a></h3>
+<p>Trash cleanup permanently deletes eligible objects and records the deletions
+for syncing clients. It checks again for items restored or changed during the
+sweep. Age is measured from the last server-recorded item change, rather than
+a separate time of trashing.</p>
+<p>The sweep also removes expired sessions, codes, links, invitations, download
+permissions and private undo snapshots. These have their own expiry times.</p>
+<p>Unreferenced attachment files require a separate cleanup action in <strong>Storage</strong>;
+timed retention does not remove them. A grace period protects files belonging
+to uploads still in progress.</p>
 <h2 id="library-transfer-and-recovery">Library transfer and recovery<a class="headerlink" href="#library-transfer-and-recovery" title="Permanent link">&para;</a></h2>
 <h3 id="move-a-library-to-another-altero-instance">Move a library to another altero instance<a class="headerlink" href="#move-a-library-to-another-altero-instance" title="Permanent link">&para;</a></h3>
 <p>Export the library:</p>
@@ -2966,19 +2939,32 @@ a scheduled one-way refresh is future work. See
 </span></code></pre></div>
 <p>The migration asks for a zotero.org API key with read access to the personal library. The key is prompted for rather than placed on the command line.</p>
 <p>The migration preserves Zotero object keys and versions so an already-synchronized desktop client can continue from the same state.</p>
-<p>If the local altero user ID differs from the zotero.org user ID, Zotero Desktop can require a reset and re-download because the client remembers which account number last synchronized that data directory.</p>
+<p>If the account numbers differ, linking the existing profile is refused. Use an account with the original number or a fresh profile, as explained in <a href="../clients/#a-profile-that-has-synced-before">A profile that has synced before</a>.</p>
 <p>Only the personal library is imported. Attachment bytes that zotero.org does not hold cannot be downloaded; the migration lists those items and brings the attachments across without their files.</p>
 <div class="admonition important">
 <p class="admonition-title">Important</p>
 <p>If attachment files were synchronized over WebDAV, zotero.org holds none of them. It answers 404 for every one, so the whole library arrives without files. The metadata is complete: item keys, <code>md5</code> and <code>mtime</code> are all preserved. Either keep the WebDAV server for files, or move the files into altero from a client that still has them. See <a href="../clients/#file-syncing">File syncing</a>.</p>
 </div>
 <h3 id="after-recreating-the-database">After recreating the database<a class="headerlink" href="#after-recreating-the-database" title="Permanent link">&para;</a></h3>
-<p>A newly recreated library begins at a low library version, while existing clients may remember a much higher version. Zotero refuses to move its stored version backwards.</p>
-<p>Raise the server library version above the version remembered by the client:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>library<span class="w"> </span>set-version<span class="w"> </span>user<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">100</span>
+<p>Pause other clients before recovery. A desktop may remember a later library
+version than a recreated database or older archive. Raising the server's
+library version fixes that counter mismatch, but <strong>does not</strong> make older item
+versions replace newer desktop caches.</p>
+<p>If a surviving desktop holds the complete authoritative library:</p>
+<ol>
+<li>Back up its data directory and the server before proceeding.</li>
+<li>Raise the server library version above the value remembered by that desktop:</li>
+</ol>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>library<span class="w"> </span>set-version<span class="w"> </span>user<span class="w"> </span><span class="m">1</span><span class="w"> </span>&lt;higher-version&gt;
 </span></code></pre></div>
-<p>This command only raises versions; lowering a working library version can lock clients out.</p>
-<p>Raising the version does not recreate data that was lost with the database. Use Zotero's <strong>Restore to Server</strong> afterwards if you need the client to upload a complete copy.</p>
+<ol>
+<li>Use Zotero's <strong>Restore to Server</strong> to upload the surviving desktop's complete copy.</li>
+<li>Verify metadata and attachment bytes before reconnecting other clients.</li>
+</ol>
+<p>This command only raises the counter; it recreates no lost objects or files.
+Do not resume normal sync assuming the version change restored data. Without a
+complete surviving copy, restore from a verified backup and plan how each client
+will obtain that state. Automatic rewind of synced desktop objects is unsupported.</p>
 <h2 id="group-policy">Group policy<a class="headerlink" href="#group-policy" title="Permanent link">&para;</a></h2>
 <p>A group has three Zotero-compatible policy settings:</p>
 <table>
@@ -3045,11 +3031,6 @@ a scheduled one-way refresh is future work. See
 </span></code></pre></div>
 <p>These permissions can only restrict what the group policy already allows. They do not elevate a member above the group's normal policy.</p>
 <p>Only the read-only state maps cleanly onto a permission the Zotero sync client understands. <code>add</code> and <code>own</code> are enforced server-side; a client that attempts a forbidden operation receives a sync error explaining the restriction. See <a href="../compatibility/#finer-roles-for-one-member">Compatibility notes</a>.</p>
-<p>The desktop compatibility runner's <code>resync</code> scenario repeats this recovery
-with Zotero 10.0.6, including restoring an older archive before raising the
-counter and uploading the surviving desktop's authoritative copy. Raising the
-library counter alone does not rewind existing desktop objects to older object
-versions. See <a href="../client-compatibility/#additional-desktop-scenarios">the desktop scenarios</a>.</p>
 
 
 

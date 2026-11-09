@@ -387,6 +387,8 @@
       
         
       
+        
+      
     
     
     
@@ -1291,6 +1293,8 @@
       
         
       
+        
+      
     
     
     
@@ -1436,6 +1440,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Independent client in CI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recorded-ci-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Recorded CI run
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1568,6 +1589,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" class="md-nav__link">
         
   
@@ -1644,6 +1692,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Independent client in CI">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#recorded-ci-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Recorded CI run
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1709,31 +1774,26 @@
 
 
 <h1 id="openid-provider-interoperability">OpenID provider interoperability<a class="headerlink" href="#openid-provider-interoperability" title="Permanent link">&para;</a></h1>
-<p>Local assessment on <strong>31 October 2026</strong>, using altero at <code>d06783c</code>:
+<p>Historical local assessment on <strong>2026-10-31</strong>, using altero at <code>d06783c</code>:
 the OpenID Foundation suite's <strong>Config OP passed</strong>. <strong>Basic OP did not pass</strong>.
 This is a development assessment, not OpenID certification or an exhaustive
 claim of protocol support. The mandatory S256 PKCE policy was retained.</p>
 <h2 id="independent-client-in-ci">Independent client in CI<a class="headerlink" href="#independent-client-in-ci" title="Permanent link">&para;</a></h2>
-<p><code>tests/test_authlib.py</code> runs 24 live HTTP cases using stock Authlib 1.9.1 and
-its native httpx2 integration. Public clients, HTTP Basic secrets and form
-secrets each exercise code + PKCE, ID-token signature/claim validation,
-userinfo, refresh rotation/replay, revocation, device consent and RP logout.
-It also checks bearer/cookie separation and refuses bad proof and code reuse.
-No external IdP is needed and no opt-in variable skips these tests.</p>
+<p>Run the independent Authlib client checks with:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-q<span class="w"> </span>tests/test_authlib.py
 </span></code></pre></div>
-<p>The harness uses an isolated SQLite database and loopback port 18765. It
-approves consent through the browser's cookie/CSRF HTTP endpoints and hands the
-callback URL to Authlib. It does not provide a separate RP listener or prove
-consent-page rendering. See the <a href="https://github.com/eseifert/altero/blob/master/tests/idp/README.md">fixture details</a>.
-Combined Authlib and existing OAuth regressions passed 181 cases locally.
-Changing the nonce or access-token hash in actual server-issued ID tokens made
-Authlib reject them; the intact 24 cases passed again after restoring source.</p>
-<p>The <a href="https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185">hosted test job at <code>fcf8460</code></a>
-passed on 31 October 2026 (UTC): 3,556 tests, no skipped tests, including these
-24 Authlib cases. The same job ran the real Keycloak and SimpleSAMLphp cases.
-This is CI evidence for the supported flows, separate from the Foundation
-profile results below.</p>
+<p>They cover code and PKCE, public/confidential clients, ID tokens, userinfo,
+refresh, replay, revocation, device consent and logout over live HTTP. No
+external provider is required. Keep loopback port 18765 free.</p>
+<p>The harness approves through real cookie/CSRF routes, without testing consent
+page rendering or a separate client callback listener. See the
+<a href="https://github.com/eseifert/altero/blob/master/tests/idp/README.md">fixture scope</a>.</p>
+<h3 id="recorded-ci-run">Recorded CI run<a class="headerlink" href="#recorded-ci-run" title="Permanent link">&para;</a></h3>
+<p>On 2026-10-31, the <a href="https://github.com/eseifert/altero/actions/runs/41250704073/job/124683435185">hosted job at <code>fcf8460</code></a>
+passed 3,556 tests without skips, including 24 Authlib cases using Authlib 1.9.1.
+The same job ran Keycloak and SimpleSAMLphp tests. Local token mutations made
+Authlib reject changed nonce and access-token hashes after intact baselines
+passed. These results are separate from the Foundation assessment below.</p>
 <h2 id="foundation-suite-environment">Foundation suite environment<a class="headerlink" href="#foundation-suite-environment" title="Permanent link">&para;</a></h2>
 <p>The official <a href="https://openid.net/certification/about-conformance-suite/">conformance suite</a>
 reported version <strong>5.3.4</strong>, tag <code>release-v5.3.4</code>, revision <code>e8d5167</code>.

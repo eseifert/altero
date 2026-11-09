@@ -387,6 +387,8 @@
       
         
       
+        
+      
     
     
     
@@ -1524,6 +1526,8 @@
       
         
       
+        
+      
     
     
     
@@ -1688,6 +1692,33 @@
     
   
   Web interface implementation notes
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
 
     
   </span>
@@ -2049,10 +2080,7 @@
 </ul>
 <p>Security notices are sent only to a <strong>confirmed</strong> email address.</p>
 <p>Confirmation links are valid for 24 hours. Administrator-issued or self-service password links are single-use and valid for 12 hours. Email sign-in codes are valid for ten minutes, work once and are tied to the browser session that requested them.</p>
-<p>Upgrading does not revoke password-reset links already issued. If an earlier
-message contains an incorrect host, issue a fresh reset from <strong>Administration →
-Accounts</strong> after configuring <code>ALTERO_PUBLIC_URL</code>; the new token replaces that
-account's previous reset token.</p>
+<p>For reset links issued before a public-address correction, see <a href="../release-history/#historical-upgrade-notes">historical upgrade notes</a>.</p>
 <h2 id="run-without-smtp">Run without SMTP<a class="headerlink" href="#run-without-smtp" title="Permanent link">&para;</a></h2>
 <p>With <code>ALTERO_SMTP_URL</code> unset, altero logs messages at <code>WARNING</code> instead of sending them.</p>
 <p>For Docker Compose, find a logged message with:</p>
@@ -2128,7 +2156,7 @@ account's previous reset token.</p>
 <p>This is required when <code>ALTERO_SMTP_URL</code> is set; altero refuses to start without it. Password-reset, email-confirmation and invitation links never use the request's <code>Host</code> or forwarded host headers. Self-service reset also requires this setting before it issues a token or offers the form.</p>
 <p><code>ALTERO_PUBLIC_URL</code> is separate from <code>ALTERO_FORWARDED_ALLOW_IPS</code>: the first controls generated public links and callback addresses, while the second names the proxies whose forwarded client address and scheme altero believes.</p>
 <h2 id="docker-compose">Docker Compose<a class="headerlink" href="#docker-compose" title="Permanent link">&para;</a></h2>
-<p>Put the mail settings in <strong><code>docker/.env</code></strong>, which the Compose file hands to the container along with everything else in it (see <a href="../configuration/#in-docker">Configuration</a>):</p>
+<p>Put mail settings in <strong><code>.env</code> beside the Compose file</strong> (<code>docker/.env</code> in a checkout). See <a href="../configuration/#in-docker">Configuration</a>.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>POSTGRES_PASSWORD=something-other-than-the-default
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>ALTERO_SMTP_URL=smtps://altero%40example.org:s3cret@mail.example.org
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>ALTERO_MAIL_FROM=altero@example.org
@@ -2139,7 +2167,7 @@ account's previous reset token.</p>
 </span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>config<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>ALTERO_
 </span></code></pre></div>
 <h3 id="common-docker-mistakes">Common Docker mistakes<a class="headerlink" href="#common-docker-mistakes" title="Permanent link">&para;</a></h3>
-<p><strong>Put the file in <code>docker/.env</code>.</strong> The documented Compose file lives in <code>docker/</code>, and that is the environment file it reads.</p>
+<p><strong>Keep <code>.env</code> beside the Compose file.</strong> A checkout uses <code>docker/.env</code>; a downloaded deployment usually uses <code>.env</code> in its working directory.</p>
 <p><strong>Escape <code>$</code> for Compose.</strong> In <code>.env</code>, Compose interpolates <code>$NAME</code>. Double a literal dollar sign as <code>$$</code>. This is in addition to URL percent-encoding.</p>
 <p>Example password <code>p@ss$1</code> inside the SMTP URL:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>p%40ss$$1
@@ -2218,7 +2246,7 @@ account's previous reset token.</p>
 <h2 id="failure-behavior">Failure behavior<a class="headerlink" href="#failure-behavior" title="Permanent link">&para;</a></h2>
 <p>Mail failure does not roll back the action that caused the message. For example, a password change remains a password change even if the security notice cannot be delivered.</p>
 <p>Failures are logged. There is no mail queue and no automatic retry. Most user-triggered messages can be requested again.</p>
-<p>Mail sending runs on a worker thread with a 10-second timeout so a slow relay does not block the server's event loop.</p>
+<p>SMTP requests time out after ten seconds. Check relay connectivity if delivery stalls.</p>
 <h2 id="related">Related<a class="headerlink" href="#related" title="Permanent link">&para;</a></h2>
 <ul>
 <li><a href="../deployment/">Deployment</a></li>

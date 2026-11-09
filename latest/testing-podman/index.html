@@ -387,6 +387,8 @@
       
         
       
+        
+      
     
     
     
@@ -1396,6 +1398,8 @@
       
         
       
+        
+      
     
     
     
@@ -1579,6 +1583,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" class="md-nav__link">
         
   
@@ -1733,9 +1764,8 @@
 <h1 id="checking-a-rootless-podman-deployment">Checking a rootless Podman deployment<a class="headerlink" href="#checking-a-rootless-podman-deployment" title="Permanent link">&para;</a></h1>
 <p>Use this procedure to report a rootless run in <a href="https://github.com/eseifert/altero/issues/52">issue #52</a>.
 It exercises SQLite, the web interface, attachment storage, container replacement
-and the image's health check. The <a href="#recorded-run">recorded run below</a> passes with
-the published beta.7 image. PostgreSQL, Compose and systemd integration need
-separate reports.</p>
+and the image's health check. See the <a href="#recorded-run">historical run</a> for one
+tested configuration. PostgreSQL, Compose and systemd integration need separate reports.</p>
 <p>Use a Linux account with <a href="https://docs.podman.io/en/stable/markdown/podman.1.html#rootless-mode">rootless Podman already configured</a>,
 a browser and curl. Run the following blocks in the same shell, stopping on any
 failure. Use a new container and volume name for each attempt so a failed run's
@@ -1745,7 +1775,7 @@ data remains available for inspection.</p>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>podman<span class="w"> </span>info<span class="w"> </span>--format<span class="w"> </span><span class="s1">&#39;{{.Host.Security.Rootless}}&#39;</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>podman<span class="w"> </span>info<span class="w"> </span>--format<span class="w"> </span><span class="s1">&#39;{{.Store.GraphDriverName}}&#39;</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nv">altero_probe_image</span><span class="o">=</span>ghcr.io/eseifert/altero:1.0.0-beta.7
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nv">altero_probe_image</span><span class="o">=</span>ghcr.io/eseifert/altero:latest
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="nv">altero_probe_name</span><span class="o">=</span>altero-rootless-check
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nv">altero_probe_volume</span><span class="o">=</span>altero-rootless-check-data
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nv">altero_probe_port</span><span class="o">=</span><span class="m">18080</span>
@@ -1754,7 +1784,7 @@ data remains available for inspection.</p>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>podman<span class="w"> </span>pull<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_image</span><span class="s2">&quot;</span>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>podman<span class="w"> </span>image<span class="w"> </span>inspect<span class="w"> </span>--format<span class="w"> </span><span class="s1">&#39;{{.Id}} {{.Digest}} {{.Config.User}}&#39;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$altero_probe_image</span><span class="s2">&quot;</span>
 </span></code></pre></div>
-<p>The rootless field must be <code>true</code>. Run these commands as the ordinary account
+<p>Choose the image tag you want to test; <code>latest</code> includes prereleases. Record its resolved digest. The rootless field must be <code>true</code>. Run these commands as the ordinary account
 that will own the containers. <a href="https://docs.podman.io/en/stable/markdown/podman-info.1.html">Podman info</a>
 also records the host, storage driver and namespace mappings if setup fails.
 Record the image ID and digest: a report about another image does not establish

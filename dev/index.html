@@ -385,6 +385,8 @@
       
         
       
+        
+      
     
     
     
@@ -1292,6 +1294,8 @@
       
         
       
+        
+      
     
     
     
@@ -1475,6 +1479,33 @@
   
   
     <li class="md-nav__item">
+      <a href="./release-history/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Release validation history
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" class="md-nav__link">
         
   
@@ -1543,10 +1574,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#start-here" class="md-nav__link">
+  <a href="#find-your-guide" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Start here
+        Find your guide
       </span>
     </span>
   </a>
@@ -1554,71 +1585,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#choose-your-path" class="md-nav__link">
+  <a href="#for-contributors" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Choose your path
+        For contributors
       </span>
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Choose your path">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#i-am-evaluating-altero" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        I am evaluating altero
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#i-run-an-altero-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        I run an altero server
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#i-use-altero-but-do-not-administer-the-server" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        I use altero but do not administer the server
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#i-develop-or-test-altero" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        I develop or test altero
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#a-few-terms-used-throughout-the-docs" class="md-nav__link">
+  <a href="#terms-used-in-these-guides" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        A few terms used throughout the docs
+        Terms used in these guides
       </span>
     </span>
   </a>
@@ -1655,134 +1636,76 @@
 
 
 <h1 id="altero-documentation">altero documentation<a class="headerlink" href="#altero-documentation" title="Permanent link">&para;</a></h1>
-<p>altero is a self-hosted synchronization server for Zotero Desktop.</p>
+<p>altero lets you synchronize Zotero libraries on a server you control. Use
+Zotero Desktop, the browser interface, or both.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Keep a current backup of important libraries and don’t rely on altero as your only copy yet.</p>
 </div>
-<p><strong>Current release: 1.0.0-beta.8.</strong> This security and maintenance release fixes
-password-reset link poisoning and OIDC issuer handling. SMTP-enabled instances
-must set <code>ALTERO_PUBLIC_URL</code> before upgrading; see <a href="deployment/#upgrade-altero">upgrade instructions</a>.</p>
-<p>The beta.7 desktop acceptance run with two real Zotero 10.0.7 profiles passed 72
-scenario/database combinations and 838 phases across SQLite and PostgreSQL.
-See <a href="client-compatibility/">desktop compatibility checks</a> for the
-tested transitions, known client behavior and remaining gaps.</p>
-<h2 id="start-here">Start here<a class="headerlink" href="#start-here" title="Permanent link">&para;</a></h2>
+<h2 id="find-your-guide">Find your guide<a class="headerlink" href="#find-your-guide" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>I want to…</th>
-<th>Read this</th>
+<th>You want to…</th>
+<th>Start here</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Try altero locally</td>
+<td>Try altero on your computer</td>
 <td><a href="getting-started/">Getting started</a></td>
 </tr>
 <tr>
-<td>Connect Zotero Desktop</td>
+<td>Connect Zotero to an existing server</td>
 <td><a href="clients/">Connecting a Zotero client</a></td>
 </tr>
 <tr>
-<td>Run or upgrade a server</td>
-<td><a href="deployment/">Deployment</a></td>
-</tr>
-<tr>
-<td>Look up a configuration setting</td>
-<td><a href="configuration/">Configuration</a></td>
-</tr>
-<tr>
-<td>Manage users, groups, retention or sign-in providers</td>
-<td><a href="administration/">Administration</a></td>
-</tr>
-<tr>
-<td>Let another application reach a library</td>
-<td><a href="oauth/">Connecting other applications</a></td>
-</tr>
-<tr>
-<td>Configure outgoing email</td>
-<td><a href="email/">Email</a></td>
-</tr>
-<tr>
-<td>Use the browser interface</td>
+<td>Work with your library in a browser</td>
 <td><a href="web-interface/">Web interface</a></td>
 </tr>
 <tr>
-<td>Test synchronization with two real clients</td>
-<td><a href="testing-two-clients/">Two-client testing</a></td>
+<td>Run, upgrade or back up a server</td>
+<td><a href="deployment/">Deployment</a></td>
 </tr>
 <tr>
-<td>Check desktop decisions against server responses</td>
-<td><a href="client-compatibility/">Desktop compatibility checks</a></td>
+<td>Manage accounts and server policies</td>
+<td><a href="administration/">Administration</a></td>
 </tr>
 <tr>
-<td>Check whether a feature is implemented</td>
-<td><a href="status/">Implementation status</a></td>
+<td>Look up a setting</td>
+<td><a href="configuration/">Configuration</a></td>
 </tr>
 <tr>
-<td>Understand why altero exists</td>
-<td><a href="motivation/">Motivation</a></td>
+<td>Set up email delivery</td>
+<td><a href="email/">Email</a></td>
 </tr>
 <tr>
-<td>Investigate Zotero protocol behavior</td>
-<td><a href="compatibility/">Compatibility reference</a></td>
+<td>Connect another application</td>
+<td><a href="oauth/">Connecting other applications</a></td>
 </tr>
 <tr>
-<td>Understand the database</td>
-<td><a href="schema/">Database schema</a></td>
-</tr>
-<tr>
-<td>Work on the browser design system</td>
-<td><a href="design/">Design system</a></td>
+<td>Evaluate features and limits</td>
+<td><a href="status/">What works</a> and <a href="motivation/">Why altero exists</a></td>
 </tr>
 </tbody>
 </table>
-<h2 id="choose-your-path">Choose your path<a class="headerlink" href="#choose-your-path" title="Permanent link">&para;</a></h2>
-<h3 id="i-am-evaluating-altero">I am evaluating altero<a class="headerlink" href="#i-am-evaluating-altero" title="Permanent link">&para;</a></h3>
-<p>Read these in order:</p>
-<ol>
-<li><a href="motivation/">Why altero exists</a> — what problem it solves, what it does not try to replace, and the current limits.</li>
-<li><a href="getting-started/">Getting started</a> — run a local test instance and connect Zotero Desktop.</li>
-<li><a href="status/">What works</a> — feature status and known omissions.</li>
-</ol>
-<p>You do <strong>not</strong> need the compatibility or schema documents to try altero.</p>
-<h3 id="i-run-an-altero-server">I run an altero server<a class="headerlink" href="#i-run-an-altero-server" title="Permanent link">&para;</a></h3>
-<p>Start with <a href="deployment/">Deployment</a>. It covers Docker Compose, source installations, upgrades, health checks, reverse proxies and the main configuration settings.</p>
-<p>Then use:</p>
+<h2 id="for-contributors">For contributors<a class="headerlink" href="#for-contributors" title="Permanent link">&para;</a></h2>
+<p>Start with the <a href="https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md">development guide</a>.
+Use the <a href="compatibility/">compatibility reference</a> and <a href="schema/">database schema</a>
+when changing server behavior. For browser work, see the <a href="design/">design system</a>
+and <a href="web/implementation/">implementation notes</a>.</p>
+<p>To help test, follow <a href="testing-two-clients/">two-client testing</a>,
+<a href="client-compatibility/">desktop compatibility checks</a>, or the
+<a href="testing-podman/">Podman procedure</a>. These pages include the scope and limits
+of recorded results.</p>
+<h2 id="terms-used-in-these-guides">Terms used in these guides<a class="headerlink" href="#terms-used-in-these-guides" title="Permanent link">&para;</a></h2>
 <ul>
-<li><a href="configuration/">Configuration</a> for every setting, its default, and how to set it from <code>config.py</code>, the environment or Docker.</li>
-<li><a href="administration/">Administration</a> for accounts, API keys, groups, retention, library moves and institutional sign-in.</li>
-<li><a href="oauth/">Connecting other applications</a> for registering a third-party application and giving it scoped access instead of an API key.</li>
-<li><a href="email/">Email</a> if you want confirmations, invitations, security messages or group digests delivered by mail.</li>
-<li><a href="web-interface/">Web interface</a> for what ordinary users and administrators can do in the browser.</li>
+<li><strong>Instance:</strong> one altero installation, including its database and attachment storage.</li>
+<li><strong>Library:</strong> a personal or group Zotero library.</li>
+<li><strong>API key:</strong> a credential used by Zotero Desktop to synchronize. Signing into the browser does not replace it.</li>
+<li><strong>Connected application:</strong> software you have approved to access your account with limited, expiring tokens.</li>
+<li><strong>Instance administrator:</strong> someone who manages the server and accounts. This role does not automatically grant access to other people's library contents.</li>
 </ul>
-<h3 id="i-use-altero-but-do-not-administer-the-server">I use altero but do not administer the server<a class="headerlink" href="#i-use-altero-but-do-not-administer-the-server" title="Permanent link">&para;</a></h3>
-<p>The <a href="web-interface/">Web interface</a> is the main guide. It links to shorter pages for account settings, library browsing, sharing, groups and data transfer.</p>
-<p>For Zotero Desktop setup, use <a href="clients/">Connecting a Zotero client</a>.</p>
-<h3 id="i-develop-or-test-altero">I develop or test altero<a class="headerlink" href="#i-develop-or-test-altero" title="Permanent link">&para;</a></h3>
-<p>Use:</p>
-<ul>
-<li><a href="status/">Implementation status</a> for the supported API surface.</li>
-<li><a href="compatibility/">Compatibility reference</a> for behavior copied from or deliberately different from zotero.org.</li>
-<li><a href="client-compatibility/">Desktop compatibility checks</a> for executable client contracts and automated source discovery.</li>
-<li><a href="testing-two-clients/">Two-client testing</a> for end-to-end synchronization with real Zotero installations.</li>
-<li><a href="schema/">Database schema</a> for persistence and concurrency rules.</li>
-<li><a href="design/">Design system</a> for browser UI work.</li>
-</ul>
-<h2 id="a-few-terms-used-throughout-the-docs">A few terms used throughout the docs<a class="headerlink" href="#a-few-terms-used-throughout-the-docs" title="Permanent link">&para;</a></h2>
-<p><strong>Instance</strong><br />
-One running altero server and its database and attachment storage.</p>
-<p><strong>Library</strong><br />
-A Zotero personal library or group library.</p>
-<p><strong>Group</strong><br />
-A shared Zotero library with members and permissions.</p>
-<p><strong>API key</strong><br />
-The credential Zotero Desktop uses to synchronize with altero. Browser sessions and API keys are separate credentials.</p>
-<p><strong>Access token</strong><br />
-The other credential the v3 API accepts: scoped and expiring, issued to a third-party application the account holder approved.</p>
-<p><strong>Instance administrator</strong><br />
-An account allowed to manage the altero installation itself. This role does not automatically grant access to other users' library contents.</p>
 
 
 
