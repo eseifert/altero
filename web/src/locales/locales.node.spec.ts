@@ -387,6 +387,11 @@ it('keeps the Slovenian merge action free of trailing whitespace', () => {
   expect(sl['Merge Items']).toBe(sl['Merge Items'].trim())
 })
 
+it('uses the Slovenian library Trash term in the merge warning', () => {
+  expect(sl.Trash).toBe('Koš')
+  expect(sl['Other versions will be moved to the trash.']).toContain('v koš.')
+})
+
 describe('Romanian item terminology', () => {
   it.each([
     'Items moved to trash.',
@@ -556,6 +561,7 @@ describe.each([
   ['pt-BR', ptBR, /em volta/iu],
   ['pt-PT', ptPT, /à volta/iu],
   ['ru', ru, /вокруг/iu, /корзин/iu],
+  ['sl', sl, /koša za to ni|ni koša/iu, /koš/iu, /Nič se ne premakne v koš\./u],
   ['sv', sv, /runt/iu],
   ['uk', uk, /Кошика (?:для цього )?немає/u, /кошик/iu, /Нічого не переміщується до Кошика\./u],
   ['zh-CN', zhCN, /外面/u, undefined, /不会移入回收站/u],

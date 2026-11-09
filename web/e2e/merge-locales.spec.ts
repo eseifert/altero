@@ -31,7 +31,10 @@ const labels = {
     instruction: 'Выберите поля для сохранения из других версий записи:',
   },
   sk: { duplicates: 'Duplicitné záznamy', merge: 'Zlúčiť záznamy', select: 'Vybrať', merged: 'Záznamy boli zlúčené.', master: 'Hlavný záznam' },
-  sl: { duplicates: 'Podvojeni vnosi', merge: 'Spoji vnose', select: 'Izberi', merged: 'Vnosi so spojeni.', master: 'Glavni vnos' },
+  sl: {
+    duplicates: 'Podvojeni vnosi', merge: 'Spoji vnose', select: 'Izberi', merged: 'Vnosi so spojeni.', master: 'Glavni vnos',
+    trashWarning: 'Druge različice bodo premaknjene v koš.',
+  },
   sv: { duplicates: 'Källdubbletter', merge: 'Sammanfoga källor', select: 'Markera', merged: 'Källor sammanfogade.', master: 'Huvudkälla' },
   th: { duplicates: 'รายการซ้ำ', merge: 'รวมรายการ', select: 'เลือก', merged: 'รวมรายการแล้ว' },
   tr: {

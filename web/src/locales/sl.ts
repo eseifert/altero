@@ -21,7 +21,7 @@ export default {
   "Merged items must all be of the same item type.": "Spojeni vnosi morajo biti iste vrste.",
   "Creators": "Ustvarjalci",
   "Items merged.": "Vnosi so spojeni.",
-  "Other versions will be moved to the trash.": "Druge različice bodo premaknjene v smeti.",
+  "Other versions will be moved to the trash.": "Druge različice bodo premaknjene v koš.",
   "Could not load the item fields.": "Polj vnosa ni bilo mogoče naložiti.",
   ' from {address}': ' z naslova {address}',
   '(empty)': '(prazno)',
@@ -306,11 +306,11 @@ export default {
   'Everything else': 'Vse drugo',
   'Everything here is filed in a collection.': 'Vse tukaj je razvrščeno v zbirke.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Z njo izgine vse, kar je v njej: vnosi, zbirke, značke in priponke. Za knjižnico ni koša.',
+    'Izbriše se celotna vsebina knjižnice: vnosi, zbirke, značke in priponke. Nič se ne premakne v koš.',
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Vse v vaši knjižnici na tem strežniku se najprej izbriše, tudi datoteke, in koša za to ni.',
+    'Vse v vaši knjižnici na tem strežniku se najprej izbriše, tudi datoteke. Nič se ne premakne v koš.',
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Vse v knjižnici {name} se najprej izbriše, tudi datoteke, in koša za to ni.',
+    'Vse v knjižnici {name} se najprej izbriše, tudi datoteke. Nič se ne premakne v koš.',
   'Everything the permissions above cover': 'Vse, kar zajemajo zgornja dovoljenja',
   'Exit Full Screen': 'Izhod iz celozaslonskega načina',
   'Expand': 'Razširi',

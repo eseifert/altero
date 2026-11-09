@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Use Koš consistently in Slovenian merge warnings and explain that library deletion and replacement bypass Trash.
 - Keep Russian creation, navigation and merge labels consistent with the library's item term.
 - Use Кошик consistently in Ukrainian merge warnings and explain that library deletion and replacement bypass Trash.
 - Align Ukrainian navigation and merge labels with the library's document term and clarify version-selection instructions.

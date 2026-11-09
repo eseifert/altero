@@ -1,6 +1,12 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  sl: {
+    personal: 'Vse v vaši knjižnici na tem strežniku se najprej izbriše, tudi datoteke. Nič se ne premakne v koš.',
+    named: (name: string) => `Vse v knjižnici ${name} se najprej izbriše, tudi datoteke. Nič se ne premakne v koš.`,
+    group: 'Izbriše se celotna vsebina knjižnice: vnosi, zbirke, značke in priponke. Nič se ne premakne v koš.',
+    delete: 'Izbriši', cancel: 'Prekliči', deleted: 'Skupina je izbrisana.',
+  },
   uk: {
     personal: 'Увесь вміст вашої бібліотеки на цьому сервері спершу видаляється, включно з файлами. Нічого не переміщується до Кошика.',
     named: (name: string) => `Увесь вміст ${name} спершу видаляється, включно з файлами. Нічого не переміщується до Кошика.`,
