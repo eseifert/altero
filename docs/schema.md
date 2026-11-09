@@ -44,6 +44,15 @@ reserves both values atomically. Requests expire at their deadline, releasing
 both reservations while keeping history. Activation must recheck availability;
 a pending reservation cannot override an account provisioned by an operator.
 
+Verification recording accepts only a live email-pending request and the exact
+normalized address its trusted mailbox-proof consumer verified. A replay cannot
+refresh the proof or extend the deadline. After the caller authenticates the
+applicant, cancellation releases either pending state; terminal history cannot
+be reopened. Conditional updates resolve concurrent transitions. Cleanup shares
+their transaction so a failed transition does not commit only part of the
+operation. These are internal
+primitives; mailbox tokens, applicant sessions and public routes remain to be wired.
+
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
 object. The queries are equivalent and the flag avoids a join on every listing.

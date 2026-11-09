@@ -29,9 +29,7 @@ def _utc(moment: datetime) -> datetime:
     return moment if moment.tzinfo is None else moment.astimezone(UTC).replace(tzinfo=None)
 
 
-async def expire(session: AsyncSession, *, now: datetime | None = None) -> int:
-    """Release due reservations without deleting request history."""
-    moment = _utc(now or _now())
+async def _expire_due(session: AsyncSession, moment: datetime) -> int:
     keys = list(
         await session.scalars(
             update(RegistrationRequest)
@@ -40,8 +38,14 @@ async def expire(session: AsyncSession, *, now: datetime | None = None) -> int:
             .returning(RegistrationRequest.id)
         )
     )
-    await session.commit()
     return len(keys)
+
+
+async def expire(session: AsyncSession, *, now: datetime | None = None) -> int:
+    """Release due reservations without deleting request history."""
+    count = await _expire_due(session, _utc(now or _now()))
+    await session.commit()
+    return count
 
 
 async def submit(
@@ -108,3 +112,54 @@ async def submit(
         await session.rollback()
         raise InvalidInputError(UNAVAILABLE) from None
     return record
+
+
+async def record_email_verification(
+    session: AsyncSession, request_id: int, email: str, *, now: datetime | None = None
+) -> bool:
+    """Record a mailbox proof consumed by a trusted caller in this same session.
+
+    The token consumer must bind its proof to this request and address. An ID
+    and address supplied by an applicant are not proof. Related token-consumption
+    writes commit with this transition; no public route calls this primitive yet.
+    """
+    address = emailverify.normalise(email)
+    if "\x00" in address:
+        raise InvalidInputError("Registration fields may not contain null characters")
+    moment = _utc(now or _now())
+    await _expire_due(session, moment)
+    key = await session.scalar(
+        update(RegistrationRequest)
+        .where(
+            RegistrationRequest.id == request_id,
+            RegistrationRequest.email == address,
+            RegistrationRequest.status == RegistrationStatus.EMAIL_PENDING,
+            RegistrationRequest.expires > moment,
+        )
+        .values(status=RegistrationStatus.REVIEW_PENDING, email_verified=moment)
+        .returning(RegistrationRequest.id)
+    )
+    await session.commit()
+    return key is not None
+
+
+async def cancel(session: AsyncSession, request_id: int, *, now: datetime | None = None) -> bool:
+    """Cancel a live request after the caller has authenticated its applicant.
+
+    The row ID is not an authorization. Applicant authentication belongs to the
+    later status/session flow; no public route calls this primitive yet.
+    """
+    moment = _utc(now or _now())
+    await _expire_due(session, moment)
+    key = await session.scalar(
+        update(RegistrationRequest)
+        .where(
+            RegistrationRequest.id == request_id,
+            RegistrationRequest.status.in_(PENDING),
+            RegistrationRequest.expires > moment,
+        )
+        .values(status=RegistrationStatus.CANCELLED, reserved_username=None, reserved_email=None)
+        .returning(RegistrationRequest.id)
+    )
+    await session.commit()
+    return key is not None
