@@ -249,18 +249,25 @@ Keep third-person descriptions and quoted interface labels intact. English-looki
 acronyms and shared words need review, not automatic replacement.
 
 Plural messages need the target language's forms, not English's count, with
-matching placeholders in every branch. `web/src/i18n.ts` selects them; the catalog
-tests check their counts. Arabic has six forms, Hebrew three, and Persian and
-Shahmukhi Punjabi two with zero grouped with one.
+matching placeholders in every branch. `web/src/i18n.ts` selects them; the
+standalone validator checks message syntax and placeholder compatibility. Arabic
+has six forms, Hebrew three, and Persian and Shahmukhi Punjabi two with zero
+grouped with one.
 
 To add a language, add its catalog, the server tag in `services/locales.py`,
 the browser entry in `web/src/i18n.ts`, and any plural rule it needs. Preserve
 regional and script matching in both server and browser. Item types, fields
 and creator roles come from Zotero's schema rather than these catalogs.
 
-Run the catalog checks and affected locale-specific browser assertions.
-For a new plural rule, add rendered count examples as well. Passing these
-checks verifies structure; native-speaker review is still needed for wording.
+Run `cd web && npm run i18n:check` (Node 24) independently of `npm test`.
+CI runs it separately too. It loads each catalog once; invalid modules, message
+syntax, structure and incompatible placeholders fail. Missing and obsolete keys
+are informational warnings. The message parser is the compiler already used by
+Vue I18n, declared directly for this tool; no additional package is downloaded.
+Unit tests use synthetic messages for behavior. For a new plural rule, add branch
+selection examples without translated words. Adding a language or changing wording
+does not require language-specific tests. Native-speaker review remains necessary
+for wording and the appropriate number of plural forms.
 
 ### How a version gets published
 

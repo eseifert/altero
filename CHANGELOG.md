@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Separate i18n behavior tests from standalone catalog validation and remove redundant translation wording checks.
+
 - Add internal pending-registration reservations and lifecycle foundations; the public approval workflow is not enabled yet.
 - Clarify Romanian and Turkish warnings that library deletion and replacement bypass Trash.
 - Clarify Bulgarian and Croatian warnings that library deletion and replacement bypass Trash.

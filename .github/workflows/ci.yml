@@ -74,6 +74,9 @@ jobs:
       - name: Type-check
         run: npm run typecheck
 
+      - name: Check translation catalogs
+        run: npm run i18n:check
+
       - name: Test
         run: npm test
 
