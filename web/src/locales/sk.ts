@@ -309,11 +309,11 @@ export default {
   'Everything else': 'Všetko ostatné',
   'Everything here is filed in a collection.': 'Všetko je tu zaradené v nejakej kolekcii.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Spolu s ňou zmizne všetko, čo obsahuje: záznamy, kolekcie, značky aj prílohy. Pre knižnicu žiadny kôš neexistuje.',
+    'Celý obsah knižnice sa vymaže: záznamy, kolekcie, značky aj prílohy. Nič sa nepresúva do koša.',
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Všetko vo vašej knižnici na tomto serveri sa najprv vymaže, vrátane súborov, a nič z toho neskončí v koši.',
+    'Celý obsah vašej knižnice na tomto serveri sa najprv vymaže vrátane súborov. Nič sa nepresúva do koša.',
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Všetko v knižnici {name} sa najprv vymaže, vrátane súborov, a nič z toho neskončí v koši.',
+    'Celý obsah knižnice {name} sa najprv vymaže vrátane súborov. Nič sa nepresúva do koša.',
   'Everything the permissions above cover': 'Všetko, na čo sa vzťahujú vyššie uvedené oprávnenia',
   'Exit Full Screen': 'Ukončiť režim celej obrazovky',
   'Expand': 'Rozbaliť',

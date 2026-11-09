@@ -619,6 +619,7 @@ describe.each([
 describe.each([
   ['af', af, /rondom/iu],
   ['da', da, /omkring/iu],
+  ['cs', cs, /žádný koš neexistuje|koš neexistuje/iu, /koš/iu, /Nic se nepřesouvá do koše\./u],
   ['de', de, /herum/iu, undefined, /Nichts wird in den Papierkorb verschoben/u],
   ['es', es, /alrededor/iu, undefined, /Nada se mueve a la Papelera/u],
   ['eu', eu, /inguruan/iu, /zaborr/iu],
@@ -635,6 +636,7 @@ describe.each([
   ['pt-BR', ptBR, /em volta/iu],
   ['pt-PT', ptPT, /à volta/iu],
   ['ru', ru, /вокруг/iu, /корзин/iu],
+  ['sk', sk, /žiadny kôš neexistuje|kôš neexistuje/iu, /koš|kôš/iu, /Nič sa nepresúva do koša\./u],
   ['sl', sl, /koša za to ni|ni koša/iu, /koš/iu, /Nič se ne premakne v koš\./u],
   ['sv', sv, /runt/iu],
   ['uk', uk, /Кошика (?:для цього )?немає/u, /кошик/iu, /Нічого не переміщується до Кошика\./u],

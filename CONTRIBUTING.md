@@ -221,6 +221,7 @@ Catalogs live in `web/src/locales`; `en-US.ts` defines the message keys.
 Use natural, concise wording and Zotero's vocabulary for library objects.
 Preserve placeholders, script and the language's established form of address.
 Warnings must say whether content goes to Trash or is permanently deleted.
+For library deletion or replacement, say that nothing is moved to Trash.
 
 | Language | Existing convention |
 | --- | --- |

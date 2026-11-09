@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Clarify Czech and Slovak warnings that library deletion and replacement bypass Trash.
 - Keep Japanese library spelling consistent across archive, restore and collection messages.
 - Clarify Russian related-item controls: add a related record or remove its link while keeping both records.
 - Align Japanese library and merge messages with Zotero's 項目 term and use ごみ箱 consistently for Trash.

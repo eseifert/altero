@@ -1,6 +1,18 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  cs: {
+    personal: 'Veškerý obsah vaší knihovny na tomto serveru se nejprve smaže, včetně souborů. Nic se nepřesouvá do koše.',
+    named: (name: string) => `Veškerý obsah knihovny ${name} se nejprve smaže, včetně souborů. Nic se nepřesouvá do koše.`,
+    group: 'Veškerý obsah knihovny se smaže: položky, kolekce, štítky i přílohy. Nic se nepřesouvá do koše.',
+    delete: 'Smazat', cancel: 'Zrušit', deleted: 'Skupina byla smazána.',
+  },
+  sk: {
+    personal: 'Celý obsah vašej knižnice na tomto serveri sa najprv vymaže vrátane súborov. Nič sa nepresúva do koša.',
+    named: (name: string) => `Celý obsah knižnice ${name} sa najprv vymaže vrátane súborov. Nič sa nepresúva do koša.`,
+    group: 'Celý obsah knižnice sa vymaže: záznamy, kolekcie, značky aj prílohy. Nič sa nepresúva do koša.',
+    delete: 'Vymazať', cancel: 'Zrušiť', deleted: 'Skupina bola vymazaná.',
+  },
   sl: {
     personal: 'Vse v vaši knjižnici na tem strežniku se najprej izbriše, tudi datoteke. Nič se ne premakne v koš.',
     named: (name: string) => `Vse v knjižnici ${name} se najprej izbriše, tudi datoteke. Nič se ne premakne v koš.`,
