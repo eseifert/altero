@@ -235,7 +235,7 @@ Warnings must say whether content goes to Trash or is permanently deleted.
 | Swedish | Library items are källor; keep creation, navigation and merge labels consistent |
 | Latvian | Library items are vienumi; activity records are ieraksti; Trash is Miskaste |
 | Ukrainian | Library items are документи; retain записи for accounts and activity records; Trash is Кошик |
-| Russian | Library items are записи; keep creation, navigation and merge labels consistent |
+| Russian | Library items are записи; related controls use связанные, and removal names the связь |
 | Slovenian | Library items are vnosi; Trash is Koš, also in merge and deletion warnings |
 | Japanese | Library items are 項目, matching Zotero's controls; Trash is ごみ箱 |
 

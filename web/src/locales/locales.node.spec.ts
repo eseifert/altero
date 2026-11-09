@@ -494,6 +494,16 @@ describe('Russian item terminology', () => {
   })
 })
 
+describe('Russian related-item controls', () => {
+  it('names a related record when adding one', () => {
+    expect(ru['Add Related']).toContain('связанную запись')
+  })
+
+  it('names the link when removing a relationship', () => {
+    expect(ru['Remove Related']).toContain('связь с записью')
+  })
+})
+
 describe('Japanese library terminology', () => {
   it.each([
     'Items moved to trash.',
