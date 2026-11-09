@@ -115,6 +115,27 @@ describe('loading and switching', () => {
     expect(document.documentElement.dir).toBe('ltr')
   })
 
+  it('uses browser text information when available', async () => {
+    const getTextInfo = vi.fn(function (this: Intl.Locale) {
+      expect(this.baseName).toBe('en-US')
+      return { direction: 'rtl' }
+    })
+    Object.defineProperty(Intl.Locale.prototype, 'getTextInfo', {
+      configurable: true, value: getTextInfo,
+    })
+    await subject.setLocale('en-US')
+    expect(getTextInfo).toHaveBeenCalledOnce()
+    expect(document.documentElement.dir).toBe('rtl')
+  })
+
+  it('uses its fallback when browser text information has no direction', async () => {
+    Object.defineProperty(Intl.Locale.prototype, 'getTextInfo', {
+      configurable: true, value: () => ({ direction: undefined }),
+    })
+    await subject.setLocale('ar')
+    expect(document.documentElement.dir).toBe('rtl')
+  })
+
   it('interpolates fallback messages and renders unknown keys as themselves', async () => {
     release()
     await subject.setLocale('fr')

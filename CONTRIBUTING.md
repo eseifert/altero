@@ -267,7 +267,9 @@ Vue I18n, declared directly for this tool; no additional package is downloaded.
 Unit tests use synthetic messages for behavior. For a new plural rule, add branch
 selection examples without translated words. Adding a language or changing wording
 does not require language-specific tests. Native-speaker review remains necessary
-for wording and the appropriate number of plural forms.
+for wording and the appropriate number of plural forms. Browser checks cover
+locale persistence, direction and layout; do not repeat workflows per catalog
+or assert translated prose.
 
 ### How a version gets published
 

@@ -170,8 +170,8 @@ function byCategory(locale: string, categories: Intl.LDMLPluralRule[]) {
  * "11 vienumu". Icelandic has the two forms English has, but chooses by the
  * last digit: "21 færsla", "11 færslur". Bengali and Hindi count zero with one
  * rather than with many. A catalogue written with English's two would be wrong
- * on every count from 2 to 4, which is what `locales.node.spec.ts` now checks
- * for.
+ * on every count from 2 to 4. Review form counts when translating;
+ * `npm run i18n:check` validates syntax and placeholders separately.
  *
  * `branches` is how many the message actually has. Each rule clamps to it, so a
  * message reached by fallback -- English's two, under a rule that counts three

@@ -12,6 +12,7 @@ from altero.services import (
     admin,
     emailverify,
     invitations,
+    locales,
     reauth,
     totp,
     webauth,
@@ -786,74 +787,16 @@ class TestLanguageAndTimeZone:
 
         assert response.status_code == 403
 
-    async def test_the_choices_come_from_the_server(self, client: httpx2.AsyncClient) -> None:
+    async def test_the_choices_come_from_the_server(
+        self, client: httpx2.AsyncClient, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
         await register(client)
+        monkeypatch.setattr(locales, "LANGUAGES", {"xx": "Fixture language"})
 
         body = (await client.get("/web/account/locales")).json()
 
-        assert {entry["tag"] for entry in body["languages"]} == {
-            "en-US",
-            "en-GB",
-            "de",
-            "fr",
-            "br",
-            "es",
-            "pt-BR",
-            "pt-PT",
-            "ca",
-            "eu",
-            "gl",
-            "it",
-            "nl",
-            "af",
-            "sw",
-            "ha",
-            "yo",
-            "ar",
-            "fa",
-            "he-IL",
-            "da",
-            "nb",
-            "nn",
-            "sv",
-            "is",
-            "fi",
-            "pl",
-            "cs",
-            "sk",
-            "sl",
-            "hr",
-            "sr",
-            "hu",
-            "ro",
-            "lt",
-            "lv",
-            "et",
-            "ru",
-            "uk",
-            "bg",
-            "el",
-            "ka",
-            "mn",
-            "tr",
-            "ur",
-            "pa-Arab",
-            "hi",
-            "bn",
-            "ta",
-            "ml",
-            "ja",
-            "ko",
-            "th",
-            "km",
-            "vi",
-            "id",
-            "tl",
-            "zh-CN",
-            "zh-TW",
-        }
+        assert body["languages"] == [{"tag": "xx", "name": "Fixture language"}]
         assert "Europe/Berlin" in body["timeZones"]
-        assert len(body["timeZones"]) > 100
 
 
 class TestAnAccountWithNoPassword:

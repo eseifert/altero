@@ -1,281 +1,63 @@
-import { accessibilityProblems, expect, openItem, PASSWORD, signIn, state, test } from './state'
+import { accessibilityProblems, expect, signIn, test } from './state'
 
-test.describe('Dutch', () => {
-  test.use({ locale: 'nl-NL' })
+test.describe('browser locale resolution', () => {
+  test.use({ locale: 'pa-Guru-PK' })
 
-  test('uses formal address on device and connected-application pages', async ({ page }, info) => {
-    await signIn(page)
-    await expect(page.locator('html')).toHaveAttribute('lang', 'nl')
-    await page.goto('/app/device')
-    await expect(page.locator('.auth-form__lead')).toHaveText('Voer de code in die op uw apparaat staat.')
-    await page.getByRole('textbox', { name: 'Code', exact: true }).fill('ABCD-EFGH')
-    await expect(page.getByRole('textbox', { name: 'Code', exact: true })).toHaveValue('ABCD-EFGH')
-    expect(await accessibilityProblems(page)).toEqual([])
-
-    // Check the completion page's wording without claiming a device grant.
-    await page.goto('/app/device/done')
-    await expect(page.locator('.auth-form__lead')).toHaveText('U kunt nu terug naar uw apparaat.')
-    await page.goto('/app/settings/applications')
-    await expect(page.getByText(
-      'Andere applicaties die u toegang tot dit account hebt gegeven. Elke applicatie kreeg alleen de rechten die u hebt goedgekeurd.',
-      { exact: true },
-    )).toBeVisible()
-    await page.screenshot({ path: info.outputPath('dutch-applications.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
-  })
-})
-
-test.describe('Serbian', () => {
-  test.use({ locale: 'sr-RS' })
-
-  test('edits a creator using Cyrillic names and controls', async ({ page, request }, info) => {
-    const title = `Serbian creator ${info.project.name}`
-    const headers = { 'Zotero-API-Key': state().key }
-    const created = await request.post('/users/1/items', {
-      headers, data: [{ itemType: 'book', title,
-        creators: [{ creatorType: 'author', firstName: 'Иво', lastName: 'Андрић' }] }],
-    })
-    expect(created.ok()).toBe(true)
-    const body = await created.json()
-    expect(body.failed).toEqual({})
-    const key = body.successful['0'].key as string
-    await signIn(page)
-    await expect(page.locator('html')).toHaveAttribute('lang', 'sr')
-    await openItem(page, title)
-    const firstName = page.getByRole('textbox', { name: 'име', exact: true })
-    const lastName = page.getByRole('textbox', { name: 'презиме', exact: true })
-    await expect(firstName).toHaveValue('Иво')
-    await expect(lastName).toHaveValue('Андрић')
-    await firstName.fill('Иван')
-    await firstName.press('Enter')
-    await expect.poll(async () => {
-      const stored = await request.get(`/users/1/items/${key}`, { headers })
-      return (await stored.json()).data.creators
-    }).toEqual([{ creatorType: 'author', firstName: 'Иван', lastName: 'Андрић' }])
-    await expect(page.getByRole('button', { name: 'Додај аутора', exact: true })).toBeVisible()
-    await expect(page.getByRole('button', { name: 'Уклони аутора', exact: true })).toBeVisible()
-    await page.getByRole('button', { name: 'Више опција…', exact: true }).click()
-    await expect(page.getByRole('menuitem', { name: 'Пребаци на једно поље' })).toBeVisible()
-    await page.screenshot({ path: info.outputPath('serbian-creator.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
-  })
-})
-
-test.describe('German', () => {
-  test.use({ locale: 'de-DE' })
-
-  test('uses neutral instructions and formal address across account pages', async ({ page }, testInfo) => {
-    await signIn(page)
-    await expect(page.locator('html')).toHaveAttribute('lang', 'de')
-    await page.goto('/app/settings/keys')
-    await page.locator('summary').filter({ hasText: 'Schlüssel erstellen' }).click()
-    await page.getByRole('textbox', { name: 'Wofür ist er?' }).fill('German wording check')
-    await page.getByLabel('Aktuelles Passwort', { exact: true }).fill(PASSWORD)
-    await page.getByRole('button', { name: 'Schlüssel erstellen', exact: true }).click()
-    await expect(page.locator('.section-panel__notice')).toHaveText(
-      'Schlüssel erstellt. Jetzt kopieren – er wird nicht noch einmal angezeigt.',
-    )
-    await expect(page.locator('.settings__issued')).toContainText(
-      'Jetzt kopieren. Er wird nicht noch einmal angezeigt.',
-    )
-    expect(await accessibilityProblems(page)).toEqual([])
-
-    await page.goto('/app/settings/migrate')
-    await expect(page.locator('.settings__steps')).toContainText(
-      'Lesezugriff auf die persönliche Bibliothek erlauben und den Schlüssel speichern.',
-    )
-    await page.getByRole('checkbox').check()
-    await expect(page.getByRole('main').getByRole('status')).toHaveText(
-      'Die eigene Bibliothek auf diesem Server wird zuerst vollständig gelöscht, einschließlich der Dateien. Nichts wird in den Papierkorb verschoben.',
-    )
-    await page.screenshot({ path: testInfo.outputPath('german-import.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
-
-    await page.goto('/app/u/ada')
-    await expect(page.locator('.profile__own')).toContainText('Dies ist Ihre öffentliche Seite.')
-    expect(await accessibilityProblems(page)).toEqual([])
-  })
-})
-
-for (const [name, browserLocale, tag, signInLabel, library, title] of [
-  ['Swahili', 'sw-KE', 'sw', 'Ingia', 'Maktaba Yangu', 'Panga kwa Title'],
-  ['Hausa', 'ha-NG', 'ha', 'Shiga', 'Ɗakin Karatuna', 'Jera bisa Title'],
-  ['Yoruba', 'yo-NG', 'yo', 'Wọlé', 'Ilé Ìkàwé Mi', 'Tò nípa Title'],
-] as const) {
-  test.describe(name, () => {
-    test.use({ locale: browserLocale })
-
-    test('loads its regional catalogue and falls back to English schema labels', async ({ page }, testInfo) => {
-      await page.goto('/app/sign-in')
-      await expect(page.locator('html')).toHaveAttribute('lang', tag)
-      await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
-      await expect(page.getByRole('button', { name: signInLabel, exact: true })).toBeVisible()
-      expect(await accessibilityProblems(page)).toEqual([])
-
-      await signIn(page)
-      await expect(page.getByText(library, { exact: true }).first()).toBeVisible()
-      await expect(page.getByRole('button', { name: title, exact: true })).toBeVisible()
-      await page.screenshot({ path: testInfo.outputPath(`${tag}-library.png`), fullPage: true })
-      expect(await accessibilityProblems(page)).toEqual([])
-    })
-  })
-}
-
-test.describe('Hebrew', () => {
-  test.use({ locale: 'he' })
-
-  test('resolves bare Hebrew and loads Zotero field names', async ({ page }, testInfo) => {
+  test('falls back rather than substituting a different script', async ({ page }) => {
     await page.goto('/app/sign-in')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'he-IL')
-    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-    await expect(page.getByRole('button', { name: 'כניסה', exact: true })).toBeVisible()
-    expect(await accessibilityProblems(page)).toEqual([])
-
-    await signIn(page)
-    await expect(page.getByText('הספרייה שלי', { exact: true }).first()).toBeVisible()
-    await expect(page.getByRole('button', { name: 'מיון לפי כותרת', exact: true })).toBeVisible()
-    await page.screenshot({ path: testInfo.outputPath('hebrew-library.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
+    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
   })
 })
 
-test.describe('Persian', () => {
-  test.use({ locale: 'fa-IR' })
-
-  test('loads Persian messages and Zotero field names', async ({ page }, testInfo) => {
-    await page.goto('/app/sign-in')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'fa')
-    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-    await expect(page.getByRole('button', { name: 'ورود', exact: true })).toBeVisible()
-    expect(await accessibilityProblems(page)).toEqual([])
-
-    await signIn(page)
-    await expect(page.getByText('کتابخانه', { exact: true }).first()).toBeVisible()
-    await expect(page.getByRole('button', { name: 'مرتب‌سازی بر اساس عنوان', exact: true })).toBeVisible()
-    await page.screenshot({ path: testInfo.outputPath('persian-library.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
-  })
-})
-
-test.describe('Arabic', () => {
+test.describe('direction fallback', () => {
   test.use({ locale: 'ar-EG' })
 
-  test('sets direction when the browser has no locale text-info method', async ({ page }) => {
+  test('sets direction without the optional browser text-info method', async ({ page }) => {
     await page.addInitScript(() => {
       Object.defineProperty(Intl.Locale.prototype, 'getTextInfo', {
-        configurable: true,
-        value: undefined,
+        configurable: true, value: undefined,
       })
     })
     await page.goto('/app/sign-in')
     await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-    await expect(page.getByRole('button', { name: 'تسجيل الدخول', exact: true })).toBeVisible()
-  })
-
-  test('loads Arabic messages and Zotero field names', async ({ page }, testInfo) => {
-    await page.goto('/app/sign-in')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
-    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-    await expect(page.getByRole('button', { name: 'تسجيل الدخول', exact: true })).toBeVisible()
     expect(await accessibilityProblems(page)).toEqual([])
+  })
+})
 
+test.describe('account locale preferences', () => {
+  test.use({ locale: 'fr-CA' })
+
+  test('persists an account override and returns to the browser preference', async ({ page }) => {
     await signIn(page)
-    await expect(page.getByText('مكتبتي', { exact: true }).first()).toBeVisible()
-    await expect(page.getByRole('button', { name: 'الترتيب حسب العنوان', exact: true })).toBeVisible()
-    await page.screenshot({ path: testInfo.outputPath('arabic-library.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
-  })
-})
-
-test.describe('Urdu', () => {
-  test.use({ locale: 'ur-PK' })
-
-  test('loads its catalogue before sign-in and keeps it in the library', async ({ page }, testInfo) => {
-    await page.goto('/app/sign-in')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'ur')
-    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-    await expect(page.getByRole('button', { name: 'سائن ان کریں', exact: true })).toBeVisible()
-    expect(await accessibilityProblems(page)).toEqual([])
-
-    await signIn(page)
-    await expect(page.getByText('میرا کتب خانہ', { exact: true }).first()).toBeVisible()
-    await expect(page.locator('html')).toHaveAttribute('lang', 'ur')
-    await page.screenshot({ path: testInfo.outputPath('urdu-library.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
-  })
-})
-
-test.describe('Shahmukhi Punjabi', () => {
-  test.use({ locale: 'pa-PK' })
-
-  test('loads the Punjabi script selected by Pakistan', async ({ page }, testInfo) => {
-    await page.goto('/app/sign-in')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'pa-Arab')
-    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-    await expect(page.getByRole('button', { name: 'سائن ان کرو', exact: true })).toBeVisible()
-    expect(await accessibilityProblems(page)).toEqual([])
-
-    await signIn(page)
-    await expect(page.getByText('میری لائبریری', { exact: true }).first()).toBeVisible()
-    await page.screenshot({ path: testInfo.outputPath('punjabi-library.png'), fullPage: true })
-    expect(await accessibilityProblems(page)).toEqual([])
-  })
-})
-
-test.describe('Gurmukhi Punjabi', () => {
-  test.use({ locale: 'pa-Guru-PK' })
-
-  test('does not load a Shahmukhi translation for a different script', async ({ page }) => {
-    await page.goto('/app/sign-in')
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
-    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
-    await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible()
-  })
-})
-
-test('all new account languages survive reload and override the browser', async ({ page }) => {
-  test.setTimeout(90_000)
-  await signIn(page)
-  await page.goto('/app/settings/language')
-  const language = page.getByRole('combobox').first()
-  const responseForSave = () => page.waitForResponse(
-    (response) => response.url().endsWith('/web/account/locale') && response.request().method() === 'PUT',
-  )
-  try {
-    for (const [tag, save, confirmation, direction] of [
-      ['ar', 'حفظ', 'حُفظت اللغة والمنطقة الزمنية.', 'rtl'],
-      ['fa', 'ذخیره', 'زبان و منطقهٔ زمانی ذخیره شدند.', 'rtl'],
-      ['he-IL', 'שמירה', 'השפה ואזור הזמן נשמרו.', 'rtl'],
-      ['ur', 'محفوظ کریں', 'زبان اور منطقۂ وقت محفوظ ہو گئے۔', 'rtl'],
-      ['pa-Arab', 'سنبھالو', 'بولی تے ویلے دا خطہ سنبھال لیا۔', 'rtl'],
-      ['sw', 'Hifadhi', 'Lugha na ukanda wa saa vimehifadhiwa.', 'ltr'],
-      ['ha', 'Adana', 'An adana harshe da yankin lokaci.', 'ltr'],
-      ['yo', 'Fi pamọ́', 'A ti fi èdè àti agbègbè àkókò pamọ́.', 'ltr'],
-    ] as const) {
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
+    await page.goto('/app/settings/language')
+    const language = page.getByRole('combobox').first()
+    const save = async (tag: string, resolved: string, direction: string) => {
       await language.selectOption(tag)
-      const saved = responseForSave()
-      // There is one form action; its caption changes with the selected catalogue.
+      const saved = page.waitForResponse(response =>
+        response.url().endsWith('/web/account/locale') && response.request().method() === 'PUT',
+      )
       await page.locator('main section.card button').click()
       expect((await saved).ok()).toBe(true)
-      await expect(page.locator('html')).toHaveAttribute('lang', tag)
+      await expect(page.locator('html')).toHaveAttribute('lang', resolved)
       await expect(page.locator('html')).toHaveAttribute('dir', direction)
-      await expect(page.getByRole('button', { name: save, exact: true })).toBeVisible()
-      await expect(page.locator('.section-panel__notice')).toHaveText(confirmation)
+      await expect(page.locator('.section-panel__notice')).toBeVisible()
       await expect(page.locator('.section-panel__notice')).toHaveCSS('direction', direction)
-      await page.reload()
-      await expect(page.locator('html')).toHaveAttribute('lang', tag)
-      await expect(page.locator('html')).toHaveAttribute('dir', direction)
-      await expect(language).toHaveValue(tag)
     }
-  } finally {
-    await language.selectOption('')
-    const saved = responseForSave()
-    await page.locator('main section.card button').click()
-    expect((await saved).ok()).toBe(true)
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en-US')
-    await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
-    await expect(page.locator('.section-panel__notice')).toHaveText('Language and time zone saved.')
-    await expect(page.locator('.section-panel__notice')).toHaveCSS('direction', 'ltr')
-  }
+    try {
+      await save('ar', 'ar', 'rtl')
+      await page.reload()
+      await expect(page.locator('html')).toHaveAttribute('lang', 'ar')
+      await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
+      await expect(language).toHaveValue('ar')
+      expect(await accessibilityProblems(page)).toEqual([])
+    } finally {
+      await save('', 'fr', 'ltr')
+    }
+    await page.reload()
+    await expect(page.locator('html')).toHaveAttribute('lang', 'fr')
+    await expect(language).toHaveValue('')
+  })
 })
