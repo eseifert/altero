@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Use the library's Trash term in Latvian confirmations and explain that library deletion and replacement bypass Trash.
 - Keep Latvian creation, navigation and merge labels consistent with the library's item term.
 - Align Swedish creation, navigation, related-item and merge labels with the library's item term.
 - Seed valid child items in upgrade checks for releases that reject child collection memberships; retain the historical repair fixture for older releases.

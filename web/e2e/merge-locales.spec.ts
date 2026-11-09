@@ -16,6 +16,7 @@ const labels = {
     merged: 'Vienumi apvienoti.', master: 'Galvenais vienums',
     versionInstruction: 'Izvēlieties vienuma versiju, ko izmantot kā galveno vienumu:',
     instruction: 'Atlasiet laukus, kurus paturēt no citām vienuma versijām:',
+    trashWarning: 'Pārējās versijas tiks pārvietotas uz miskasti.',
   },
   mn: { duplicates: 'Давхардсан зүйлс', merge: 'Зүйлсийг нэгтгэх', select: 'Сонгох', merged: 'Зүйлсийг нэгтгэлээ.' },
   ro: {
@@ -84,6 +85,9 @@ for (const [tag, translated] of Object.entries(labels)) {
       await pane.locator('select[name="merge-publisher"]').selectOption('1')
       await pane.locator('[data-merge-review]').click()
       await expect(pane.locator('[data-merge-confirm]')).toHaveText(translated.merge)
+      if ('trashWarning' in translated) {
+        await expect(pane.getByText(translated.trashWarning, { exact: true })).toBeVisible()
+      }
       await page.screenshot({ path: info.outputPath(`${tag}-merge.png`), fullPage: true })
       expect(await accessibilityProblems(page)).toEqual([])
       await pane.locator('[data-merge-confirm]').click()

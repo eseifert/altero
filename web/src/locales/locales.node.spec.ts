@@ -440,6 +440,16 @@ describe('Latvian item terminology', () => {
   })
 })
 
+describe('Latvian Trash terminology', () => {
+  it.each([
+    'Items moved to trash.',
+    'Other versions will be moved to the trash.',
+  ] as const)('uses the library Trash term in “%s”', (key) => {
+    expect(lv.Trash).toBe('Miskaste')
+    expect(lv[key]).toMatch(/miskast/iu)
+  })
+})
+
 describe('Turkish merge instructions', () => {
   it.each([
     'Choose the version of the item to use as the master item:',
@@ -494,6 +504,7 @@ describe.each([
   ['is', icelandic, /utan um/iu],
   ['it', italian, /attorno/iu],
   ['ja', ja, /外側|ライブラリーにはごみ箱がありません/u, undefined, /ごみ箱には移動しません/u],
+  ['lv', lv, /miskastes tam nav|Bibliotēkai nav miskastes/iu, /miskast/iu, /Nekas netiek pārvietots uz miskasti\./u],
   ['nb', nb, /rundt/iu],
   ['nl', nl, /omheen|om een bibliotheek heen/iu],
   ['nn', nn, /rundt/iu],

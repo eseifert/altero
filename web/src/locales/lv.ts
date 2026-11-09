@@ -4,7 +4,7 @@
  */
 
 export default {
-  "Items moved to trash.": "Vienumi pārvietoti uz atkritni.",
+  "Items moved to trash.": "Vienumi pārvietoti uz miskasti.",
   "Items filed.": "Vienumi sakārtoti.",
   "Items restored.": "Vienumi atjaunoti.",
   "Change undone.": "Izmaiņa atsaukta.",
@@ -17,7 +17,7 @@ export default {
   "Merged items must all be of the same item type.": "Visiem apvienojamajiem vienumiem jābūt viena tipa.",
   "Creators": "Veidotāji",
   "Items merged.": "Vienumi apvienoti.",
-  "Other versions will be moved to the trash.": "Pārējās versijas tiks pārvietotas uz atkritni.",
+  "Other versions will be moved to the trash.": "Pārējās versijas tiks pārvietotas uz miskasti.",
   "Could not load the item fields.": "Neizdevās ielādēt vienuma laukus.",
   ' from {address}': ' no {address}',
   '(empty)': '(tukšs)',
@@ -305,11 +305,11 @@ export default {
   'Everything else': 'Viss pārējais',
   'Everything here is filed in a collection.': 'Viss šeit ir ievietots kādā kolekcijā.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Līdz ar to tiek dzēsts viss tās saturs: vienumi, kolekcijas, birkas un pielikumi. Bibliotēkai nav miskastes.',
+    'Tiek dzēsts viss bibliotēkas saturs: vienumi, kolekcijas, birkas un pielikumi. Nekas netiek pārvietots uz miskasti.',
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Vispirms tiek dzēsts viss jūsu bibliotēkas saturs šeit, arī faili, un miskastes tam nav.',
+    'Vispirms tiek dzēsts viss jūsu bibliotēkas saturs šajā serverī, arī faili. Nekas netiek pārvietots uz miskasti.',
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Vispirms tiek dzēsts viss bibliotēkas {name} saturs, arī faili, un miskastes tam nav.',
+    'Vispirms tiek dzēsts viss bibliotēkas {name} saturs, arī faili. Nekas netiek pārvietots uz miskasti.',
   'Everything the permissions above cover': 'Viss, uz ko attiecas iepriekš minētās atļaujas',
   Expand: 'Izvērst',
   'Exit Full Screen': 'Iziet no pilnekrāna režīma',

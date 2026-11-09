@@ -1,6 +1,12 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  lv: {
+    personal: 'Vispirms tiek dzēsts viss jūsu bibliotēkas saturs šajā serverī, arī faili. Nekas netiek pārvietots uz miskasti.',
+    named: (name: string) => `Vispirms tiek dzēsts viss bibliotēkas ${name} saturs, arī faili. Nekas netiek pārvietots uz miskasti.`,
+    group: 'Tiek dzēsts viss bibliotēkas saturs: vienumi, kolekcijas, birkas un pielikumi. Nekas netiek pārvietots uz miskasti.',
+    delete: 'Dzēst', cancel: 'Atcelt', deleted: 'Grupa izdzēsta.',
+  },
   'en-US': {
     personal: 'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.',
     named: (name: string) => `Everything in ${name} is deleted first, files included. Nothing is moved to the trash.`,
