@@ -1,6 +1,18 @@
 import { accessibilityProblems, expect, signIn, state, test } from './state'
 
 const labels = {
+  bg: {
+    personal: 'Първо се изтрива цялото съдържание на библиотеката ви на този сървър, включително файловете. Нищо не се премества в кошчето за боклук.',
+    named: (name: string) => `Първо се изтрива цялото съдържание на ${name}, включително файловете. Нищо не се премества в кошчето за боклук.`,
+    group: 'Цялото съдържание на библиотеката се изтрива: записи, колекции, маркери и прикачени файлове. Нищо не се премества в кошчето за боклук.',
+    delete: 'Изтриване', cancel: 'Отказ', deleted: 'Групата е изтрита.',
+  },
+  hr: {
+    personal: 'Najprije se briše cijeli sadržaj Vaše biblioteke na ovom poslužitelju, uključujući datoteke. Ništa se ne premješta u Otpad.',
+    named: (name: string) => `Najprije se briše cijeli sadržaj biblioteke ${name}, uključujući datoteke. Ništa se ne premješta u Otpad.`,
+    group: 'Briše se cijeli sadržaj biblioteke: stavke, zbirke, oznake i prilozi. Ništa se ne premješta u Otpad.',
+    delete: 'Izbriši', cancel: 'Odustani', deleted: 'Grupa je izbrisana.',
+  },
   cs: {
     personal: 'Veškerý obsah vaší knihovny na tomto serveru se nejprve smaže, včetně souborů. Nic se nepřesouvá do koše.',
     named: (name: string) => `Veškerý obsah knihovny ${name} se nejprve smaže, včetně souborů. Nic se nepřesouvá do koše.`,

@@ -307,11 +307,11 @@ export default {
   'Everything else': 'Всичко останало',
   'Everything here is filed in a collection.': 'Всичко тук е в някоя колекция.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Всичко в нея се изтрива заедно с нея: записи, колекции, маркери и прикачени файлове. За библиотеките няма кошче.',
+    'Цялото съдържание на библиотеката се изтрива: записи, колекции, маркери и прикачени файлове. Нищо не се премества в кошчето за боклук.',
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Първо се изтрива всичко в библиотеката ви тук, включително файловете, и няма кошче, от което да ги върнете.',
+    'Първо се изтрива цялото съдържание на библиотеката ви на този сървър, включително файловете. Нищо не се премества в кошчето за боклук.',
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Първо се изтрива всичко в {name}, включително файловете, и няма кошче, от което да ги върнете.',
+    'Първо се изтрива цялото съдържание на {name}, включително файловете. Нищо не се премества в кошчето за боклук.',
   'Everything the permissions above cover': 'Всичко, което обхващат разрешенията по-горе',
   'Exit Full Screen': 'Излизане от цял екран',
   'Expand': 'Разгъване',

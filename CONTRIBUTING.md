@@ -239,6 +239,8 @@ For library deletion or replacement, say that nothing is moved to Trash.
 | Russian | Library items are записи; related controls use связанные, and removal names the связь |
 | Slovenian | Library items are vnosi; Trash is Koš, also in merge and deletion warnings |
 | Japanese | Library items are 項目, libraries are ライブラリ and Trash is ごみ箱, matching Zotero's controls |
+| Bulgarian | Trash is Кошче за боклук; prose uses кошчето за боклук |
+| Croatian | Trash is Otpad; retain that term in deletion warnings |
 
 Use complete creator-name labels: they are also accessible input names.
 Keep third-person descriptions and quoted interface labels intact. English-looking

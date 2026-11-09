@@ -307,11 +307,11 @@ export default {
   'Everything else': 'Sve ostalo',
   'Everything here is filed in a collection.': 'Sve je ovdje svrstano u zbirke.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'S njom nestaje sve što sadrži: stavke, zbirke, oznake i prilozi. Za biblioteku nema otpada.',
+    'Briše se cijeli sadržaj biblioteke: stavke, zbirke, oznake i prilozi. Ništa se ne premješta u Otpad.',
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Sve u Vašoj biblioteci na ovom poslužitelju najprije se briše, uključujući datoteke, i za to nema otpada.',
+    'Najprije se briše cijeli sadržaj Vaše biblioteke na ovom poslužitelju, uključujući datoteke. Ništa se ne premješta u Otpad.',
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Sve u biblioteci {name} najprije se briše, uključujući datoteke, i za to nema otpada.',
+    'Najprije se briše cijeli sadržaj biblioteke {name}, uključujući datoteke. Ništa se ne premješta u Otpad.',
   'Everything the permissions above cover': 'Sve što obuhvaćaju gornja dopuštenja',
   'Exit Full Screen': 'Izađi iz cjeloekranskog prikaza',
   'Expand': 'Proširi',

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Clarify Bulgarian and Croatian warnings that library deletion and replacement bypass Trash.
 - Clarify Czech and Slovak warnings that library deletion and replacement bypass Trash.
 - Keep Japanese library spelling consistent across archive, restore and collection messages.
 - Clarify Russian related-item controls: add a related record or remove its link while keeping both records.
