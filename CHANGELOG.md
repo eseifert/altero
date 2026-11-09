@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add isolated pending-registration persistence and lifecycle constraints; the public approval workflow is not enabled yet.
 - Clarify Romanian and Turkish warnings that library deletion and replacement bypass Trash.
 - Clarify Bulgarian and Croatian warnings that library deletion and replacement bypass Trash.
 - Clarify Czech and Slovak warnings that library deletion and replacement bypass Trash.

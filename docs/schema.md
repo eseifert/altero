@@ -26,6 +26,18 @@ trash is not an item-only concept.
 
 ## Deliberate differences
 
+**Pending registration requests are separate from accounts.** The
+`registration_requests` table is persistence for the planned verified-email and
+administrator-approval workflow. It stores no password or usable credential and
+creates no user or library. That public workflow is not enabled yet.
+
+Pending rows reserve a canonical username and email address through unique,
+nullable columns. Terminal rows release both reservations while retaining the
+request's original fields. Constraints require email proof before review,
+decision actor/time for approval or rejection, and an account ID for approval.
+Actor and account IDs are historical values without foreign keys, so deleting
+an account does not erase the recorded decision. They grant no access.
+
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
 object. The queries are equivalent and the flag avoids a join on every listing.
