@@ -36,6 +36,13 @@ const labels = {
     named: (name: string) => `${name} の内容は、ファイルも含めて先にすべて削除されます。ごみ箱には移動しません。`,
     group: 'ライブラリ内の項目、コレクション、タグ、添付ファイルがすべて削除されます。ごみ箱には移動しません。',
     delete: '削除', cancel: 'キャンセル', deleted: 'グループを削除しました。',
+    transfer: {
+      exportHeading: 'ライブラリをエクスポート', restoreHeading: 'ライブラリを復元',
+      replace: 'このライブラリの現在の内容を置き換える',
+      archive: 'アーカイブには、ライブラリにあるすべて（項目、コレクション、タグ、保存された検索、添付ファイル）が、お使いの Zotero クライアントが知っているバージョンのまま入っています。バックアップとして保管するか、別の altero サーバーに復元してください。',
+      restore: 'アーカイブをご自身のライブラリに読み戻します。ライブラリはアーカイブの状態にバージョンごと戻るので、同期していた Zotero クライアントは中断したところから続けられます。',
+      without: 'これを選ばない場合、すでに何か入っているライブラリは統合されずそのまま残ります。',
+    },
   },
   'zh-CN': {
     personal: '你在此服务器上的文库内容会先被全部删除，包括文件。内容不会移入回收站。',
@@ -182,6 +189,14 @@ for (const [tag, translated] of Object.entries(labels)) {
 
       expect((await page.request.get(`/web/libraries/${library.id}/items`)).status()).toBe(200)
       await page.goto('/app/settings/import-export')
+      if ('transfer' in translated) {
+        await expect(page.getByRole('heading', { name: translated.transfer.exportHeading, exact: true })).toBeVisible()
+        await expect(page.getByRole('heading', { name: translated.transfer.restoreHeading, exact: true })).toBeVisible()
+        await expect(page.getByText(translated.transfer.archive, { exact: true })).toBeVisible()
+        await expect(page.getByText(translated.transfer.restore, { exact: true })).toBeVisible()
+        await expect(page.getByText(translated.transfer.without, { exact: true })).toBeVisible()
+        await expect(page.getByRole('checkbox', { name: translated.transfer.replace, exact: true })).not.toBeChecked()
+      }
       await page.getByRole('combobox').selectOption(String(library.id))
       await page.getByRole('checkbox').check()
       await expect(page.locator('.card__warning')).toHaveText(translated.named(name))

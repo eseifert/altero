@@ -506,6 +506,25 @@ describe('Russian related-item controls', () => {
 
 describe('Japanese library terminology', () => {
   it.each([
+    'An archive holds everything in the library — items, collections, tags, saved searches and attached files — at the versions your Zotero clients know. Keep it as a backup, or restore it on another altero server.',
+    'Choose a library and an archive first.',
+    'Export a library',
+    'No library here is yours to export.',
+    'No library here is yours to restore into.',
+    'Reads an archive back into a library of yours. The library is restored to the state the archive holds, versions included, so a Zotero client that synced with it carries on where it left off.',
+    'Replace what this library already holds',
+    'Restore a library',
+    'The items in it stay in the library.',
+    'The library is now at version {version}.',
+    'The library was restored.',
+    'Without this, a library that already holds anything is left alone rather than merged into.',
+  ] as const)('uses Zotero’s library spelling in “%s”', (key) => {
+    expect(ja.Library).toBe('ライブラリ')
+    expect(ja[key]).toContain(ja.Library)
+    expect(ja[key]).not.toContain('ライブラリー')
+  })
+
+  it.each([
     'Items moved to trash.',
     'Items filed.',
     'Items restored.',

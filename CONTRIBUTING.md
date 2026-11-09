@@ -237,7 +237,7 @@ Warnings must say whether content goes to Trash or is permanently deleted.
 | Ukrainian | Library items are документи; retain записи for accounts and activity records; Trash is Кошик |
 | Russian | Library items are записи; related controls use связанные, and removal names the связь |
 | Slovenian | Library items are vnosi; Trash is Koš, also in merge and deletion warnings |
-| Japanese | Library items are 項目, matching Zotero's controls; Trash is ごみ箱 |
+| Japanese | Library items are 項目, libraries are ライブラリ and Trash is ごみ箱, matching Zotero's controls |
 
 Use complete creator-name labels: they are also accessible input names.
 Keep third-person descriptions and quoted interface labels intact. English-looking
