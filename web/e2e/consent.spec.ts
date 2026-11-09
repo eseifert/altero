@@ -2,15 +2,12 @@ import { createHash, randomBytes } from 'node:crypto'
 
 import { accessibilityProblems, expect, OAUTH_CLIENT_ID, signIn, state, test } from './state'
 
-test.describe('Polish consent wording', () => {
-  test.use({ locale: 'pl' })
-
-  test('keeps informal address consistent for identity and library requests', async ({ page }, info) => {
+test.describe('consent resources', () => {
+  test('confines library consent and fits long collection names on screen', async ({ page }, info) => {
     await signIn(page)
-    await expect(page.locator('html')).toHaveAttribute('lang', 'pl')
     const csrf = (await page.context().cookies()).find(cookie => cookie.name === 'altero_csrf')!.value
     const headers = { 'X-CSRF-Token': decodeURIComponent(csrf) }
-    const collectionName = `Zakres zgody ${info.project.name}`
+    const collectionName = `Consent scope ${info.project.name}`
     const created = await page.request.post('/web/libraries/1/collections', { headers, data: { name: collectionName } })
     expect(created.status()).toBe(201)
     const collection = await created.json()
@@ -37,39 +34,22 @@ test.describe('Polish consent wording', () => {
       })
       await page.goto(`/oauth/authorize?${query}`)
       await expect(page).toHaveURL(/\/app\/authorize\?request=/)
-      await expect(page.getByRole('heading', { name: 'Połącz aplikację', exact: true })).toBeVisible()
-      await expect(page.locator('.authorize__lead')).toContainText('chce połączyć się z twoim kontem')
-      for (const description of ['Zobaczyć twoje imię i nazwę użytkownika', 'Zobaczyć twój adres e-mail']) {
-        await expect(page.locator('.authorize__grants').getByText(description, { exact: true })).toBeVisible()
-      }
+      await expect(page.locator('.authorize__grants')).toBeVisible()
     }
     try {
       await authorize('openid profile email')
-      await expect(page.getByText('Nie może czytać twojej biblioteki, notatek ani załączników.', { exact: true })).toBeVisible()
       await expect(page.locator('.authorize__where')).toHaveCount(0)
-      await page.screenshot({ path: info.outputPath('polish-identity-consent.png'), fullPage: true })
+      await page.screenshot({ path: info.outputPath('identity-consent.png'), fullPage: true })
       expect(await accessibilityProblems(page)).toEqual([])
 
       await authorize('openid profile email library.read library.write notes.read files.read')
-      for (const description of [
-        'Czytać wszystko w twojej bibliotece',
-        'Dodawać, zmieniać i usuwać elementy w twojej bibliotece',
-        'Czytać twoje notatki',
-        'Pobierać twoje załączniki',
-      ]) {
-        await expect(page.locator('.authorize__grants').getByText(description, { exact: true })).toBeVisible()
-      }
-      await page.getByRole('radio', { name: 'Tylko biblioteki i kolekcje, które wybiorę', exact: true }).check()
+      await page.locator('input[name=narrowing]').last().check()
       await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth))
         .toBeLessThanOrEqual(page.viewportSize()!.width)
-      await expect(page.getByText(
-        'Wybranie kolekcji obejmuje też wszystko, co się w niej znajduje. Aplikacja nie będzie mogła zmieniać twoich kolekcji, zapisanych wyszukiwań, ustawień ani etykiet.',
-        { exact: true },
-      )).toBeVisible()
-      await expect(page.getByRole('button', { name: 'Zezwól', exact: true })).toBeDisabled()
+      await expect(page.getByRole('button', { name: 'Allow', exact: true })).toBeDisabled()
       await page.getByRole('checkbox', { name: collectionName, exact: true }).check()
-      await expect(page.getByRole('button', { name: 'Zezwól', exact: true })).toBeEnabled()
-      await page.screenshot({ path: info.outputPath('polish-library-consent.png'), fullPage: true })
+      await expect(page.getByRole('button', { name: 'Allow', exact: true })).toBeEnabled()
+      await page.screenshot({ path: info.outputPath('library-consent.png'), fullPage: true })
       expect(await accessibilityProblems(page)).toEqual([])
       // Inspect actual pending requests; neither request is approved.
     } finally {

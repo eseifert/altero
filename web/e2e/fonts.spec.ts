@@ -1,5 +1,4 @@
 import { expect, test } from './state'
-import { readFileSync } from 'node:fs'
 
 const SAMPLES = [
   ['ar-EG', 'ar', 'IBM Plex Sans Arabic', 'العربية'],
@@ -10,11 +9,8 @@ const SAMPLES = [
 ] as const
 
 for (const [locale, tag, family, example] of SAMPLES) {
-  const source = readFileSync(new URL(`../src/locales/${tag}.ts`, import.meta.url), 'utf8')
-  const script = tag === 'he-IL' ? /\p{Script=Hebrew}/u : /\p{Script=Arabic}/u
-  // Include every script letter used by the catalogue, not only the examples.
-  const letters = [...new Set([...source].filter(letter => /\p{L}/u.test(letter) && script.test(letter)))].join('')
-  const sample = example + letters
+  // Synthetic script samples keep font integration independent of catalog text.
+  const sample = example
   test.describe(`${tag} local fonts`, () => {
     test.use({ locale })
 

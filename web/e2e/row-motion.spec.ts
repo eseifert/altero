@@ -118,7 +118,7 @@ for (const locale of ['en-US', 'ar-EG']) {
           { itemType: 'journalArticle', title: name, DOI },
         ])
         await signIn(page)
-        await page.getByRole('button', { name: locale === 'ar-EG' ? 'العناصر المكررة' : 'Duplicate Items', exact: true }).click()
+        await page.locator('[data-drop="publications:"] + .library__scope-row > button').click()
         await page.locator('.library__search > button').click()
         const filtered = page.waitForResponse((response) => {
           const url = new URL(response.url())

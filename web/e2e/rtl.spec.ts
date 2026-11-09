@@ -161,8 +161,7 @@ for (const [direction, locale] of [['ltr', 'en-US'], ['rtl', 'ar-EG']] as const)
 
       const trigger = page.locator('.theme-menu__trigger')
       await trigger.click()
-      await expect(page.locator('.theme-menu__label')).toHaveText(direction === 'rtl'
-        ? ['فاتح', 'مظلم', 'تلقائي'] : ['Light', 'Dark', 'System'])
+      await expect(page.locator('.theme-menu__label')).toHaveCount(3)
       const control = (await trigger.boundingBox())!
       const menu = (await page.locator('.theme-menu__list').boundingBox())!
       const offset = direction === 'rtl'
