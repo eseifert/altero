@@ -9,6 +9,10 @@ const itemControls = {
     create: 'Jauns vienums',
     shortcuts: ['Iepriekšējais vai nākamais vienums', 'Pirmais vai pēdējais vienums', 'Desmit vienumi uz augšu vai leju', 'Rādīt vienuma informāciju'],
   },
+  uk: {
+    create: 'Новий документ',
+    shortcuts: ['Попередній або наступний документ', 'Перший або останній документ', 'На десять документів вгору або вниз', 'Показати подробиці документа'],
+  },
 }
 
 for (const [tag, translated] of Object.entries(itemControls)) {

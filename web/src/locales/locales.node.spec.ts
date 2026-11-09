@@ -450,6 +450,29 @@ describe('Latvian Trash terminology', () => {
   })
 })
 
+describe('Ukrainian item terminology', () => {
+  it.each([
+    'Master item',
+    'Items merged.',
+    'Could not load the item fields.',
+    'First or last item',
+    'Previous or next item',
+    'Ten items up or down',
+    'Show the item’s details',
+  ] as const)('uses the library item term in “%s”', (key) => {
+    expect(uk.Items).toBe('Документи')
+    expect(uk[key]).toMatch(/документ/iu)
+  })
+
+  it('names the master document in the version instruction', () => {
+    expect(uk['Choose the version of the item to use as the master item:']).toMatch(/основн.*документ/iu)
+  })
+
+  it('keeps other versions plural in the field-selection instruction', () => {
+    expect(uk['Select fields to keep from other versions of the item:']).toContain('інших версій документа')
+  })
+})
+
 describe('Turkish merge instructions', () => {
   it.each([
     'Choose the version of the item to use as the master item:',

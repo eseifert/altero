@@ -34,6 +34,12 @@ const labels = {
     versionInstruction: 'Eserin hangi versiyonunun asıl eser olarak kullanılacağını seçiniz:',
     instruction: 'Eserin diğer versiyonlarından hangi alanların tutulacağını seçiniz:',
   },
+  uk: {
+    duplicates: 'Дублікати документів', merge: "Об'єднати документи", select: 'Виділити',
+    merged: 'Документи об’єднано.', master: 'Основний документ',
+    versionInstruction: 'Виберіть версію документа, яку слід використати як основний документ:',
+    instruction: 'Виберіть поля для збереження з інших версій документа:',
+  },
   vi: { duplicates: 'Các mục trùng lặp', merge: 'Gộp các mục', select: 'Chọn', merged: 'Đã gộp các mục.' },
 }
 
