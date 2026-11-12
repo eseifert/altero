@@ -6,9 +6,10 @@ The later activation operation must check account availability again, since an
 operator may provision an account while somebody has a pending reservation.
 """
 
-from datetime import UTC, datetime
+import secrets
+from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import func, or_, select, update
+from sqlalchemy import case, func, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -19,6 +20,12 @@ from altero.services import emailverify, webauth
 
 PENDING = (RegistrationStatus.EMAIL_PENDING, RegistrationStatus.REVIEW_PENDING)
 UNAVAILABLE = "That username or email address is unavailable"
+EMAIL_PROOF_LIFETIME = timedelta(hours=24)
+_CLEAR_EMAIL_TOKEN = {
+    "email_token_hash": None,
+    "email_token_address": None,
+    "email_token_expires": None,
+}
 
 
 def _now() -> datetime:
@@ -34,7 +41,12 @@ async def _expire_due(session: AsyncSession, moment: datetime) -> int:
         await session.scalars(
             update(RegistrationRequest)
             .where(RegistrationRequest.status.in_(PENDING), RegistrationRequest.expires <= moment)
-            .values(status=RegistrationStatus.EXPIRED, reserved_username=None, reserved_email=None)
+            .values(
+                status=RegistrationStatus.EXPIRED,
+                reserved_username=None,
+                reserved_email=None,
+                **_CLEAR_EMAIL_TOKEN,
+            )
             .returning(RegistrationRequest.id)
         )
     )
@@ -136,7 +148,9 @@ async def record_email_verification(
             RegistrationRequest.status == RegistrationStatus.EMAIL_PENDING,
             RegistrationRequest.expires > moment,
         )
-        .values(status=RegistrationStatus.REVIEW_PENDING, email_verified=moment)
+        .values(
+            status=RegistrationStatus.REVIEW_PENDING, email_verified=moment, **_CLEAR_EMAIL_TOKEN
+        )
         .returning(RegistrationRequest.id)
     )
     await session.commit()
@@ -158,7 +172,78 @@ async def cancel(session: AsyncSession, request_id: int, *, now: datetime | None
             RegistrationRequest.status.in_(PENDING),
             RegistrationRequest.expires > moment,
         )
-        .values(status=RegistrationStatus.CANCELLED, reserved_username=None, reserved_email=None)
+        .values(
+            status=RegistrationStatus.CANCELLED,
+            reserved_username=None,
+            reserved_email=None,
+            **_CLEAR_EMAIL_TOKEN,
+        )
+        .returning(RegistrationRequest.id)
+    )
+    await session.commit()
+    return key is not None
+
+
+async def issue_email_verification(
+    session: AsyncSession, request_id: int, *, now: datetime | None = None
+) -> tuple[str, str] | None:
+    """Replace a live request's proof and return its (recipient, raw token).
+
+    Only the digest is stored. Send to the returned recipient, not an address
+    supplied separately by an applicant. This is an internal primitive: the
+    trusted caller must enforce mail policy, applicant authorization and resend
+    budgets before using it. No public route or mail sender calls it yet.
+    """
+    moment = _utc(now or _now())
+    await _expire_due(session, moment)
+    deadline = moment + EMAIL_PROOF_LIFETIME
+    token = secrets.token_urlsafe(32)
+    address = await session.scalar(
+        update(RegistrationRequest)
+        .where(
+            RegistrationRequest.id == request_id,
+            RegistrationRequest.status == RegistrationStatus.EMAIL_PENDING,
+            RegistrationRequest.expires > moment,
+        )
+        .values(
+            email_token_hash=emailverify.hash_token(token),
+            email_token_address=RegistrationRequest.email,
+            email_token_expires=case(
+                (RegistrationRequest.expires < deadline, RegistrationRequest.expires),
+                else_=deadline,
+            ),
+        )
+        .returning(RegistrationRequest.email_token_address)
+    )
+    await session.commit()
+    return (address, token) if address is not None else None
+
+
+async def consume_email_verification(
+    session: AsyncSession, token: str, *, now: datetime | None = None
+) -> bool:
+    """Atomically spend an address-bound mailbox link and advance to review.
+
+    Unknown, expired, replaced and already-consumed links all return false.
+    Proof consumption and the lifecycle change are one conditional write, so
+    resends and cancellation use the same row-lock order across workers.
+    """
+    if not token:
+        return False
+    moment = _utc(now or _now())
+    await _expire_due(session, moment)
+    key = await session.scalar(
+        update(RegistrationRequest)
+        .where(
+            RegistrationRequest.email_token_hash == emailverify.hash_token(token),
+            RegistrationRequest.email_token_address == RegistrationRequest.email,
+            RegistrationRequest.email_token_expires > moment,
+            RegistrationRequest.status == RegistrationStatus.EMAIL_PENDING,
+            RegistrationRequest.expires > moment,
+        )
+        .values(
+            status=RegistrationStatus.REVIEW_PENDING, email_verified=moment, **_CLEAR_EMAIL_TOKEN
+        )
         .returning(RegistrationRequest.id)
     )
     await session.commit()

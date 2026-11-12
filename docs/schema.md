@@ -57,7 +57,18 @@ An email-pending request can store one outstanding mailbox proof: a unique
 SHA-256 token digest, the recipient address and an expiry no later than the
 request deadline. The raw link token is never stored. All three proof fields
 are present together or absent together; later states cannot retain them. This
-persistence alone issues no mail and grants no account or library access.
+internal issuer returns the stored recipient and a fresh random token, retaining
+only its SHA-256 digest. Resending replaces the old proof without extending the
+request deadline. A link lasts at most 24 hours; equality with either expiry
+deadline is already too late.
+
+Proof consumption checks the digest, saved recipient against the current address,
+request state and both deadlines in one conditional update. The same update
+clears the proof and moves the request to review; concurrent consumers have one
+winner. Cancellation, expiry and trusted verification recording also clear any
+outstanding token. A failed transaction preserves the earlier link and lifecycle
+state together. These helpers send no mail and grant no account or library access;
+mail policy, resend limits and applicant authorization still need caller integration.
 
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
