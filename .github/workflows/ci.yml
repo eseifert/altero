@@ -112,11 +112,21 @@ jobs:
             }
           '
 
+      - name: Registration admission end-to-end tests
+        run: |
+          npm run e2e:registration
+          node -e '
+            const { stats } = require("./registration-results/results.json")
+            if (stats.skipped || stats.unexpected || stats.flaky) process.exit(1)
+          '
+
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
           name: playwright-traces
-          path: web/test-results/
+          path: |
+            web/test-results/
+            web/registration-results/
           retention-days: 7
 
       - name: Build Python release artifacts

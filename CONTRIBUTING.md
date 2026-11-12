@@ -136,6 +136,13 @@ real desktop acceptance supply different evidence; report which one ran.
 
 Browser end-to-end tests use Playwright against a real server. Build the
 interface first, then run `npm --prefix web run e2e`.
+Run the separate admission suite with
+`npm --prefix web run e2e:registration`. It uses port 8767 and a local SMTP sink,
+never an external relay, and preserves disposable databases and messages under
+`/tmp/altero-registration-browser-*`. It checks desktop/phone registration,
+approval, rejection, proof replay, restart recovery, SMTP refusal/retry and a
+lost enrollment reply. Registration diagnostics have their own ignored
+`web/registration-results/` directory.
 
 ## Commits
 

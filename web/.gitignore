@@ -2,5 +2,6 @@ node_modules/
 dist/
 *.tsbuildinfo
 test-results/
+registration-results/
 playwright-report/
 e2e/.state.json
