@@ -73,6 +73,7 @@ class RegistrationRequest(Base):
         ),
         CheckConstraint("expires > created", name="ck_registration_requests_lifetime"),
         Index("ix_registration_requests_status_created", "status", "created"),
+        {"sqlite_autoincrement": True},
     )
 
     id: Mapped[int] = mapped_column(primary_key=True)

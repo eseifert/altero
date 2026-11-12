@@ -176,6 +176,8 @@ with a 60-second retry interval. Under that same transaction it prunes expired
 and cancelled requests created over 30 days ago, only after their applicant
 credential expires. Approval/rejection audit history is preserved. A failed
 submission rolls back both expiry and pruning along with the new reservation.
+SQLite uses `AUTOINCREMENT` for request IDs, matching PostgreSQL's sequence:
+pruning cannot recycle an old request ID into a newer applicant or review page.
 
 These controls bound abuse, not distinguish humans from bots. Verified mailboxes
 can be automated and distributed sources can evade an IP-only limit. Admission

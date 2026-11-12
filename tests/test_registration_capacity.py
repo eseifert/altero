@@ -56,7 +56,8 @@ async def test_submission_prunes_old_unreviewed_history_but_keeps_decisions(
     old_time = NOW - timedelta(days=40)
     old, _ = await apply(session, "Old", now=old_time, expires=old_time + timedelta(days=1))
     old_id = old.id
-    await apply(session, "Current")
+    current_record, _ = await apply(session, "Current")
+    assert current_record.id > old_id
     assert (
         await session.scalar(select(RegistrationRequest.id).where(RegistrationRequest.id == old_id))
         is None
