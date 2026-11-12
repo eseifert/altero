@@ -113,8 +113,9 @@ The comparison ignores case and outer whitespace, but accepted passwords are
 hashed exactly as entered. Updating the policy does not invalidate existing
 passwords or require periodic password changes.
 Registration, account changes, administrator-issued passwords and reset links
-use the same policy. A refused password leaves a reset link usable. The browser
-registration form reads the configured minimum from `/web/config`.
+use the same policy. A refused password leaves a reset link usable. Browser
+registration and account password forms read the configured minimum from
+`/web/config`.
 
 ## Public URL and email
 

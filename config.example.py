@@ -91,7 +91,24 @@ RETENTION_INTERVAL = 0
 # is always allowed, so a fresh instance is reachable without shell access, and
 # so is anyone holding an unanswered invitation to a group. Everything else is
 # `altero user add`.
+# Claim the first administrator before exposing a fresh instance publicly.
 OPEN_REGISTRATION = False
+
+# Additional local accounts require mailbox proof and administrator approval.
+# Requires SMTP_URL and PUBLIC_URL, and cannot be combined with SSO_ONLY.
+# Open registration and invitations permit applications, never direct admission.
+REGISTRATION_APPROVAL = False
+# Exact ASCII domains; list subdomains separately. Empty allows any domain.
+REGISTRATION_DOMAINS = []
+REGISTRATION_MAX_PENDING = 1000
+# Submission/recovery attempts per fixed hour window. Recipient mail is also
+# limited to one/minute and five/day, including failed delivery attempts.
+REGISTRATION_IP_LIMIT = 5
+REGISTRATION_GLOBAL_LIMIT = 100
+
+# New passwords only; existing passwords still sign in. No composition rules.
+PASSWORD_MIN_LENGTH = 8  # 8 to 1024 characters
+PASSWORD_BLOCK_COMMON = True
 
 # Require OIDC/SAML for browser sign-in and recent proof for sensitive actions.
 # Configure and test providers and link existing accounts before enabling.

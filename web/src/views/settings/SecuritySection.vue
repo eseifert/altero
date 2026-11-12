@@ -190,7 +190,7 @@ function when(iso: string | null): string {
       :label="t('New password')"
       type="password"
       autocomplete="new-password"
-      :hint="t('At least {count} characters', { count: 8 })"
+      :hint="t('At least {count} characters', { count: auth.passwordMinimumLength })"
     />
     <AppButton :loading="busy" @click="savePassword">{{ t('Change password') }}</AppButton>
   </section>

@@ -117,8 +117,9 @@ Browser registration is available only when one of these conditions applies:
 With `ALTERO_REGISTRATION_APPROVAL=true`, the latter two open an application
 instead of creating an account. Configure SMTP and `ALTERO_PUBLIC_URL` first;
 see [registration settings](configuration.md). The first owner remains an
-explicit setup exception. Administrator and CLI account creation are trusted
-provisioning paths and do not enter this queue.
+explicit setup exception. Create the first administrator while the instance
+is private, before exposing its registration page. Administrator and CLI
+account creation are trusted provisioning paths and do not enter this queue.
 
 ### Review registration requests
 
