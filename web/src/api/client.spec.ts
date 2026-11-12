@@ -48,6 +48,17 @@ describe('the api client', () => {
     expect(headers.get('X-CSRF-Token')).toBeNull()
   })
 
+  it('uses applicant csrf only for applicant writes while keeping account csrf independent', async () => {
+    document.cookie = 'altero_applicant_csrf=applicant-proof; path=/'
+    const fetchMock = vi.fn().mockResolvedValue(respond(null, { status: 204 }))
+    vi.stubGlobal('fetch', fetchMock)
+    await request('/web/registration/cancel', { method: 'POST' })
+    await request('/web/admin/registrations/1/reject', { method: 'POST' })
+    expect(new Headers(fetchMock.mock.calls[0][1].headers).get('X-CSRF-Token')).toBe('applicant-proof')
+    expect(new Headers(fetchMock.mock.calls[1][1].headers).get('X-CSRF-Token')).toBe('token-from-cookie')
+    document.cookie = 'altero_applicant_csrf=; Max-Age=0; path=/'
+  })
+
   it('carries a version precondition together with the csrf token', async () => {
     const fetchMock = vi.fn().mockResolvedValue(respond({ items: [] }))
     vi.stubGlobal('fetch', fetchMock)

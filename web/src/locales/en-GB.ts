@@ -10,6 +10,14 @@
  */
 
 export default {
+  "Check your email": "Check your email",
+  "If these details can be used, an email will explain the next step.": "If these details can be used, an email will explain the next step.",
+  "If no message arrives, wait a minute and submit the same details again.": "If no message arrives, wait a minute and submit the same details again.",
+  "Back": "Back",
+  "Request an account": "Request an account",
+  "Your email must be verified and an administrator must approve the request.": "Your email must be verified and an administrator must approve the request.",
+  "Allowed email domains: {domains}": "Allowed email domains: {domains}",
+
   "Items moved to trash.": "Items moved to bin.",
   "Items filed.": "Items filed.",
   "Items restored.": "Items restored.",

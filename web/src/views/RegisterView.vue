@@ -5,12 +5,17 @@ import { useRoute, useRouter } from 'vue-router'
 
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import { ApiError, request } from '@/api/client'
 import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
 
 const auth = useAuthStore()
 const minimumPasswordLength = computed(() => auth.passwordMinimumLength)
+const gated = computed(() => auth.registrationApproval && !auth.firstAccount)
+const applying = ref(false)
+const applied = ref(false)
+const failure = ref<string | null>(null)
 const router = useRouter()
 const route = useRoute()
 
@@ -45,12 +50,27 @@ const tooShort = computed(
   () => touched.value && password.value.length > 0 && password.value.length < minimumPasswordLength.value,
 )
 const submittable = computed(
-  () => password.value.length >= minimumPasswordLength.value && password.value === repeated.value,
+  () => gated.value || (password.value.length >= minimumPasswordLength.value && password.value === repeated.value),
 )
 
 async function submit(): Promise<void> {
   touched.value = true
   if (!submittable.value) {
+    return
+  }
+  if (gated.value) {
+    applying.value = true
+    failure.value = null
+    try {
+      await request('/web/registration/apply', { method: 'POST', body: {
+        username: username.value, email: email.value, displayName: displayName.value,
+      } })
+      applied.value = true
+    } catch (thrown) {
+      failure.value = thrown instanceof ApiError ? thrown.message : String(thrown)
+    } finally {
+      applying.value = false
+    }
     return
   }
   try {
@@ -68,11 +88,19 @@ async function submit(): Promise<void> {
 </script>
 
 <template>
-  <form class="auth-form" @submit.prevent="submit">
-    <h1>{{ t('Create your account') }}</h1>
+  <section v-if="applied" class="auth-form">
+    <h1>{{ t('Check your email') }}</h1>
+    <p role="status">{{ t('If these details can be used, an email will explain the next step.') }}</p>
+    <p>{{ t('If no message arrives, wait a minute and submit the same details again.') }}</p>
+    <AppButton variant="text" @click="applied = false">{{ t('Back') }}</AppButton>
+  </section>
+  <form v-else class="auth-form" @submit.prevent="submit">
+    <h1>{{ gated ? t('Request an account') : t('Create your account') }}</h1>
     <p class="auth-form__lead">
       {{ lead }}
     </p>
+    <p v-if="gated">{{ t('Your email must be verified and an administrator must approve the request.') }}</p>
+    <p v-if="gated && auth.registrationDomains.length">{{ t('Allowed email domains: {domains}', { domains: auth.registrationDomains.join(', ') }) }}</p>
 
     <AppTextField
       v-model="username"
@@ -96,6 +124,7 @@ async function submit(): Promise<void> {
       :hint="t('Optional')"
     />
     <AppTextField
+      v-if="!gated"
       v-model="password"
       :label="t('Password')"
       type="password"
@@ -107,6 +136,7 @@ async function submit(): Promise<void> {
       "
     />
     <AppTextField
+      v-if="!gated"
       v-model="repeated"
       :label="t('Repeat password')"
       type="password"
@@ -115,9 +145,9 @@ async function submit(): Promise<void> {
       :error="mismatch ? t('The two passwords do not match') : null"
     />
 
-    <p v-if="auth.error" class="auth-form__error" role="alert">{{ auth.error }}</p>
+    <p v-if="failure || (!gated && auth.error)" class="auth-form__error" role="alert">{{ failure || auth.error }}</p>
 
-    <AppButton type="submit" full-width :loading="auth.busy">{{ t('Create account') }}</AppButton>
+    <AppButton type="submit" full-width :loading="auth.busy || applying">{{ gated ? t('Request an account') : t('Create account') }}</AppButton>
 
     <p class="auth-form__aside">
       {{ t('Already have an account?') }}

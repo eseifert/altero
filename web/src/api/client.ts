@@ -67,7 +67,8 @@ export async function request<T = unknown>(
     headers.set('Content-Type', 'application/json')
   }
   if (!SAFE_METHODS.has(method.toUpperCase())) {
-    const token = readCookie(CSRF_COOKIE)
+    const applicant = path === '/web/registration' || path.startsWith('/web/registration/')
+    const token = readCookie(applicant ? 'altero_applicant_csrf' : CSRF_COOKIE)
     if (token) {
       headers.set(CSRF_HEADER, token)
     }

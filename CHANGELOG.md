@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Show a mailbox-first account request form when approval is required; keep initial owner setup password-based.
 - Add administrator review and applicant enrollment routes with separate CSRF realms, recent approval proof and enrollment limits.
 - Bind authenticated registration resends to the current token, recipient and shared mail quotas.
 - Add opt-in mailbox-first registration; invitations cannot bypass approval and first-account bootstrap stays explicit.

@@ -22,6 +22,11 @@ Registration may be closed. Ask the administrator for an account or use a group
 invitation. If your organization requires institutional sign-in, use the provider
 button on the sign-in page.
 
+When **Request an account** appears, enter your username and email address.
+Check your mailbox for the next step. This form collects no password and does
+not sign you in; email verification and administrator approval come first.
+If nothing arrives, wait a minute before submitting the same details again.
+
 ## Installing it as an app
 
 You can give altero its own app window:
