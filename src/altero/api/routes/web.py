@@ -303,6 +303,8 @@ async def read_config(request: Request, session: SessionDep, sso_only: SsoOnlyDe
             # send nothing.
             "passwordResetOpen": _reset_allowed(request),
             "passwordMinimumLength": request.app.state.settings.password_min_length,
+            "registrationApproval": request.app.state.settings.registration_approval,
+            "registrationDomains": request.app.state.settings.registration_domains,
             # The directories this instance accepts a sign-in from, so the
             # page can draw a button per provider. Three fields each and
             # nothing about how any of them is configured -- this answers to
@@ -326,6 +328,7 @@ async def register(session: SessionDep, request: Request, body: Registration) ->
         display_name=body.display_name,
         allow_registration=request.app.state.settings.open_registration,
         password_policy=passwords.PasswordPolicy.from_settings(request.app.state.settings),
+        approval_required=request.app.state.settings.registration_approval,
     )
     await _send_verification(request, session, user)
     token, _ = await websessions.create(

@@ -30,6 +30,7 @@ from altero.services import (
     logincodes,
     loginlimits,
     passwords,
+    registrationlimits,
     totp,
     websessions,
 )
@@ -116,6 +117,7 @@ async def register(
     display_name: str = "",
     allow_registration: bool = False,
     password_policy: passwords.PasswordPolicy | None = None,
+    approval_required: bool = False,
 ) -> User:
     """Create an account and its personal library, with a password and address.
 
@@ -129,6 +131,11 @@ async def register(
     # password or a mistyped address does not leave a half-made account behind.
     address = emailverify.normalise(email)
     passwords.validate_password(password, policy=password_policy)
+    if approval_required:
+        await registrationlimits.lock_capacity(session)
+        if not await no_accounts_yet(session):
+            await session.rollback()
+            raise ForbiddenError("Use verified registration with administrator approval")
 
     # Checked with the address in hand, because an invitation to it is one of
     # the three things that opens the door.

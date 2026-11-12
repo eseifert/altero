@@ -85,6 +85,12 @@ class Settings(BaseSettings):
         ),
     )
 
+    registration_approval: bool = Field(default=False)
+    registration_domains: list[str] = Field(default_factory=list)
+    registration_max_pending: int = Field(default=1000, ge=1, le=100000)
+    registration_ip_limit: int = Field(default=5, ge=1, le=1000)
+    registration_global_limit: int = Field(default=100, ge=1, le=10000)
+
     password_reset: bool = Field(
         default=False,
         description=(

@@ -93,6 +93,11 @@ Booleans accept `true`, `1`, `yes` and `on`, and their opposites, in any case. D
 | Setting                    | Default | What it does                                                                                                                                                                                                                                                           |
 |----------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ALTERO_OPEN_REGISTRATION` | `false` | Whether anybody may register from the browser. First-account and invited-address registration are also available, except in SSO-only mode.                                                        |
+| `ALTERO_REGISTRATION_APPROVAL` | `false` | Require mailbox proof and administrator approval for additional local accounts. Requires SMTP/public URL; incompatible with SSO-only mode. Open registration still controls general applications; invitations open a gated application, never direct admission. |
+| `ALTERO_REGISTRATION_DOMAINS` | `[]` | Exact allowed ASCII mailbox domains; subdomains must be listed. Empty permits any valid domain. Environment values are JSON arrays. |
+| `ALTERO_REGISTRATION_MAX_PENDING` | `1000` | Instance-wide cap on live pending applications. |
+| `ALTERO_REGISTRATION_IP_LIMIT` | `5` | Submission attempts per source address/hour. Configure trusted proxy addresses correctly. |
+| `ALTERO_REGISTRATION_GLOBAL_LIMIT` | `100` | Instance-wide submission attempts/hour, including recovery/duplicate attempts. Recipient mail remains capped at one/minute and five/day. |
 | `ALTERO_PASSWORD_MIN_LENGTH` | `8` | Minimum length for new passwords, from 8 to 1024 characters. Existing passwords can still sign in. |
 | `ALTERO_PASSWORD_BLOCK_COMMON` | `true` | Refuse common passwords using the bundled offline list; no composition rules or periodic resets. |
 | `ALTERO_PASSWORD_RESET`    | `false` | Offer self-service password reset for confirmed addresses. Requires SMTP and a public URL. Administrators can issue reset links independently, except in SSO-only mode. |

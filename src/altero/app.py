@@ -66,6 +66,7 @@ from altero.services import (
 from altero.services.groupsweeper import Sweeper
 from altero.services.mail import build_mailer
 from altero.services.ratelimit import RateLimiter
+from altero.services.registrationpolicy import RegistrationPolicy
 from altero.settings import Settings, get_settings
 
 logger = logging.getLogger("altero.app")
@@ -78,6 +79,8 @@ STATISTICS_INTERVAL = timedelta(hours=1)
 def create_app(settings: Settings | None = None) -> FastAPI:
     """Build the Zotero Web API application."""
     settings = get_settings() if settings is None else settings
+    if settings.registration_approval:
+        RegistrationPolicy(settings, allowed_domains=tuple(settings.registration_domains))
     if settings.smtp_url and not settings.public_url:
         raise InvalidInputError("Set ALTERO_PUBLIC_URL before configuring ALTERO_SMTP_URL")
     if settings.sso_only and not settings.public_url:
