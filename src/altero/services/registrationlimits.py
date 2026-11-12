@@ -30,6 +30,21 @@ class Budget:
         return hashlib.sha256(f"{self.namespace}\0{self.value}".encode()).hexdigest()
 
 
+async def lock_capacity(session: AsyncSession) -> None:
+    """Serialize pending-count checks with inserts, without committing."""
+    insert = sqlite_insert if session.get_bind().dialect.name == "sqlite" else pg_insert
+    statement = insert(RegistrationBudget).values(
+        key=hashlib.sha256(b"altero registration capacity").hexdigest(),
+        used=1,
+        expires=datetime.max,
+    )
+    await session.execute(
+        statement.on_conflict_do_update(
+            index_elements=[RegistrationBudget.key], set_={"used": RegistrationBudget.used}
+        )
+    )
+
+
 async def reserve(session: AsyncSession, *budgets: Budget, now: datetime | None = None) -> None:
     """Spend all buckets or none; commit before attempting delivery or work.
 

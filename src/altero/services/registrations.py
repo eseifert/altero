@@ -9,15 +9,15 @@ operator may provision an account while somebody has a pending reservation.
 import secrets
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import Select, case, func, or_, select, true, update
+from sqlalchemy import Select, case, delete, func, or_, select, true, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
 
 from altero.db import UNICODE_LOWER
-from altero.errors import ForbiddenError, InvalidInputError
+from altero.errors import ForbiddenError, InvalidInputError, RegistrationLimitError
 from altero.models import RegistrationRequest, RegistrationStatus, User
-from altero.services import emailverify, webauth
+from altero.services import emailverify, registrationlimits, webauth
 from altero.services.registrationpolicy import RegistrationPolicy
 
 PENDING = (RegistrationStatus.EMAIL_PENDING, RegistrationStatus.REVIEW_PENDING)
@@ -87,6 +87,7 @@ async def prepare_submission(
     display_name: str = "",
     enabled: bool = False,
     policy: RegistrationPolicy | None = None,
+    max_pending: int = 1000,
     now: datetime | None = None,
 ) -> RegistrationRequest:
     """Stage a reservation and expiry cleanup without committing either.
@@ -107,8 +108,30 @@ async def prepare_submission(
     moment, deadline = _utc(now or _now()), _utc(expires)
     if deadline <= moment:
         raise InvalidInputError("A registration request must expire in the future")
+    if max_pending < 1:
+        raise InvalidInputError("Pending registration capacity must be positive")
 
+    await registrationlimits.lock_capacity(session)
     await _expire_due(session, moment)
+    await session.execute(
+        delete(RegistrationRequest).where(
+            RegistrationRequest.status.in_(
+                (RegistrationStatus.CANCELLED, RegistrationStatus.EXPIRED)
+            ),
+            RegistrationRequest.created < moment - timedelta(days=30),
+            or_(
+                RegistrationRequest.applicant_token_expires.is_(None),
+                RegistrationRequest.applicant_token_expires <= moment,
+            ),
+        )
+    )
+    count = await session.scalar(
+        select(func.count())
+        .select_from(RegistrationRequest)
+        .where(RegistrationRequest.status.in_(PENDING))
+    )
+    if count is not None and count >= max_pending:
+        raise RegistrationLimitError(60)
     # SQLite's built-in lower() folds ASCII only. Match the canonical Python
     # lower-case reservation even for an existing accented username.
     fold = (
@@ -148,6 +171,7 @@ async def submit(
     display_name: str = "",
     enabled: bool = False,
     policy: RegistrationPolicy | None = None,
+    max_pending: int = 1000,
     now: datetime | None = None,
 ) -> RegistrationRequest:
     """Commit an internal reservation without issuing an applicant credential."""
@@ -160,6 +184,7 @@ async def submit(
             display_name=display_name,
             enabled=enabled,
             policy=policy,
+            max_pending=max_pending,
             now=now,
         )
         await session.commit()

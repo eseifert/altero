@@ -169,6 +169,14 @@ refusal does not prolong its window. Failed mail delivery and worker crashes
 do not refund an admitted attempt. Exhaustion returns 429 and `Retry-After`.
 The primitive is not yet wired to public submission or mail routes.
 
+Submission holds a shared capacity-bucket row until its reservation commits.
+After expiring due requests it checks the pending count (default cap 1,000), so
+concurrent workers cannot each claim the last slot. A full queue returns 429
+with a 60-second retry interval. Under that same transaction it prunes expired
+and cancelled requests created over 30 days ago, only after their applicant
+credential expires. Approval/rejection audit history is preserved. A failed
+submission rolls back both expiry and pruning along with the new reservation.
+
 These controls bound abuse, not distinguish humans from bots. Verified mailboxes
 can be automated and distributed sources can evade an IP-only limit. Admission
 must remain separate from submission: verification and administrator approval

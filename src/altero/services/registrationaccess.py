@@ -39,6 +39,7 @@ async def submit(
     display_name: str = "",
     enabled: bool = False,
     policy: RegistrationPolicy | None = None,
+    max_pending: int = 1000,
     now: datetime | None = None,
 ) -> tuple[RegistrationRequest, str]:
     """Commit a new application and its initial applicant credential together.
@@ -57,6 +58,7 @@ async def submit(
             display_name=display_name,
             enabled=enabled,
             policy=policy,
+            max_pending=max_pending,
             now=moment,
         )
         token = secrets.token_urlsafe(32)
