@@ -1781,6 +1781,70 @@ and tags via the <code>Timestamped</code> mixin in <code>altero/db.py</code>.</p
 <code>deletedCollections</code> and <code>deletedSearches</code> alongside <code>deletedItems</code>, so the
 trash is not an item-only concept.</p>
 <h2 id="deliberate-differences">Deliberate differences<a class="headerlink" href="#deliberate-differences" title="Permanent link">&para;</a></h2>
+<p><strong>Pending registration requests are separate from accounts.</strong> The
+<code>registration_requests</code> table is persistence for the planned verified-email and
+administrator-approval workflow. It stores no password or usable credential and
+creates no user or library. That public workflow is not enabled yet.</p>
+<p>Pending rows reserve a canonical username and email address through unique,
+nullable columns. Terminal rows release both reservations while retaining the
+request's original fields. Constraints require email proof before review,
+decision actor/time for approval or rejection, and an account ID for approval.
+Actor and account IDs are historical values without foreign keys, so deleting
+an account does not erase the recorded decision. They grant no access.</p>
+<p>Internal submission defaults to disabled. When explicitly enabled by a trusted
+caller, it normalizes the requested name/address, checks existing accounts and
+reserves both values atomically. Requests expire at their deadline, releasing
+both reservations while keeping history. Activation must recheck availability;
+a pending reservation cannot override an account provisioned by an operator.</p>
+<p>Verification recording accepts only a live email-pending request and the exact
+normalized address its trusted mailbox-proof consumer verified. A replay cannot
+refresh the proof or extend the deadline. After the caller authenticates the
+applicant, cancellation releases either pending state; terminal history cannot
+be reopened. Conditional updates resolve concurrent transitions. Cleanup shares
+their transaction so a failed transition does not commit only part of the
+operation. These are internal
+primitives; applicant sessions and public routes remain to be wired.</p>
+<p>An email-pending request can store one outstanding mailbox proof: a unique
+SHA-256 token digest, the recipient address and an expiry no later than the
+request deadline. The raw link token is never stored. All three proof fields
+are present together or absent together; later states cannot retain them. This
+internal issuer returns the stored recipient and a fresh random token, retaining
+only its SHA-256 digest. Resending replaces the old proof without extending the
+request deadline. A link lasts at most 24 hours; equality with either expiry
+deadline is already too late.</p>
+<p>Proof consumption checks the digest, saved recipient against the current address,
+request state and both deadlines in one conditional update. The same update
+clears the proof and moves the request to review; concurrent consumers have one
+winner. Cancellation, expiry and trusted verification recording also clear any
+outstanding token. A failed transaction preserves the earlier link and lifecycle
+state together. These helpers send no mail and grant no account or library access;
+delivery, resend limits and applicant authorization still need caller integration.</p>
+<p>The internal gated-registration policy requires configured SMTP and an absolute
+HTTP(S) <code>public_url</code>, and refuses SSO-only mode. It retains neither the settings
+nor relay credentials. Allowed domains are normalized to lowercase ASCII DNS
+names, with duplicates removed. An empty list allows any valid DNS domain;
+otherwise matching is exact, and every allowed subdomain must be listed.
+Wildcards, trailing dots and Unicode domain spellings are refused; use the
+domain's ASCII punycode spelling in both the policy and the address. Existing
+account address handling is unchanged. Mailbox verification proves control of
+an address, not current institutional membership. This internal policy has no
+operator setting or public caller yet, and does not prove the relay is reachable.
+Submission and trusted verification recording require this policy explicitly.
+Proof issuance and consumption apply its current domain ceiling in their
+conditional updates, so a link issued under an older allowlist cannot advance
+an ineligible request. Refused issuance leaves the earlier link intact; refused
+consumption does not spend it. Restoring eligibility can make a still-live link
+usable again. Cancellation and expiry remain available without an admission
+policy. Final activation must recheck the policy as well as identity availability.</p>
+<p>An authenticated applicant's internal mailbox-change operation also checks the
+current policy and refuses addresses held by existing accounts or other pending
+requests. A changed address reserves the new mailbox and releases the old one in
+the same update, clears outstanding proofs and earlier verification, and returns
+either pending state to email-pending. It keeps the original request deadline.
+An unchanged normalized address preserves its proof/review state; terminal
+requests cannot be reopened. Conflicting reservations and failed commits preserve
+the previous mailbox and proof together. The caller must authenticate the
+applicant before using this operation; the row ID alone grants no authority.</p>
 <p><strong>The trash is a flag, not a table.</strong> The dataserver records trashed objects in
 <code>deletedItems(itemID, dateDeleted)</code>; altero uses a <code>deleted</code> boolean on the
 object. The queries are equivalent and the flag avoids a join on every listing.
