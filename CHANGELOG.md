@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Require the bundled common-password list and license in both release artifacts, with matching bytes.
 - Recheck gated email-domain policy on account address changes and link confirmation while preserving existing sign-in access.
 - Add an administrator registration queue with verified applicant details, approval proof, rejection and pagination.
 - Add email confirmation, applicant status, cancellation, resends and approved password setup to the browser.

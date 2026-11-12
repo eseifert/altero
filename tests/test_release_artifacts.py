@@ -13,6 +13,8 @@ VERSION = "1.0.0b1"
 TAG = "v1.0.0-beta.1"
 INDEX = "altero/web/static/index.html"
 SCRIPT = "altero/web/static/assets/index-example.js"
+PASSWORD_DATA = "altero/services/common-passwords.txt.gz"
+PASSWORD_LICENSE = "altero/services/common-passwords.LICENSE"
 
 
 def artifacts(
@@ -25,6 +27,8 @@ def artifacts(
     metadata_version: str = VERSION,
 ) -> Path:
     files = {
+        PASSWORD_DATA: (Path(__file__).parents[1] / "src" / PASSWORD_DATA).read_bytes(),
+        PASSWORD_LICENSE: (Path(__file__).parents[1] / "src" / PASSWORD_LICENSE).read_bytes(),
         INDEX: b'<script type="module" src="/app/assets/index-example.js"></script>',
         SCRIPT: b"console.log('application')",
         f"{SCRIPT}.br": b"brotli",
@@ -90,3 +94,15 @@ def test_the_source_archive_and_wheel_cannot_carry_different_browser_builds(tmp_
 def test_the_distributed_version_must_match_the_tag(tmp_path: Path) -> None:
     with pytest.raises(ValueError, match="metadata does not match"):
         check_artifacts(artifacts(tmp_path, metadata_version="1.0.0a3"), TAG)
+
+
+@pytest.mark.parametrize("resource", [PASSWORD_DATA, PASSWORD_LICENSE])
+@pytest.mark.parametrize("target", ["wheel", "source"])
+def test_password_policy_resources_must_ship_in_both_artifacts(
+    tmp_path: Path, resource: str, target: str
+) -> None:
+    omissions = (
+        {"missing_wheel": resource} if target == "wheel" else {"missing_source": f"src/{resource}"}
+    )
+    with pytest.raises(ValueError, match="password policy resource"):
+        check_artifacts(artifacts(tmp_path, **omissions), TAG)

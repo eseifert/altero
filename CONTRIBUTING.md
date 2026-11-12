@@ -320,6 +320,9 @@ Build the interface **before** Python artifacts. Both Hatch targets must include
 Preserve the source archive's public-path selection and the release checker's
 inventory so local notes cannot enter a release. Keep artifacts and disposable
 state under `/tmp` or ignored paths.
+The checker also requires the offline common-password list and its license in
+both artifacts and compares their bytes, since password policy must work from
+an installed wheel without the checkout.
 
 Tags publish container images and documentation, not a GitHub Release or Python
 package upload. Container `latest` includes prereleases; documentation `latest`

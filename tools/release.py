@@ -10,6 +10,10 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PRERELEASE_NAMES = {"a": "alpha", "b": "beta", "rc": "rc"}
+PASSWORD_RESOURCES = {
+    "altero/services/common-passwords.txt.gz",
+    "altero/services/common-passwords.LICENSE",
+}
 SDIST_ROOTS = {
     "src",
     "migrations",
@@ -95,6 +99,9 @@ def check_artifacts(directory: Path, tag: str) -> None:
         index = "altero/web/static/index.html"
         if index not in names:
             raise ValueError("Wheel is missing the built browser interface")
+        for resource in PASSWORD_RESOURCES:
+            if resource not in names or not wheel.read(resource):
+                raise ValueError(f"Wheel is missing password policy resource {resource}")
         assets = re.findall(r'(?:src|href)="(/app/[^"?#]+)"', wheel.read(index).decode())
         if not any(asset.endswith(".js") for asset in assets):
             raise ValueError("Wheel browser index has no application script")
@@ -115,14 +122,15 @@ def check_artifacts(directory: Path, tag: str) -> None:
                 if not name.startswith(prefix) or relative.split("/")[0] not in SDIST_ROOTS:
                     raise ValueError(f"Source archive includes unexpected file {name}")
             for name in names:
-                if not name.startswith("altero/web/static/"):
+                if not name.startswith("altero/web/static/") and name not in PASSWORD_RESOURCES:
                     continue
                 member = members.get(f"{prefix}src/{name}")
+                kind = "password policy resource" if name in PASSWORD_RESOURCES else "browser asset"
                 if member is None:
-                    raise ValueError(f"Source archive is missing browser asset {name}")
+                    raise ValueError(f"Source archive is missing {kind} {name}")
                 stream = source.extractfile(member)
                 if stream is None or stream.read() != wheel.read(name):
-                    raise ValueError(f"Source archive browser asset differs from wheel: {name}")
+                    raise ValueError(f"Source archive {kind} differs from wheel: {name}")
 
 
 def main() -> None:
