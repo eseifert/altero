@@ -14,6 +14,25 @@
  */
 
 export default {
+  "Your account is ready": "Your account is ready",
+  "Confirm your email address": "Confirm your email address",
+  "Awaiting administrator approval": "Awaiting administrator approval",
+  "Choose your password": "Choose your password",
+  "Your request was rejected": "Your request was rejected",
+  "Your request was cancelled": "Your request was cancelled",
+  "Your request has expired": "Your request has expired",
+  "Registration request": "Registration request",
+  "This registration link is invalid or expired.": "This registration link is invalid or expired.",
+  "If this request can be resumed, a new link will be emailed.": "If this request can be resumed, a new link will be emailed.",
+  "Confirm that you requested this account. This does not sign you in or grant library access.": "Confirm that you requested this account. This does not sign you in or grant library access.",
+  "Sign in with the password you just set.": "Sign in with the password you just set.",
+  "Sign out and sign in": "Sign out and sign in",
+  "An administrator must approve your request before you can use a library.": "An administrator must approve your request before you can use a library.",
+  "Request deadline: {date}": "Request deadline: {date}",
+  "Contact the administrator to finish setting up this account.": "Contact the administrator to finish setting up this account.",
+  "Check status": "Check status",
+  "Cancel request": "Cancel request",
+
   "Check your email": "Check your email",
   "If these details can be used, an email will explain the next step.": "If these details can be used, an email will explain the next step.",
   "If no message arrives, wait a minute and submit the same details again.": "If no message arrives, wait a minute and submit the same details again.",

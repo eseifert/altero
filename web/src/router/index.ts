@@ -6,6 +6,7 @@ const routes = [
   { path: '/', redirect: { name: 'library' } },
   { path: '/sign-in', name: 'sign-in', component: () => import('@/views/SignInView.vue') },
   { path: '/register', name: 'register', component: () => import('@/views/RegisterView.vue') },
+  { path: '/registration', name: 'registration', component: () => import('@/views/RegistrationView.vue') },
   {
     path: '/second-factor',
     name: 'second-factor',

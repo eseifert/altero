@@ -27,6 +27,13 @@ Check your mailbox for the next step. This form collects no password and does
 not sign you in; email verification and administrator approval come first.
 If nothing arrives, wait a minute before submitting the same details again.
 
+Open the emailed link and choose **Confirm your email address**. Keep that page
+open to follow the request, cancel it or send a replacement link. After approval,
+choose a password there, then sign in normally. This does not replace an account
+already signed in in the same browser; use **Sign out and sign in** when ready.
+Expired, cancelled or rejected requests cannot set a password. Contact the
+administrator if the page cannot be resumed.
+
 ## Installing it as an app
 
 You can give altero its own app window:
