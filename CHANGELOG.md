@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add isolated applicant status, cancellation and logout routes with token-bound CSRF; public submission remains disabled.
 - Commit pending registration reservations and initial applicant credentials atomically, including rollback of expiry cleanup.
 - Add internal applicant-only status and cancellation credentials, separate from account sessions.
 - Add a bounded internal registration review queue restricted to current administrators.

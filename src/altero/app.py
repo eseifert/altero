@@ -43,6 +43,7 @@ from altero.api.routes import (
     weboauth,
     webpasskeys,
     webprofile,
+    webregistration,
     webshares,
     webtags,
     webtransfer,
@@ -213,6 +214,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     # library-scoped /items/{item_key} pattern.
     # The web interface's own namespace, before the library-scoped routes.
     app.include_router(web.router)
+    app.include_router(webregistration.router)
     app.include_router(weblibrary.router)
     app.include_router(webevents.router)
     app.include_router(webcollections.router)

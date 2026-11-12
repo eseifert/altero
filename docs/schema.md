@@ -142,7 +142,23 @@ stages these writes without committing; callers must finish or roll back the
 transaction. Replacements must authenticate the applicant before wiring public callers.
 Delivery to the submitting browser and recovery from a lost response still need
 public-flow integration; database atomicity alone cannot guarantee receipt.
-No public endpoint, cookie or CSRF exception is enabled by these helpers.
+The applicant read/cancel/logout routes below use these helpers, but no public
+submission or replacement issuer is enabled yet.
+
+`GET /web/registration` reads only the request named by the separate
+`altero_applicant` cookie, returning ID/state/deadline with `Cache-Control:
+no-store`. Account cookies, API keys and bearer headers cannot authenticate it.
+A successful read sets a separate readable `altero_applicant_csrf` cookie,
+derived from the applicant credential with a domain-separated HMAC. Unsafe
+`POST /web/registration/cancel` and `/logout` require that value in both the
+cookie and `X-CSRF-Token`; an attacker-chosen matching pair is insufficient.
+Cancellation repeats token/state/deadline checks in its write and returns 409
+if the request can no longer be cancelled. Logout revokes applicant access and
+clears only its cookies, leaving any account session intact. Future submission
+must set the applicant credential HttpOnly, SameSite=Lax and Secure over HTTPS,
+with path `/web/registration`; the CSRF cookie uses `/` for the interface to read.
+These routes issue no applicant credential, create no application or user, and
+send no mail. They do not enable the planned registration workflow.
 
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
