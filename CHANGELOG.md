@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add configurable password length and an offline common-password blocklist; existing passwords can still sign in.
 - Keep registration request IDs monotonic after cleanup so stale review actions cannot identify a newer application.
 - Bound pending registrations across workers and prune old expired/cancelled requests without deleting review decisions.
 - Add durable registration/mail budget reservations shared across workers and restarts.

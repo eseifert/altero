@@ -93,8 +93,20 @@ Booleans accept `true`, `1`, `yes` and `on`, and their opposites, in any case. D
 | Setting                    | Default | What it does                                                                                                                                                                                                                                                           |
 |----------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ALTERO_OPEN_REGISTRATION` | `false` | Whether anybody may register from the browser. First-account and invited-address registration are also available, except in SSO-only mode.                                                        |
+| `ALTERO_PASSWORD_MIN_LENGTH` | `8` | Minimum length for new passwords, from 8 to 1024 characters. Existing passwords can still sign in. |
+| `ALTERO_PASSWORD_BLOCK_COMMON` | `true` | Refuse common passwords using the bundled offline list; no composition rules or periodic resets. |
 | `ALTERO_PASSWORD_RESET`    | `false` | Offer self-service password reset for confirmed addresses. Requires SMTP and a public URL. Administrators can issue reset links independently, except in SSO-only mode. |
 | `ALTERO_SSO_ONLY` | `false` | Require configured OIDC/SAML providers for browser authentication and recent SSO proof for sensitive actions. Disables local credentials, registration, recovery, email changes and MFA; requires `ALTERO_PUBLIC_URL`. See [SSO-only mode](administration.md#sso-only-mode). |
+
+The common-password list is bundled from
+[Django 5.2](https://github.com/django/django/blob/5.2/django/contrib/auth/common-passwords.txt.gz)
+under its BSD license (distributed beside the list in the Python package).
+It contains 19,640 entries and is checked offline; no password is sent to another
+service. SHA-256 of the pinned gzip file:
+`3c1baed62596de36860824eb3f436d5932d37ca8b06e59df78f5a44ec175afe4`.
+The comparison ignores case and outer whitespace, but accepted passwords are
+hashed exactly as entered. Updating the policy does not invalidate existing
+passwords or require periodic password changes.
 
 ## Public URL and email
 

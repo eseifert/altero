@@ -101,6 +101,9 @@ class Settings(BaseSettings):
         ),
     )
 
+    password_min_length: int = Field(default=8, ge=8, le=1024)
+    password_block_common: bool = Field(default=True)
+
     smtp_url: str = Field(
         default="",
         description=(

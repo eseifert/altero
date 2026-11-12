@@ -6,19 +6,23 @@ whereas a password hash is only as good as its cost parameters, and getting
 those wrong is silent. The library also knows when its own output was produced
 at weaker settings, which is what :func:`needs_rehash` exposes.
 
-The policy follows NIST SP 800-63B: a floor, a ceiling, nothing else. No
-composition rules, because requiring a digit and a symbol produces `Password1!`
-and reuse rather than entropy, and no truncation or stripping, because every
-byte the user typed is part of the secret.
+The policy has a configurable floor, a ceiling and an offline common-password
+blocklist. No composition rules or periodic resets are imposed, and accepted
+passwords are never truncated or stripped before hashing.
 """
 
+import gzip
 from contextlib import suppress
+from dataclasses import dataclass
+from functools import lru_cache
+from pathlib import Path
 
 from argon2 import PasswordHasher
 from argon2 import exceptions as argon2_exceptions
 from argon2.profiles import RFC_9106_LOW_MEMORY
 
 from altero.errors import InvalidInputError
+from altero.settings import Settings, get_settings
 
 #: Shortest password accepted. NIST SP 800-63B requires at least this for a
 #: user-chosen secret; a second factor is available for anyone who wants more.
@@ -46,15 +50,39 @@ _DUMMY_PASSWORD = "altero has no such user"
 _DUMMY_HASH = _hasher.hash(_DUMMY_PASSWORD)
 
 
-def validate_password(password: str) -> None:
+@dataclass(frozen=True, slots=True)
+class PasswordPolicy:
+    minimum_length: int = MINIMUM_LENGTH
+    block_common: bool = True
+
+    @classmethod
+    def from_settings(cls, settings: Settings) -> PasswordPolicy:
+        return cls(settings.password_min_length, settings.password_block_common)
+
+
+@lru_cache(maxsize=1)
+def _common_passwords() -> frozenset[str]:
+    # Django 5.2's list, with its BSD license alongside. No network lookup.
+    with gzip.open(
+        Path(__file__).with_name("common-passwords.txt.gz"), "rt", encoding="utf-8"
+    ) as source:
+        return frozenset(word.strip().lower() for word in source)
+
+
+def validate_password(password: str, *, policy: PasswordPolicy | None = None) -> None:
     """Raise :class:`InvalidInputError` unless ``password`` may be used.
 
-    Length is the whole of it. See the module docstring for why.
+    Blocklist comparison folds case/outer whitespace; hashing retains the secret.
     """
-    if len(password) < MINIMUM_LENGTH:
-        raise InvalidInputError(f"A password must be at least {MINIMUM_LENGTH} characters")
+    policy = policy or PasswordPolicy.from_settings(get_settings())
+    if len(password) < policy.minimum_length:
+        raise InvalidInputError(f"A password must be at least {policy.minimum_length} characters")
     if len(password) > MAXIMUM_LENGTH:
         raise InvalidInputError(f"A password may be at most {MAXIMUM_LENGTH} characters")
+    if policy.block_common and password.strip().lower() in _common_passwords():
+        raise InvalidInputError(
+            "That password is too common; choose a longer, less predictable phrase"
+        )
 
 
 def hash_password(

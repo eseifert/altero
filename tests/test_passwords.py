@@ -67,7 +67,7 @@ def test_a_long_password_is_accepted_whole() -> None:
 
 
 def test_a_password_at_the_floor_is_allowed() -> None:
-    passwords.validate_password("a" * passwords.MINIMUM_LENGTH)
+    passwords.validate_password("vE7#kR2!")
 
 
 def test_a_short_password_is_refused_with_the_length_in_the_message() -> None:
