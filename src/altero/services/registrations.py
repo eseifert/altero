@@ -342,6 +342,39 @@ def _reviewer_query(actor_id: int) -> Select[tuple[int]]:
     )
 
 
+async def review_queue(
+    session: AsyncSession,
+    *,
+    actor_id: int,
+    after_id: int = 0,
+    limit: int = 50,
+    now: datetime | None = None,
+) -> list[RegistrationRequest]:
+    """Read a bounded page of live verified requests, oldest row ID first.
+
+    This read commits nothing and does not sweep expiry. The actor must come
+    from an authenticated administrator session in the future public caller.
+    A request can expire or change after this read; decisions recheck its state.
+    """
+    if await session.scalar(_reviewer_query(actor_id)) is None:
+        raise ForbiddenError("Only a current administrator can review registration")
+    if not 1 <= limit <= 200 or after_id < 0:
+        raise InvalidInputError("Review pages require limit 1-200 and a nonnegative cursor")
+    rows = await session.scalars(
+        select(RegistrationRequest)
+        .where(
+            RegistrationRequest.status == RegistrationStatus.REVIEW_PENDING,
+            RegistrationRequest.expires > _utc(now or _now()),
+            RegistrationRequest.id > after_id,
+            _reviewer_query(actor_id).exists(),
+        )
+        .order_by(RegistrationRequest.id)
+        .limit(limit)
+        .execution_options(populate_existing=True)
+    )
+    return list(rows)
+
+
 async def reject(
     session: AsyncSession,
     request_id: int,

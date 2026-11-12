@@ -109,6 +109,14 @@ failed commit preserves both the request and due reservations. Rejection creates
 no account or credential. Applicant authentication, CSRF-protected review routes
 and account activation are still unwired.
 
+The internal review queue checks current administrator permission on every read
+and returns only live review-pending requests, ordered by increasing row ID. Its
+cursor is the last returned ID; pages default to 50 and are capped at 200.
+Reading neither sweeps expiry nor commits the caller's transaction. Rows may
+change between pages; decisions must recheck state and deadlines. The queue
+reads applicant metadata only, with no library or credential access. It has no
+public endpoint yet.
+
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
 object. The queries are equivalent and the flag avoids a join on every listing.
