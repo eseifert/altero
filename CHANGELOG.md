@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Recheck eligibility on pending registration mailbox changes and atomically revoke earlier proofs.
 - Add internal registration prerequisites and exact-domain eligibility rules; the public workflow remains disabled.
 - Document PostgreSQL security updates, version checks and conditional search-index and backup repairs.
 - Separate i18n behavior tests from standalone catalog validation and remove redundant translation wording checks.

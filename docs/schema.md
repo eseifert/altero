@@ -88,6 +88,16 @@ consumption does not spend it. Restoring eligibility can make a still-live link
 usable again. Cancellation and expiry remain available without an admission
 policy. Final activation must recheck the policy as well as identity availability.
 
+An authenticated applicant's internal mailbox-change operation also checks the
+current policy and refuses addresses held by existing accounts or other pending
+requests. A changed address reserves the new mailbox and releases the old one in
+the same update, clears outstanding proofs and earlier verification, and returns
+either pending state to email-pending. It keeps the original request deadline.
+An unchanged normalized address preserves its proof/review state; terminal
+requests cannot be reopened. Conflicting reservations and failed commits preserve
+the previous mailbox and proof together. The caller must authenticate the
+applicant before using this operation; the row ID alone grants no authority.
+
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
 object. The queries are equivalent and the flag avoids a join on every listing.

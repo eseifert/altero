@@ -207,6 +207,57 @@ async def cancel(session: AsyncSession, request_id: int, *, now: datetime | None
     return key is not None
 
 
+async def change_email(
+    session: AsyncSession,
+    request_id: int,
+    email: str,
+    *,
+    policy: RegistrationPolicy | None = None,
+    now: datetime | None = None,
+) -> bool:
+    """Change an authenticated applicant's pending mailbox, revoking its proof.
+
+    The caller must authenticate the applicant; knowing a row ID is insufficient.
+    Return whether a live pending request changed. An unchanged normalized address
+    preserves verification, and terminal requests cannot be reopened. No public
+    route calls this primitive. Final activation must recheck account conflicts.
+    """
+    address = _require_policy(policy).address(email)
+    moment = _utc(now or _now())
+    await _expire_due(session, moment)
+    fold = (
+        getattr(func, UNICODE_LOWER) if session.get_bind().dialect.name == "sqlite" else func.lower
+    )
+    existing = await session.scalar(select(User.id).where(fold(User.email) == address).limit(1))
+    if existing is not None:
+        # Expiry cleanup belongs to the same transaction as this operation.
+        await session.rollback()
+        raise InvalidInputError(UNAVAILABLE)
+    try:
+        key = await session.scalar(
+            update(RegistrationRequest)
+            .where(
+                RegistrationRequest.id == request_id,
+                RegistrationRequest.status.in_(PENDING),
+                RegistrationRequest.expires > moment,
+                RegistrationRequest.email != address,
+            )
+            .values(
+                email=address,
+                reserved_email=address,
+                status=RegistrationStatus.EMAIL_PENDING,
+                email_verified=None,
+                **_CLEAR_EMAIL_TOKEN,
+            )
+            .returning(RegistrationRequest.id)
+        )
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        raise InvalidInputError(UNAVAILABLE) from None
+    return key is not None
+
+
 async def issue_email_verification(
     session: AsyncSession,
     request_id: int,
