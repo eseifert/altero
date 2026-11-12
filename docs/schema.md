@@ -194,6 +194,16 @@ share the same counters. Equality with the window deadline resets a bucket;
 refusal does not prolong its window. Failed mail delivery and worker crashes
 do not refund an admitted attempt. Exhaustion returns 429 and `Retry-After`.
 The primitive is not yet wired to public submission or mail routes.
+The internal mailbox-first orchestration spends five submissions per source
+address/hour, 100 submissions per instance/hour, one message per recipient/minute
+and five messages per recipient/day by default. New requests, duplicate details
+and recovery attempts use the same buckets. Acknowledgment returns no token or
+availability flag; an existing account receives only a generic notice in its own
+mailbox. Matching pending/passwordless requests receive a proof link, including
+when pending capacity is full. Failed delivery spends its attempt and can be
+retried after the cooldown. The proof write checks the recipient snapshot used
+for budgeting, so a concurrent address change cannot redirect unbudgeted mail.
+Links carry the proof in the SPA URL fragment, keeping it out of HTTP URL logs.
 
 Submission holds a shared capacity-bucket row until its reservation commits.
 After expiring due requests it checks the pending count (default cap 1,000), so

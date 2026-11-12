@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Budget mailbox-first registration and recovery uniformly; reveal access only through one-use email links.
 - Resume pending and approved passwordless applicants through one-use mailbox links without disrupting an existing browser session.
 - Add single-use approved-applicant password enrollment with atomic token revocation and race-safe password storage.
 - Admit verified registration requests atomically with account/library creation and current reviewer/domain checks.

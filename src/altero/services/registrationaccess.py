@@ -4,7 +4,7 @@ import secrets
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import and_, case, or_, select, update
+from sqlalchemy import and_, case, or_, select, true, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
@@ -193,6 +193,7 @@ async def issue_mailbox_link(
     request_id: int,
     *,
     policy: RegistrationPolicy,
+    expected_email: str | None = None,
     now: datetime | None = None,
 ) -> tuple[str, str] | None:
     """Return stored recipient/proof after the caller reserves delivery budgets.
@@ -207,6 +208,7 @@ async def issue_mailbox_link(
         .where(
             RegistrationRequest.id == request_id,
             RegistrationRequest.expires > moment,
+            RegistrationRequest.email == expected_email if expected_email is not None else true(),
             _resumable(),
             registrations._eligible(policy),
         )
