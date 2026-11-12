@@ -115,6 +115,13 @@ include = [
     "/docs", "/docker", "/.github", "/.pre-commit-config.yaml", "/alembic.ini",
     "/config.example.py", "/CONTRIBUTING.md", "/CHANGELOG.md", "/zensical.toml", "/uv.lock",
 ]
+# Broad public directories can contain ignored local outputs. Exclude them
+# explicitly rather than relying on nested VCS ignore files during packaging.
+exclude = [
+    "/web/node_modules/**", "/web/test-results/**", "/web/registration-results/**",
+    "/web/playwright-report/**", "/web/dist/**", "/web/e2e/.state.json",
+    "/web/.env*", "/web/*.tsbuildinfo",
+]
 artifacts = ["src/altero/web/static/**"]
 
 [tool.hatch.build.targets.wheel]

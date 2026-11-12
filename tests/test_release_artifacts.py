@@ -108,3 +108,21 @@ def test_password_policy_resources_must_ship_in_both_artifacts(
     )
     with pytest.raises(ValueError, match="password policy resource"):
         check_artifacts(directory, TAG)
+
+
+@pytest.mark.parametrize(
+    "private_path",
+    [
+        "web/test-results/trace.zip",
+        "web/registration-results/state.json",
+        "web/playwright-report/index.html",
+        "web/e2e/.state.json",
+        "web/node_modules/private-package/index.js",
+        "web/.env.local",
+    ],
+)
+def test_private_web_outputs_cannot_enter_a_source_archive(
+    tmp_path: Path, private_path: str
+) -> None:
+    with pytest.raises(ValueError, match="private build/test output"):
+        check_artifacts(artifacts(tmp_path, extra_source=private_path), TAG)

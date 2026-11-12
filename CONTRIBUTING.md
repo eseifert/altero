@@ -327,6 +327,9 @@ Build the interface **before** Python artifacts. Both Hatch targets must include
 Preserve the source archive's public-path selection and the release checker's
 inventory so local notes cannot enter a release. Keep artifacts and disposable
 state under `/tmp` or ignored paths.
+Source archives explicitly exclude browser test state/reports, installed Node
+dependencies, local environment files and build output. Keep those exclusions
+and the release checker's private-path guard together.
 The checker also requires the offline common-password list and its license in
 both artifacts and compares their bytes, since password policy must work from
 an installed wheel without the checkout.

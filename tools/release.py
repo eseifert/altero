@@ -37,6 +37,14 @@ SDIST_ROOTS = {
     "LICENSE",
     "PKG-INFO",
 }
+SDIST_PRIVATE_PATHS = {
+    "web/node_modules",
+    "web/test-results",
+    "web/registration-results",
+    "web/playwright-report",
+    "web/dist",
+    "web/e2e/.state.json",
+}
 
 
 def check_release(root: Path, tag: str | None = None) -> str:
@@ -121,6 +129,15 @@ def check_artifacts(directory: Path, tag: str) -> None:
                 relative = name.removeprefix(prefix)
                 if not name.startswith(prefix) or relative.split("/")[0] not in SDIST_ROOTS:
                     raise ValueError(f"Source archive includes unexpected file {name}")
+                if (
+                    any(
+                        relative == path or relative.startswith(path + "/")
+                        for path in SDIST_PRIVATE_PATHS
+                    )
+                    or relative.startswith("web/.env")
+                    or (relative.startswith("web/") and relative.endswith(".tsbuildinfo"))
+                ):
+                    raise ValueError(f"Source archive includes private build/test output {name}")
             for name in names:
                 if not name.startswith("altero/web/static/") and name not in PASSWORD_RESOURCES:
                     continue
