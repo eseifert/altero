@@ -7,6 +7,9 @@ and connected applications.
 
 Register from the sign-in page if registration is open, or follow a group
 invitation link. Otherwise, ask the instance administrator to create an account.
+If the page offers **Request an account**, verify your mailbox and wait for
+administrator approval before choosing a password and signing in. See the
+[registration steps](../web-interface.md). An invitation does not bypass approval.
 
 Sign in with a password, a passkey, or an institutional provider when offered.
 An instance may require institutional sign-in and hide local sign-in options.

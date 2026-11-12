@@ -27,9 +27,9 @@ trash is not an item-only concept.
 ## Deliberate differences
 
 **Pending registration requests are separate from accounts.** The
-`registration_requests` table is persistence for the planned verified-email and
-administrator-approval workflow. It stores no password or account credential and
-creates no user or library. That public workflow is not enabled yet.
+`registration_requests` table holds the opt-in verified-email and
+administrator-approval workflow. A pending request stores no password or account
+credential and creates no user or library; approval creates the account atomically.
 
 Pending rows reserve a canonical username and email address through unique,
 nullable columns. Terminal rows release both reservations while retaining the
@@ -50,8 +50,8 @@ refresh the proof or extend the deadline. After the caller authenticates the
 applicant, cancellation releases either pending state; terminal history cannot
 be reopened. Conditional updates resolve concurrent transitions. Cleanup shares
 their transaction so a failed transition does not commit only part of the
-operation. These are internal
-primitives; applicant sessions and public routes remain to be wired.
+operation. Applicant routes compose these primitives with separate credentials
+and CSRF checks; administrator decisions use ordinary account authorization.
 
 An email-pending request can store one outstanding mailbox proof: a unique
 SHA-256 token digest, the recipient address and an expiry no later than the
@@ -68,19 +68,19 @@ request state and both deadlines in one conditional update. The same update
 clears the proof and moves the request to review; concurrent consumers have one
 winner. Cancellation, expiry and trusted verification recording also clear any
 outstanding token. A failed transaction preserves the earlier link and lifecycle
-state together. These helpers send no mail and grant no account or library access;
-delivery, resend limits and applicant authorization still need caller integration.
+state together. The public workflow composes these helpers with budgeted mail
+delivery and applicant authorization; mailbox proof grants no library access.
 
-The internal gated-registration policy requires configured SMTP and an absolute
+The gated-registration policy requires configured SMTP and an absolute
 HTTP(S) `public_url`, and refuses SSO-only mode. It retains neither the settings
 nor relay credentials. Allowed domains are normalized to lowercase ASCII DNS
 names, with duplicates removed. An empty list allows any valid DNS domain;
 otherwise matching is exact, and every allowed subdomain must be listed.
 Wildcards, trailing dots and Unicode domain spellings are refused; use the
 domain's ASCII punycode spelling in both the policy and the address. Existing
-account address handling is unchanged. Mailbox verification proves control of
-an address, not current institutional membership. This internal policy has no
-operator setting or public caller yet, and does not prove the relay is reachable.
+accounts retain access, while address changes and their confirmation recheck the
+current policy. Mailbox verification proves control of an address, not current
+institutional membership. Configuration validation does not prove relay reachability.
 Submission and trusted verification recording require this policy explicitly.
 Proof issuance and consumption apply its current domain ceiling in their
 conditional updates, so a link issued under an older allowlist cannot advance
@@ -107,8 +107,8 @@ live review-pending request can become rejected. One write records actor/time,
 releases both reservations and preserves mailbox verification/history. Replays
 cannot replace the decision. Expiry cleanup shares the same transaction, so a
 failed commit preserves both the request and due reservations. Rejection creates
-no account or credential. Applicant authentication, CSRF-protected review routes
-and account activation are still unwired.
+no account or credential. The public review routes authenticate the reviewer
+and require account CSRF before supplying the actor ID.
 
 Internal approval locks the reviewer and request, rechecks current domain policy
 and account availability, then creates a non-administrator account and personal
@@ -119,8 +119,9 @@ enrollment must set the first password. Competing approve/reject/cancel operatio
 have one terminal winner, and failed admission rolls back the account and library.
 
 Enrollment accepts only a live applicant token for an approved request whose
-account is enabled and still has no password. It checks authorization before
-Argon2, releases the read transaction while hashing, then locks and rechecks
+account is enabled and still has no password, before the original request
+deadline. It checks authorization before Argon2, releases the read transaction
+while hashing, then locks and rechecks
 the request and user. Password storage and token revocation commit together.
 Concurrent enrollments cannot replace the winning password; a suspended account
 or operator-provisioned password cannot be overridden through this path. It
@@ -131,8 +132,8 @@ and returns only live review-pending requests, ordered by increasing row ID. Its
 cursor is the last returned ID; pages default to 50 and are capped at 200.
 Reading neither sweeps expiry nor commits the caller's transaction. Rows may
 change between pages; decisions must recheck state and deadlines. The queue
-reads applicant metadata only, with no library or credential access. It has no
-public endpoint yet.
+reads applicant metadata only, with no library or credential access. The
+administrator endpoint exposes this bounded queue.
 
 Applicant access has its own nullable digest/expiry pair on the request, separate
 from mailbox proofs and account sessions. Digests are unique; both fields must
@@ -156,11 +157,10 @@ the reservation, initial applicant-token digest and due-reservation cleanup in
 one transaction, returning the raw token only after success. Failure rolls back
 all three and leaves the identity available for retry. Internal composition
 stages these writes without committing; callers must finish or roll back the
-transaction. Replacements must authenticate the applicant before wiring public callers.
-Delivery to the submitting browser and recovery from a lost response still need
-public-flow integration; database atomicity alone cannot guarantee receipt.
-The applicant read/cancel/logout routes below use these helpers, but no public
-submission or replacement issuer is enabled yet.
+transaction. The public submission flow discards the initial applicant token
+and delivers a one-use mailbox proof instead. Only consuming that proof grants
+applicant access; resubmission and authenticated resend provide budgeted recovery
+from a lost response without granting an ordinary account session.
 
 `GET /web/registration` reads only the request named by the separate
 `altero_applicant` cookie, returning ID/state/deadline with `Cache-Control:
@@ -171,8 +171,8 @@ derived from the applicant credential with a domain-separated HMAC. Unsafe
 cookie and `X-CSRF-Token`; an attacker-chosen matching pair is insufficient.
 Cancellation repeats token/state/deadline checks in its write and returns 409
 if the request can no longer be cancelled. Logout revokes applicant access and
-clears only its cookies, leaving any account session intact. Future submission
-must set the applicant credential HttpOnly, SameSite=Lax and Secure over HTTPS,
+clears only its cookies, leaving any account session intact. Mailbox verification
+sets the applicant credential HttpOnly, SameSite=Lax and Secure over HTTPS,
 with path `/web/registration`; the CSRF cookie uses `/` for the interface to read.
 With registration approval explicitly enabled, `POST /web/registration/apply`
 accepts details without a password and returns a generic 202 without cookies.
@@ -213,7 +213,7 @@ share the same counters. Equality with the window deadline resets a bucket;
 refusal does not prolong its window. Failed mail delivery and worker crashes
 do not refund an admitted attempt. Exhaustion returns 429 and `Retry-After`.
 The public submission path uses these budgets before attempting mail delivery.
-The internal mailbox-first orchestration spends five submissions per source
+The mailbox-first orchestration spends five submissions per source
 address/hour, 100 submissions per instance/hour, one message per recipient/minute
 and five messages per recipient/day by default. New requests, duplicate details
 and recovery attempts use the same buckets. Acknowledgment returns no token or

@@ -331,7 +331,7 @@ Email uses:
 - `ALTERO_MAIL_FROM`; and
 - `ALTERO_PUBLIC_URL`.
 
-Without an SMTP relay, most messages are written to the log instead. Self-service password reset is the exception: it is not enabled without a relay because a password-reset link must not be exposed in server logs.
+Without an SMTP relay, most messages are written to the log instead. Self-service password reset and approval-based registration require a relay and a public URL; their links never fall back to server logs.
 
 See [Email](email.md) for relay URLs, Docker details, security notices and group digests.
 

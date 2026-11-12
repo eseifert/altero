@@ -26,7 +26,9 @@ Deleting a group permanently removes its library; there is no group Trash.
 A group administrator can invite someone by email and choose their role and
 permissions. Existing users with that confirmed address see the invitation in
 notifications. An emailed invitation link also lets someone register before
-accepting, even when general registration is closed.
+accepting, even when general registration is closed. If approval-based
+registration is enabled, mailbox verification and administrator approval come
+before password setup and accepting the invitation.
 
 Open the invitation and sign in or register with the address it names. Accept
 or decline it on that screen. Without the invitation link, confirm your email

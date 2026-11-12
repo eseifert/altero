@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-## [1.0.0-rc.1] — 2026-11-12
+## [1.0.0-rc.1] — 2026-11-13
 
 The first release candidate adds optional email-verified self-registration with
 administrator approval. Feature work is now frozen for 1.0.0; remaining changes
@@ -33,7 +33,7 @@ catalogs; the wider translation review remains deferred.
 - Separate i18n behavior tests from catalog validation; keep missing translations visible as warnings.
 - Preserve populated upgrades from every beta on SQLite and PostgreSQL, including files and repeat startup.
 - Exclude local browser diagnostics, credentials and build output from source releases.
-- Simplify documentation for users, operators and contributors; keep recorded checks in release history.
+- Update user and operator guides for rc.1, including registration and backup guidance.
 
 ## [1.0.0-beta.8] — 2026-11-08
 

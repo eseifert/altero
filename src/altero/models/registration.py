@@ -23,7 +23,7 @@ class RegistrationRequest(Base):
 
     An ID identifies a row; it proves no identity and authenticates no request.
     No password, account session, library or library credential belongs to an applicant.
-    The public gated-registration workflow is not enabled yet.
+    The opt-in public workflow authenticates applicants separately from accounts.
     """
 
     __tablename__ = "registration_requests"

@@ -4,7 +4,9 @@ This guide runs altero locally and connects a test Zotero Desktop profile.
 For an existing server, go straight to [Connecting a Zotero client](clients.md).
 
 > [!WARNING]
-> Use a separate Zotero profile or a library you can recreate. Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
+> This is the first release candidate for 1.0.0, ready for final testing before
+> the stable release. Keep current backups of your libraries. Back up the server
+> database and attachment storage together before upgrading.
 
 ## 1. Start altero
 
@@ -27,6 +29,8 @@ For source installation, Podman, or a server other people can reach, see
 
 Open <http://localhost:8000/app/> and register. The first account administers
 the instance; public registration then closes unless an administrator enables it.
+Claim this account before exposing a fresh instance publicly. For additional
+users, operators can enable [verified-email requests and approval](administration.md#review-registration-requests).
 
 Alternatively, create an account from the shell:
 

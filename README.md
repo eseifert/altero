@@ -2,6 +2,10 @@
 
 **Your Zotero library. Your server.**
 
+**Release candidate: 1.0.0-rc.1.** Feature work is frozen for 1.0.0;
+remaining changes are fixes, documentation and translations. See the
+[release notes](CHANGELOG.md) and [validation record](docs/release-history.md#release-candidate-1-validation).
+
 [![CI](https://github.com/eseifert/altero/actions/workflows/ci.yml/badge.svg)](https://github.com/eseifert/altero/actions/workflows/ci.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-006a6a)](LICENSE)
 [![Python 3.14+](https://img.shields.io/badge/python-3.14%2B-006a6a)](https://www.python.org/)
@@ -17,10 +21,13 @@ collections and accounts alongside it.
 - Use SQLite for a small installation or PostgreSQL for concurrent users.
 - Share collections by link and manage group membership and permissions.
 - Set up institutional sign-in and limited access for other applications.
+- Offer verified-email account requests with administrator approval, domain restrictions and durable abuse limits.
 - Run one application, one database and one attachment directory.
 
 > [!WARNING]
-> Keep a current backup of important libraries and don’t rely on altero as your only copy yet. Try it with a separate Zotero profile or a library you can recreate.
+> This is the first release candidate for 1.0.0, ready for final testing before
+> the stable release. Keep current backups of your libraries. Back up the server
+> database and attachment storage together before upgrading.
 
 ## Try it locally
 
@@ -33,7 +40,8 @@ docker compose up -d
 ```
 
 Open <http://localhost:8000/app/> and register the first account. That account
-administers the instance. The default image tag is `latest`, including prereleases.
+administers the instance. Claim it before exposing a fresh instance publicly.
+The default image tag is `latest`, including prereleases.
 
 > [!IMPORTANT]
 > Set the streaming URL too. Leaving it unchanged can send your altero API key to zotero.org. A profile that has synced before also needs [special handling](https://altero.run/latest/clients/#a-profile-that-has-synced-before).

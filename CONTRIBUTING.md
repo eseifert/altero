@@ -298,6 +298,9 @@ The [workflow](.github/workflows/docs.yml) defines the publication rules.
 
 ## Preparing a release
 
+The prepared candidate is **1.0.0-rc.1** (`1.0.0rc1` in Python). It remains
+a prerelease with the Beta classifier; the maintainer signs the release tag.
+
 1. Set matching versions in `src/altero/__init__.py`, `web/package.json` and both root entries of `web/package-lock.json`. Use Python's PEP 440 spelling and the corresponding SemVer spelling. Update the release-stage classifier in `pyproject.toml`; its version is dynamic and `uv.lock` has no project version.
 2. Move unreleased changes into a dated changelog section, leaving an empty **Unreleased** heading. Add the release link. Keep changelog list items consecutive. Update guides for changed behavior without adding a current-release announcement to each one.
 3. Set `release_tag` to the intended tag, then run the checks below with disposable PostgreSQL and identity providers configured.
@@ -312,7 +315,10 @@ The [workflow](.github/workflows/docs.yml) defines the publication rules.
    uv run zensical build --strict
    npm --prefix web run typecheck
    npm --prefix web test
+   npm --prefix web run i18n:check
    npm --prefix web run build
+   npm --prefix web run e2e
+   npm --prefix web run e2e:registration
    release_artifacts=$(mktemp -d /tmp/altero-release.XXXXXX)
    uv build --out-dir "$release_artifacts"
    uv run python tools/release.py --tag "$release_tag" --artifacts "$release_artifacts"

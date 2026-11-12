@@ -8,8 +8,9 @@ acceptance runs on Linux. Basic sync has community reports on Windows and
 macOS; broader conflict and recovery coverage on those platforms remains
 unverified. Mobile apps need a separate build pointed at your server.
 
-Keep a current backup of important libraries and don’t rely on altero as your
-only copy yet. Recorded results and their limits are in
+The release candidate is ready for final testing before 1.0.0 stable. Keep
+current backups of your libraries, and back up the server database and attachment
+storage together before upgrading. Recorded results and their limits are in
 [desktop compatibility checks](client-compatibility.md),
 [Podman testing](testing-podman.md#recorded-run) and
 [release validation history](release-history.md).

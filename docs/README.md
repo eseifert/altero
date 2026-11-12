@@ -3,8 +3,14 @@
 altero lets you synchronize Zotero libraries on a server you control. Use
 Zotero Desktop, the browser interface, or both.
 
+This documentation covers **1.0.0-rc.1**. See the
+[release validation record](release-history.md#release-candidate-1-validation)
+for the checks completed and their limits.
+
 > [!WARNING]
-> Keep a current backup of important libraries and don’t rely on altero as your only copy yet.
+> This is the first release candidate for 1.0.0, ready for final testing before
+> the stable release. Keep current backups of your libraries. Back up the server
+> database and attachment storage together before upgrading.
 
 ## Find your guide
 
