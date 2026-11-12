@@ -68,7 +68,7 @@ clears the proof and moves the request to review; concurrent consumers have one
 winner. Cancellation, expiry and trusted verification recording also clear any
 outstanding token. A failed transaction preserves the earlier link and lifecycle
 state together. These helpers send no mail and grant no account or library access;
-mail policy, resend limits and applicant authorization still need caller integration.
+delivery, resend limits and applicant authorization still need caller integration.
 
 The internal gated-registration policy requires configured SMTP and an absolute
 HTTP(S) `public_url`, and refuses SSO-only mode. It retains neither the settings
@@ -80,6 +80,13 @@ domain's ASCII punycode spelling in both the policy and the address. Existing
 account address handling is unchanged. Mailbox verification proves control of
 an address, not current institutional membership. This internal policy has no
 operator setting or public caller yet, and does not prove the relay is reachable.
+Submission and trusted verification recording require this policy explicitly.
+Proof issuance and consumption apply its current domain ceiling in their
+conditional updates, so a link issued under an older allowlist cannot advance
+an ineligible request. Refused issuance leaves the earlier link intact; refused
+consumption does not spend it. Restoring eligibility can make a still-live link
+usable again. Cancellation and expiry remain available without an admission
+policy. Final activation must recheck the policy as well as identity availability.
 
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the

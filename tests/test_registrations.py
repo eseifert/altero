@@ -11,8 +11,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.errors import ForbiddenError, InvalidInputError
 from altero.models import RegistrationRequest, RegistrationStatus, User
 from altero.services import admin, registrations
+from tests.test_registration_policy import policy
 
 NOW = datetime(2026, 11, 9, 12)
+POLICY = policy()
 
 
 async def submit(session: AsyncSession, **changes: object) -> RegistrationRequest:
@@ -22,6 +24,7 @@ async def submit(session: AsyncSession, **changes: object) -> RegistrationReques
         session,
         **{
             "enabled": True,
+            "policy": POLICY,
             "username": "Ada",
             "email": "ada@example.org",
             "expires": NOW + timedelta(days=1),
@@ -152,12 +155,14 @@ async def test_email_verification_is_bound_to_the_address_and_cannot_be_replayed
     verify = getattr(registrations, "record_email_verification", None)
     assert callable(verify), "Verified-mailbox recording must be implemented"
     moment = NOW + timedelta(hours=1)
-    assert await verify(session, record.id, " ADA@EXAMPLE.ORG ", now=moment)
+    assert await verify(session, record.id, " ADA@EXAMPLE.ORG ", now=moment, policy=POLICY)
     await session.refresh(record)
     assert record.status == RegistrationStatus.REVIEW_PENDING
     assert record.email_verified == moment
     assert record.expires == NOW + timedelta(days=1)
-    assert not await verify(session, record.id, record.email, now=moment + timedelta(hours=1))
+    assert not await verify(
+        session, record.id, record.email, now=moment + timedelta(hours=1), policy=POLICY
+    )
     await session.refresh(record)
     assert record.email_verified == moment
 
@@ -165,7 +170,7 @@ async def test_email_verification_is_bound_to_the_address_and_cannot_be_replayed
 async def test_a_different_address_cannot_advance_a_request(session: AsyncSession) -> None:
     record = await submit(session)
     assert not await registrations.record_email_verification(
-        session, record.id, "different@example.org", now=NOW
+        session, record.id, "different@example.org", now=NOW, policy=POLICY
     )
     await session.refresh(record)
     assert record.status == RegistrationStatus.EMAIL_PENDING
@@ -178,7 +183,7 @@ async def test_verification_at_or_after_expiry_cannot_advance_a_request(
 ) -> None:
     record = await submit(session)
     assert not await registrations.record_email_verification(
-        session, record.id, record.email, now=record.expires + late
+        session, record.id, record.email, now=record.expires + late, policy=POLICY
     )
     await session.refresh(record)
     assert record.status == RegistrationStatus.EXPIRED
@@ -192,7 +197,7 @@ async def test_cancellation_releases_both_reservations_without_erasing_proof(
     record = await submit(session)
     if verified:
         assert await registrations.record_email_verification(
-            session, record.id, record.email, now=NOW
+            session, record.id, record.email, now=NOW, policy=POLICY
         )
     assert await registrations.cancel(session, record.id, now=NOW)
     assert not await registrations.cancel(session, record.id, now=NOW)
@@ -213,7 +218,7 @@ async def test_cancellation_does_not_relabel_an_expired_request(session: AsyncSe
 async def test_missing_request_ids_authorize_no_transition(session: AsyncSession) -> None:
     assert not await registrations.cancel(session, 999, now=NOW)
     assert not await registrations.record_email_verification(
-        session, 999, "ada@example.org", now=NOW
+        session, 999, "ada@example.org", now=NOW, policy=POLICY
     )
 
 
@@ -239,7 +244,7 @@ async def test_terminal_history_cannot_be_reopened_or_relabelled(
         record.user_id = 8
     await session.commit()
     assert not await registrations.record_email_verification(
-        session, record.id, record.email, now=NOW
+        session, record.id, record.email, now=NOW, policy=POLICY
     )
     assert not await registrations.cancel(session, record.id, now=NOW)
     assert await registrations.expire(session, now=NOW + timedelta(days=2)) == 0
@@ -257,7 +262,7 @@ async def test_two_verification_workers_record_one_proof(
     async def worker() -> bool:
         async with app.state.database.session_factory() as other:
             return await registrations.record_email_verification(
-                other, record.id, record.email, now=NOW
+                other, record.id, record.email, now=NOW, policy=POLICY
             )
 
     assert sum(await asyncio.gather(worker(), worker())) == 1
@@ -273,7 +278,7 @@ async def test_cancellation_wins_a_race_with_verification(
     async def verify() -> bool:
         async with app.state.database.session_factory() as other:
             return await registrations.record_email_verification(
-                other, record.id, record.email, now=NOW
+                other, record.id, record.email, now=NOW, policy=POLICY
             )
 
     async def cancel() -> bool:
@@ -304,10 +309,11 @@ async def test_expiry_cleanup_and_transition_share_one_commit(
     arguments = (
         [current.id, current.email] if operation == "record_email_verification" else [current.id]
     )
+    options = {"policy": POLICY} if operation == "record_email_verification" else {}
     with monkeypatch.context() as patch:
         patch.setattr(session, "scalar", fail)
         with pytest.raises(RuntimeError, match="Injected"):
-            await function(session, *arguments, now=NOW)
+            await function(session, *arguments, now=NOW, **options)
     await session.rollback()
     await session.refresh(old)
     await session.refresh(current)

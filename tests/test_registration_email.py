@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import RegistrationRequest, RegistrationStatus, User
 from altero.services import registrations
-from tests.test_registrations import NOW, submit
+from tests.test_registrations import NOW, POLICY, submit
 
 
 async def issue(
@@ -19,13 +19,13 @@ async def issue(
 ) -> tuple[str, str] | None:
     function = getattr(registrations, "issue_email_verification", None)
     assert callable(function), "Pending registration mailbox proof issuance must be implemented"
-    return await function(session, request_id, **{"now": NOW, **changes})
+    return await function(session, request_id, **{"now": NOW, "policy": POLICY, **changes})
 
 
 async def consume(session: AsyncSession, token: str, **changes: object) -> bool:
     function = getattr(registrations, "consume_email_verification", None)
     assert callable(function), "Pending registration mailbox proof consumption must be implemented"
-    return await function(session, token, **{"now": NOW, **changes})
+    return await function(session, token, **{"now": NOW, "policy": POLICY, **changes})
 
 
 async def token_for(session: AsyncSession, record: RegistrationRequest) -> str:
@@ -142,7 +142,8 @@ async def test_other_transitions_revoke_outstanding_proofs(
     arguments = (
         [record.id, record.email] if transition == "record_email_verification" else [record.id]
     )
-    assert await getattr(registrations, transition)(session, *arguments, now=NOW)
+    options = {"policy": POLICY} if transition == "record_email_verification" else {}
+    assert await getattr(registrations, transition)(session, *arguments, now=NOW, **options)
     assert not await consume(session, token)
     await session.refresh(record)
     assert (

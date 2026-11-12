@@ -9,14 +9,16 @@ operator may provision an account while somebody has a pending reservation.
 import secrets
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import case, func, or_, select, update
+from sqlalchemy import case, func, or_, select, true, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from altero.db import UNICODE_LOWER
 from altero.errors import ForbiddenError, InvalidInputError
 from altero.models import RegistrationRequest, RegistrationStatus, User
 from altero.services import emailverify, webauth
+from altero.services.registrationpolicy import RegistrationPolicy
 
 PENDING = (RegistrationStatus.EMAIL_PENDING, RegistrationStatus.REVIEW_PENDING)
 UNAVAILABLE = "That username or email address is unavailable"
@@ -34,6 +36,22 @@ def _now() -> datetime:
 
 def _utc(moment: datetime) -> datetime:
     return moment if moment.tzinfo is None else moment.astimezone(UTC).replace(tzinfo=None)
+
+
+def _require_policy(policy: RegistrationPolicy | None) -> RegistrationPolicy:
+    if policy is None:
+        raise ForbiddenError("Gated registration requires an explicit eligibility policy")
+    return policy
+
+
+def _eligible(policy: RegistrationPolicy) -> ColumnElement[bool]:
+    # Addresses are normalized before storage. Match the entire domain, with
+    # its @ boundary, within the conditional write that changes the request.
+    return (
+        or_(*(RegistrationRequest.email.endswith("@" + d) for d in policy.allowed_domains))
+        if policy.allowed_domains
+        else true()
+    )
 
 
 async def _expire_due(session: AsyncSession, moment: datetime) -> int:
@@ -68,6 +86,7 @@ async def submit(
     expires: datetime,
     display_name: str = "",
     enabled: bool = False,
+    policy: RegistrationPolicy | None = None,
     now: datetime | None = None,
 ) -> RegistrationRequest:
     """Reserve an applicant's name/address, only with explicit internal opt-in.
@@ -77,11 +96,12 @@ async def submit(
     """
     if not enabled:
         raise ForbiddenError("Gated registration is not enabled")
+    rules = _require_policy(policy)
     name = webauth.validate_username(username)
     display = display_name.strip() or name
     if len(name) > 255 or len(display) > 255:
         raise InvalidInputError("Username and display name must be at most 255 characters")
-    address = emailverify.normalise(email)
+    address = rules.address(email)
     if any("\x00" in value for value in (name, display, address)):
         raise InvalidInputError("Registration fields may not contain null characters")
     moment, deadline = _utc(now or _now()), _utc(expires)
@@ -127,7 +147,12 @@ async def submit(
 
 
 async def record_email_verification(
-    session: AsyncSession, request_id: int, email: str, *, now: datetime | None = None
+    session: AsyncSession,
+    request_id: int,
+    email: str,
+    *,
+    policy: RegistrationPolicy | None = None,
+    now: datetime | None = None,
 ) -> bool:
     """Record a mailbox proof consumed by a trusted caller in this same session.
 
@@ -135,9 +160,7 @@ async def record_email_verification(
     and address supplied by an applicant are not proof. Related token-consumption
     writes commit with this transition; no public route calls this primitive yet.
     """
-    address = emailverify.normalise(email)
-    if "\x00" in address:
-        raise InvalidInputError("Registration fields may not contain null characters")
+    address = _require_policy(policy).address(email)
     moment = _utc(now or _now())
     await _expire_due(session, moment)
     key = await session.scalar(
@@ -185,15 +208,20 @@ async def cancel(session: AsyncSession, request_id: int, *, now: datetime | None
 
 
 async def issue_email_verification(
-    session: AsyncSession, request_id: int, *, now: datetime | None = None
+    session: AsyncSession,
+    request_id: int,
+    *,
+    policy: RegistrationPolicy | None = None,
+    now: datetime | None = None,
 ) -> tuple[str, str] | None:
     """Replace a live request's proof and return its (recipient, raw token).
 
     Only the digest is stored. Send to the returned recipient, not an address
     supplied separately by an applicant. This is an internal primitive: the
-    trusted caller must enforce mail policy, applicant authorization and resend
-    budgets before using it. No public route or mail sender calls it yet.
+    trusted caller must supply the current policy and enforce applicant
+    authorization and resend budgets. No public route or mail sender calls it yet.
     """
+    rules = _require_policy(policy)
     moment = _utc(now or _now())
     await _expire_due(session, moment)
     deadline = moment + EMAIL_PROOF_LIFETIME
@@ -204,6 +232,7 @@ async def issue_email_verification(
             RegistrationRequest.id == request_id,
             RegistrationRequest.status == RegistrationStatus.EMAIL_PENDING,
             RegistrationRequest.expires > moment,
+            _eligible(rules),
         )
         .values(
             email_token_hash=emailverify.hash_token(token),
@@ -220,7 +249,11 @@ async def issue_email_verification(
 
 
 async def consume_email_verification(
-    session: AsyncSession, token: str, *, now: datetime | None = None
+    session: AsyncSession,
+    token: str,
+    *,
+    policy: RegistrationPolicy | None = None,
+    now: datetime | None = None,
 ) -> bool:
     """Atomically spend an address-bound mailbox link and advance to review.
 
@@ -230,6 +263,7 @@ async def consume_email_verification(
     """
     if not token:
         return False
+    rules = _require_policy(policy)
     moment = _utc(now or _now())
     await _expire_due(session, moment)
     key = await session.scalar(
@@ -240,6 +274,7 @@ async def consume_email_verification(
             RegistrationRequest.email_token_expires > moment,
             RegistrationRequest.status == RegistrationStatus.EMAIL_PENDING,
             RegistrationRequest.expires > moment,
+            _eligible(rules),
         )
         .values(
             status=RegistrationStatus.REVIEW_PENDING, email_verified=moment, **_CLEAR_EMAIL_TOKEN
