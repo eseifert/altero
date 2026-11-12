@@ -10,6 +10,19 @@
  */
 
 export default {
+  "Registration approved.": "Registration approved.",
+  "Registration rejected.": "Registration rejected.",
+  "Only verified requests appear here. Approval creates an account; the applicant then chooses a password.": "Only verified requests appear here. Approval creates an account; the applicant then chooses a password.",
+  "Refresh": "Refresh",
+  "No requests await approval.": "No requests await approval.",
+  "Created {date}": "Created {date}",
+  "Review": "Review",
+  "Approve": "Approve",
+  "Reject": "Reject",
+  "First page": "First page",
+  "Next page": "Next page",
+  "Registration requests": "Registration requests",
+
   "Your account is ready": "Your account is ready",
   "Confirm your email address": "Confirm your email address",
   "Awaiting administrator approval": "Awaiting administrator approval",
@@ -25,7 +38,6 @@ export default {
   "Sign out and sign in": "Sign out and sign in",
   "An administrator must approve your request before you can use a library.": "An administrator must approve your request before you can use a library.",
   "Request deadline: {date}": "Request deadline: {date}",
-  "Password": "Password",
   "Contact the administrator to finish setting up this account.": "Contact the administrator to finish setting up this account.",
   "Check status": "Check status",
   "Cancel request": "Cancel request",
@@ -33,7 +45,6 @@ export default {
   "Check your email": "Check your email",
   "If these details can be used, an email will explain the next step.": "If these details can be used, an email will explain the next step.",
   "If no message arrives, wait a minute and submit the same details again.": "If no message arrives, wait a minute and submit the same details again.",
-  "Back": "Back",
   "Request an account": "Request an account",
   "Your email must be verified and an administrator must approve the request.": "Your email must be verified and an administrator must approve the request.",
   "Allowed email domains: {domains}": "Allowed email domains: {domains}",

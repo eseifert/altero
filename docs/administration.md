@@ -114,6 +114,22 @@ Browser registration is available only when one of these conditions applies:
 - `ALTERO_OPEN_REGISTRATION` enables registration; or
 - the email address has been invited to a group.
 
+With `ALTERO_REGISTRATION_APPROVAL=true`, the latter two open an application
+instead of creating an account. Configure SMTP and `ALTERO_PUBLIC_URL` first;
+see [registration settings](configuration.md). The first owner remains an
+explicit setup exception. Administrator and CLI account creation are trusted
+provisioning paths and do not enter this queue.
+
+### Review registration requests
+
+Open **Administration → Registration requests**. Only requests with a verified
+mailbox appear. Choose **Review**, check the address and username, then
+**Approve** or **Reject**. Approval requires recent identity confirmation and
+rechecks the current domain policy. It creates a regular, passwordless account;
+the applicant chooses a password from their status page before signing in.
+Approval sends no notification: the page checks its status periodically and a
+replacement link can resume it. No library or file is exposed during review.
+
 ### Password reset
 
 An administrator can either set a password or issue a single-use link that lets the account holder choose a new one.

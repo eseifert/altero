@@ -16,14 +16,17 @@ import { useI18n } from 'vue-i18n'
 import { useRoute } from 'vue-router'
 
 import SectionPanel, { type PanelSection } from '@/components/SectionPanel.vue'
+import { useAuthStore } from '@/stores/auth'
 import AccountsSection from './admin/AccountsSection.vue'
 import OverviewSection from './admin/OverviewSection.vue'
 import ProvidersSection from './admin/ProvidersSection.vue'
 import RetentionSection from './admin/RetentionSection.vue'
+import RegistrationsSection from './admin/RegistrationsSection.vue'
 import StorageSection from './admin/StorageSection.vue'
 import { providePanel } from './admin/panel'
 
 const { t } = useI18n()
+const auth = useAuthStore()
 
 const route = useRoute()
 const { notice, failure } = providePanel()
@@ -52,16 +55,19 @@ const SECTIONS: PanelSection[] = [
   },
 ]
 
-const current = computed(
-  () => SECTIONS.find((section) => section.slug === route.params.section) ?? SECTIONS[0],
-)
+const sections = computed(() => auth.registrationApproval ? [
+  ...SECTIONS.slice(0, 3),
+  { slug: 'registrations', icon: 'accounts', label: () => t('Registration requests'), component: RegistrationsSection },
+  ...SECTIONS.slice(3),
+] : SECTIONS)
+const current = computed(() => sections.value.find((section) => section.slug === route.params.section) ?? sections.value[0])
 </script>
 
 <template>
   <SectionPanel
     :title="t('Administration')"
     route-name="admin"
-    :sections="SECTIONS"
+    :sections="sections"
     :current="current"
     :notice="notice"
     :failure="failure"
