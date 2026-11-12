@@ -36,6 +36,7 @@ from altero.services import (
     locales,
     logincodes,
     notifications,
+    passwords,
     reauth,
 )
 
@@ -275,6 +276,7 @@ async def change_password(
         keep=record,
         record=record,
         notify=request.app.state.mailer.send,
+        password_policy=passwords.PasswordPolicy.from_settings(request.app.state.settings),
     )
     return Response(status_code=204)
 

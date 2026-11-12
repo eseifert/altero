@@ -115,6 +115,7 @@ async def register(
     email: str,
     display_name: str = "",
     allow_registration: bool = False,
+    password_policy: passwords.PasswordPolicy | None = None,
 ) -> User:
     """Create an account and its personal library, with a password and address.
 
@@ -127,7 +128,7 @@ async def register(
     # Everything is validated before the user is created, so a refused
     # password or a mistyped address does not leave a half-made account behind.
     address = emailverify.normalise(email)
-    passwords.validate_password(password)
+    passwords.validate_password(password, policy=password_policy)
 
     # Checked with the address in hand, because an invitation to it is one of
     # the three things that opens the door.
@@ -143,7 +144,7 @@ async def register(
     )
     user.email = address
     await session.commit()
-    await set_password(session, user, password)
+    await set_password(session, user, password, policy=password_policy)
     return user
 
 
@@ -154,6 +155,7 @@ async def set_password(
     *,
     keep: WebSession | None = None,
     notify: Notifier | None = None,
+    policy: passwords.PasswordPolicy | None = None,
 ) -> None:
     """Set ``user``'s password and end their other sessions.
 
@@ -165,7 +167,7 @@ async def set_password(
     the thing that turns a silent takeover into a noticed one, which is why it
     is sent here rather than left to the caller to remember.
     """
-    passwords.validate_password(password)
+    passwords.validate_password(password, policy=policy)
     user.password_hash = passwords.hash_password(password)
     user.password_changed = datetime.now(UTC).replace(tzinfo=None)
     await session.commit()

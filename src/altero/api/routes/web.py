@@ -302,6 +302,7 @@ async def read_config(request: Request, session: SessionDep, sso_only: SsoOnlyDe
             # relay does not show a form that can only ever answer 202 and
             # send nothing.
             "passwordResetOpen": _reset_allowed(request),
+            "passwordMinimumLength": request.app.state.settings.password_min_length,
             # The directories this instance accepts a sign-in from, so the
             # page can draw a button per provider. Three fields each and
             # nothing about how any of them is configured -- this answers to
@@ -324,6 +325,7 @@ async def register(session: SessionDep, request: Request, body: Registration) ->
         email=body.email,
         display_name=body.display_name,
         allow_registration=request.app.state.settings.open_registration,
+        password_policy=passwords.PasswordPolicy.from_settings(request.app.state.settings),
     )
     await _send_verification(request, session, user)
     token, _ = await websessions.create(
@@ -609,7 +611,9 @@ async def read_reset(session: SessionDep, token: str) -> Response:
 
 
 @router.post("/auth/reset", dependencies=[Depends(require_local_auth)])
-async def complete_reset(session: SessionDep, body: Annotated[NewPassword, Body()]) -> Response:
+async def complete_reset(
+    request: Request, session: SessionDep, body: Annotated[NewPassword, Body()]
+) -> Response:
     """Set a password from a link an administrator issued.
 
     The token is checked first and spent only once the new password has been
@@ -620,10 +624,11 @@ async def complete_reset(session: SessionDep, body: Annotated[NewPassword, Body(
     this goes through the same `set_password` a change in settings does.
     """
     user = await passwordreset.resolve(session, body.token)
-    passwords.validate_password(body.password)
+    policy = passwords.PasswordPolicy.from_settings(request.app.state.settings)
+    passwords.validate_password(body.password, policy=policy)
 
     await passwordreset.consume(session, body.token)
-    await webauth.set_password(session, user, body.password)
+    await webauth.set_password(session, user, body.password, policy=policy)
     return JSONResponse({"username": user.username})
 
 

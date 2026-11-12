@@ -33,6 +33,7 @@ interface AuthResponse {
 }
 
 interface ServerConfig {
+  passwordMinimumLength: number
   ssoOnly: boolean
   version: string
   apiVersion: number
@@ -94,6 +95,7 @@ export const useAuthStore = defineStore('auth', () => {
   const ready = ref(false)
   const ssoOnly = ref(false)
   const registrationOpen = ref(false)
+  const passwordMinimumLength = ref(8)
   /** True while the instance has no users, which is a different sentence. */
   const firstAccount = ref(false)
   /**
@@ -181,6 +183,7 @@ export const useAuthStore = defineStore('auth', () => {
       const config = await request<ServerConfig>('/web/config')
       ssoOnly.value = config.ssoOnly ?? false
       registrationOpen.value = config.registrationOpen
+      passwordMinimumLength.value = config.passwordMinimumLength ?? 8
       firstAccount.value = config.firstAccount
       passwordResetOpen.value = config.passwordResetOpen
       providers.value = config.providers ?? []
@@ -306,6 +309,7 @@ export const useAuthStore = defineStore('auth', () => {
     ready,
     ssoOnly,
     registrationOpen,
+    passwordMinimumLength,
     firstAccount,
     passwordResetOpen,
     providers,

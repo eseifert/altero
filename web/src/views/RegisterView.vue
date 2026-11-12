@@ -9,10 +9,8 @@ import { useAuthStore } from '@/stores/auth'
 
 const { t } = useI18n()
 
-/** Mirrors the server's floor so the form can say so before a round trip. */
-const MINIMUM_PASSWORD_LENGTH = 8
-
 const auth = useAuthStore()
+const minimumPasswordLength = computed(() => auth.passwordMinimumLength)
 const router = useRouter()
 const route = useRoute()
 
@@ -44,10 +42,10 @@ const mismatch = computed(
   () => touched.value && repeated.value.length > 0 && password.value !== repeated.value,
 )
 const tooShort = computed(
-  () => touched.value && password.value.length > 0 && password.value.length < MINIMUM_PASSWORD_LENGTH,
+  () => touched.value && password.value.length > 0 && password.value.length < minimumPasswordLength.value,
 )
 const submittable = computed(
-  () => password.value.length >= MINIMUM_PASSWORD_LENGTH && password.value === repeated.value,
+  () => password.value.length >= minimumPasswordLength.value && password.value === repeated.value,
 )
 
 async function submit(): Promise<void> {
@@ -103,9 +101,9 @@ async function submit(): Promise<void> {
       type="password"
       autocomplete="new-password"
       required
-      :hint="t('At least {count} characters', { count: MINIMUM_PASSWORD_LENGTH })"
+      :hint="t('At least {count} characters', { count: minimumPasswordLength })"
       :error="
-        tooShort ? t('A password must be at least {count} characters', { count: MINIMUM_PASSWORD_LENGTH }) : null
+        tooShort ? t('A password must be at least {count} characters', { count: minimumPasswordLength }) : null
       "
     />
     <AppTextField

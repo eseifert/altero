@@ -30,6 +30,7 @@ from altero.services import (
     emailverify,
     locales,
     logincodes,
+    passwords,
     reauth,
     totp,
     webauth,
@@ -140,12 +141,15 @@ async def change_password(
     keep: WebSession | None = None,
     record: WebSession | None = None,
     notify: Notifier | None = None,
+    password_policy: passwords.PasswordPolicy | None = None,
 ) -> None:
     """Replace the password, keeping only the session that did it."""
     await require_proof(session, user, record, password=current_password)
     if new_password == current_password:
         raise InvalidInputError("The new password is the same as the old one")
-    await webauth.set_password(session, user, new_password, keep=keep, notify=notify)
+    await webauth.set_password(
+        session, user, new_password, keep=keep, notify=notify, policy=password_policy
+    )
 
 
 async def request_email_change(

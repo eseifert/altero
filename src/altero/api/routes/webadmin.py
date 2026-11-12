@@ -331,7 +331,8 @@ async def create_account(
     # behind -- the same order `webauth.register` takes.
     username = webauth.validate_username(body.username)
     address = emailverify.normalise(body.email) if body.email else None
-    passwords.validate_password(body.password)
+    policy = passwords.PasswordPolicy.from_settings(request.app.state.settings)
+    passwords.validate_password(body.password, policy=policy)
     if address and await session.scalar(select(User).where(func.lower(User.email) == address)):
         raise InvalidInputError("That email address is already registered")
 
@@ -342,7 +343,7 @@ async def create_account(
         user.email = address
         await session.commit()
 
-    await webauth.set_password(session, user, body.password)
+    await webauth.set_password(session, user, body.password, policy=policy)
     if body.administrator:
         await admin.set_administrator(session, user, administrator=True)
 
@@ -387,6 +388,7 @@ async def change_account(
     "/users/{user_id}/password", status_code=204, dependencies=[Depends(require_local_auth)]
 )
 async def set_account_password(
+    request: Request,
     sso_only: SsoOnlyDep,
     session: SessionDep,
     admin_user: AdministratorDep,
@@ -407,7 +409,12 @@ async def set_account_password(
     )
     user = await _account(session, user_id)
 
-    await webauth.set_password(session, user, body.password)
+    await webauth.set_password(
+        session,
+        user,
+        body.password,
+        policy=passwords.PasswordPolicy.from_settings(request.app.state.settings),
+    )
     return Response(status_code=204)
 
 

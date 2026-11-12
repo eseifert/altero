@@ -290,6 +290,7 @@ describe('the auth store', () => {
     it('learns whether registration is open', async () => {
       requestMock.mockResolvedValue({
         registrationOpen: true,
+        passwordMinimumLength: 24,
         secondFactors: ['totp'],
         version: '0.1.0',
       })
@@ -298,6 +299,7 @@ describe('the auth store', () => {
       await auth.loadConfig()
 
       expect(auth.registrationOpen).toBe(true)
+      expect(auth.passwordMinimumLength).toBe(24)
     })
 
     it('is asked for once however many screens want it', async () => {
