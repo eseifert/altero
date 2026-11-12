@@ -101,8 +101,10 @@ def test_the_distributed_version_must_match_the_tag(tmp_path: Path) -> None:
 def test_password_policy_resources_must_ship_in_both_artifacts(
     tmp_path: Path, resource: str, target: str
 ) -> None:
-    omissions = (
-        {"missing_wheel": resource} if target == "wheel" else {"missing_source": f"src/{resource}"}
+    directory = (
+        artifacts(tmp_path, missing_wheel=resource)
+        if target == "wheel"
+        else artifacts(tmp_path, missing_source=f"src/{resource}")
     )
     with pytest.raises(ValueError, match="password policy resource"):
-        check_artifacts(artifacts(tmp_path, **omissions), TAG)
+        check_artifacts(directory, TAG)
