@@ -1,24 +1,105 @@
 """Applicant status and cancellation, separate from account authentication.
 
-No application creation, token issuance or mail delivery is exposed here.
+Public submission acknowledges generically; a mailbox proof creates only an
+applicant credential. Account creation requires a separate administrator decision.
 """
 
 import hmac
 import secrets
+from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel, Field
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 
 from altero.api.deps import SessionDep
-from altero.services import registrationaccess
+from altero.api.local_auth import require_local_auth
+from altero.api.routes.web import _client_address
+from altero.services import registrationaccess, registrationflow, registrationlimits, webauth
 from altero.services.registrationaccess import ApplicantStatus
+from altero.services.registrationpolicy import RegistrationPolicy
 
 router = APIRouter(prefix="/web/registration", tags=["web"])
 COOKIE = "altero_applicant"
 CSRF_COOKIE = "altero_applicant_csrf"
 COOKIE_PATH = "/web/registration"
+
+
+def _policy(request: Request) -> RegistrationPolicy:
+    settings = request.app.state.settings
+    if not settings.registration_approval:
+        raise HTTPException(403, "Verified registration is not enabled")
+    return RegistrationPolicy(settings, allowed_domains=tuple(settings.registration_domains))
+
+
+class Application(BaseModel):
+    username: str = Field(min_length=1, max_length=255)
+    email: str = Field(min_length=1, max_length=320)
+    display_name: str = Field(default="", alias="displayName", max_length=255)
+
+
+class MailboxProof(BaseModel):
+    token: str = Field(min_length=32, max_length=128)
+
+
+def _set_applicant(response: Response, request: Request, token: str) -> None:
+    response.set_cookie(
+        COOKIE,
+        token,
+        httponly=True,
+        secure=request.url.scheme == "https",
+        samesite="lax",
+        path=COOKIE_PATH,
+        max_age=int(registrationaccess.LIFETIME.total_seconds()),
+    )
+
+
+@router.post("/apply", status_code=202, dependencies=[Depends(require_local_auth)])
+async def apply(request: Request, session: SessionDep, body: Application) -> Response:
+    policy = _policy(request)
+    settings = request.app.state.settings
+    recipient = policy.address(body.email)
+    allowed = not await webauth.no_accounts_yet(session) and await webauth.registration_open(
+        session, allow=settings.open_registration, email=recipient
+    )
+    await registrationflow.submit(
+        session,
+        username=body.username,
+        email=recipient,
+        display_name=body.display_name,
+        policy=policy,
+        public_url=settings.public_url,
+        send=request.app.state.mailer.send,
+        address=_client_address(request),
+        allowed=allowed,
+        max_pending=settings.registration_max_pending,
+        ip_limit=settings.registration_ip_limit,
+        global_limit=settings.registration_global_limit,
+    )
+    return JSONResponse(
+        {"message": "If these details can be used, an email will explain the next step."},
+        status_code=202,
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@router.post("/verify", dependencies=[Depends(require_local_auth)])
+async def verify(request: Request, session: SessionDep, body: MailboxProof) -> Response:
+    policy = _policy(request)
+    await registrationlimits.reserve(
+        session,
+        registrationlimits.Budget(
+            "registration-verify-address-hour", _client_address(request), 20, timedelta(hours=1)
+        ),
+    )
+    token = await registrationaccess.claim_mailbox(session, body.token, policy=policy)
+    if token is None:
+        raise HTTPException(400, "This registration link is invalid or expired")
+    response = JSONResponse({"verified": True}, headers={"Cache-Control": "no-store"})
+    _set_applicant(response, request, token)
+    return response
 
 
 def _csrf(token: str) -> str:

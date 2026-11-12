@@ -54,6 +54,8 @@ EXPECTED = [
     ("/web/auth/session", "GET"),
     ("/web/auth/logout", "POST"),
     ("/web/registration", "GET"),
+    ("/web/registration/apply", "POST"),
+    ("/web/registration/verify", "POST"),
     ("/web/registration/cancel", "POST"),
     ("/web/registration/logout", "POST"),
     ("/web/account", "GET"),

@@ -174,8 +174,17 @@ if the request can no longer be cancelled. Logout revokes applicant access and
 clears only its cookies, leaving any account session intact. Future submission
 must set the applicant credential HttpOnly, SameSite=Lax and Secure over HTTPS,
 with path `/web/registration`; the CSRF cookie uses `/` for the interface to read.
-These routes issue no applicant credential, create no application or user, and
-send no mail. They do not enable the planned registration workflow.
+With registration approval explicitly enabled, `POST /web/registration/apply`
+accepts details without a password and returns a generic 202 without cookies.
+`open_registration` controls general applications; invitations permit a gated
+application even when it is closed. The first instance account remains the
+explicit bootstrap exception. The legacy register route refuses additional
+direct account creation whenever approval is required. Public submission and
+mailbox verification are CSRF exceptions: the browser has no applicant cookie
+yet, and verification authenticates only the one-use mailbox proof from its body.
+`POST /web/registration/verify` consumes that proof and sets a path-scoped
+HttpOnly applicant cookie. No account session or library access is created.
+Verification attempts are capped at 20/source address/hour.
 
 Mailbox links can also resume review-pending requests and approved accounts
 that still have no password. Issuance sends a fresh proof to the saved recipient
@@ -193,7 +202,7 @@ buckets in sorted order and commits all charges or none. Workers and restarts
 share the same counters. Equality with the window deadline resets a bucket;
 refusal does not prolong its window. Failed mail delivery and worker crashes
 do not refund an admitted attempt. Exhaustion returns 429 and `Retry-After`.
-The primitive is not yet wired to public submission or mail routes.
+The public submission path uses these budgets before attempting mail delivery.
 The internal mailbox-first orchestration spends five submissions per source
 address/hour, 100 submissions per instance/hour, one message per recipient/minute
 and five messages per recipient/day by default. New requests, duplicate details

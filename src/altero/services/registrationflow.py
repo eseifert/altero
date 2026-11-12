@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from altero.db import UNICODE_LOWER
 from altero.errors import InvalidInputError
 from altero.models import RegistrationRequest, RegistrationStatus
-from altero.services import registrationaccess, registrationlimits
+from altero.services import registrationaccess, registrationlimits, webauth
 from altero.services.mail import Message
 from altero.services.registrationpolicy import RegistrationPolicy
 
@@ -55,6 +55,7 @@ async def submit(
     max_pending: int = 1000,
     ip_limit: int = 5,
     global_limit: int = 100,
+    allowed: bool = True,
     now: datetime | None = None,
 ) -> None:
     """Acknowledge uniformly; deliver access only through the nominated mailbox.
@@ -64,6 +65,9 @@ async def submit(
     A matching existing request can recover even while pending capacity is full.
     """
     moment = registrationaccess._moment(now)
+    username = webauth.validate_username(username)
+    if len(username) > 255 or "\x00" in username:
+        raise InvalidInputError("Invalid registration username")
     recipient = policy.address(email)
     Budget = registrationlimits.Budget
     await registrationlimits.reserve(
@@ -74,6 +78,8 @@ async def submit(
         Budget("registration-mail-day", recipient, 5, timedelta(days=1)),
         now=moment,
     )
+    if not allowed:
+        return
     request_id = await _existing(session, username, recipient, moment)
     if request_id is None:
         try:
