@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Recheck gated email-domain policy on account address changes and link confirmation while preserving existing sign-in access.
 - Add an administrator registration queue with verified applicant details, approval proof, rejection and pagination.
 - Add email confirmation, applicant status, cancellation, resends and approved password setup to the browser.
 - Show a mailbox-first account request form when approval is required; keep initial owner setup password-based.

@@ -1,4 +1,4 @@
-"""Internal eligibility rules; no operator switch enables gated registration yet."""
+"""Eligibility rules for opt-in verified registration and address changes."""
 
 import re
 from dataclasses import InitVar, dataclass
@@ -10,6 +10,14 @@ from altero.services.mail import SmtpConfig
 from altero.settings import Settings
 
 _LABEL = re.compile(r"[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?", re.ASCII)
+
+
+def configured(settings: Settings) -> RegistrationPolicy | None:
+    return (
+        RegistrationPolicy(settings, allowed_domains=tuple(settings.registration_domains))
+        if settings.registration_approval
+        else None
+    )
 
 
 def _domain(value: str) -> str:

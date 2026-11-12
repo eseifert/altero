@@ -36,6 +36,7 @@ from altero.services import (
     webauth,
     websessions,
 )
+from altero.services.registrationpolicy import RegistrationPolicy
 from altero.services.webauth import Notifier
 
 #: Issuer shown in an authenticator app.
@@ -159,6 +160,7 @@ async def request_email_change(
     new_email: str,
     current_password: str | None = None,
     record: WebSession | None = None,
+    registration_policy: RegistrationPolicy | None = None,
 ) -> str:
     """Begin moving the account to ``new_email`` and return the token.
 
@@ -168,7 +170,11 @@ async def request_email_change(
     security notices with it.
     """
     await require_proof(session, user, record, password=current_password)
-    address = emailverify.normalise(new_email)
+    address = (
+        registration_policy.address(new_email)
+        if registration_policy
+        else emailverify.normalise(new_email)
+    )
 
     if address == (user.email or ""):
         raise InvalidInputError("That is already your address")

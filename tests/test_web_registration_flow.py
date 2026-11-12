@@ -278,3 +278,121 @@ async def test_rejection_remains_visible_and_never_allows_enrollment(
         )
     ).status_code == 409
     assert await session.scalar(select(func.count()).select_from(User)) == 1
+
+
+async def test_email_changes_recheck_current_admission_policy_without_locking_out_existing_users(
+    app: FastAPI,
+    client: httpx2.AsyncClient,
+    session: AsyncSession,
+) -> None:
+    from altero.services import emailverify
+
+    owner = await session.get(User, 1)
+    assert owner
+    # A link mailed before the administrator narrows the domains must not move
+    # the account outside the new policy. Existing accounts still sign in.
+    token = await emailverify.issue(session, owner, "owner@other.example")
+    app.state.settings = app.state.settings.model_copy(
+        update={"registration_domains": ["example.org"]}
+    )
+    assert (await client.post("/web/auth/verify", json={"token": token})).status_code == 403
+    await session.refresh(owner)
+    assert owner.email == "owner@example.org"
+    assert (
+        await client.post(
+            "/web/auth/login",
+            json={
+                "username": "operator",
+                "password": "correct horse battery staple",
+            },
+        )
+    ).status_code == 200
+    headers = {"X-CSRF-Token": client.cookies.get("altero_csrf") or ""}
+    result = await client.post(
+        "/web/account/email",
+        json={
+            "email": "owner@other.example",
+            "currentPassword": "correct horse battery staple",
+        },
+        headers=headers,
+    )
+    assert result.status_code == 403
+    assert app.state.mailer.messages == []
+    accepted = await client.post(
+        "/web/account/email",
+        json={
+            "email": "owner2@example.org",
+            "currentPassword": "correct horse battery staple",
+        },
+        headers=headers,
+    )
+    assert accepted.status_code == 202
+    assert len(app.state.mailer.messages) == 1
+
+
+async def test_applicant_credentials_cannot_authorize_accounts_or_library_operations(
+    app: FastAPI,
+    client: httpx2.AsyncClient,
+    session: AsyncSession,
+) -> None:
+    await verify_application(app, client)
+    token = client.cookies.get("altero_applicant")
+    assert token
+    # Even copying the opaque applicant credential into the other credential
+    # locations cannot make it a session, key or OAuth access token.
+    client.cookies.set("altero_session", token)
+    client.cookies.set("altero_csrf", "forged")
+    headers = {
+        "X-CSRF-Token": "forged",
+        "Authorization": f"Bearer {token}",
+        "Zotero-API-Key": token,
+    }
+    routes = [
+        ("GET", "/web/libraries", None),
+        ("GET", "/web/account", None),
+        ("GET", "/web/account/keys", None),
+        ("POST", "/web/account/keys", {"name": "pending"}),
+        ("POST", "/web/groups", {"name": "pending"}),
+        ("POST", "/web/invitations/token/unknown/accept", {}),
+        ("POST", "/web/oauth/pending/unknown", {"approve": True}),
+        ("POST", "/web/link/unknown/approve", {}),
+        ("POST", "/web/libraries/1/items", {"itemType": "book"}),
+        ("PUT", "/web/libraries/1/items/ABCDEFGH/file", {}),
+        ("GET", "/keys/current", None),
+        ("POST", "/users/1/items", []),
+        ("POST", "/users/1/items/ABCDEFGH/file", {}),
+    ]
+    for method, path, body in routes:
+        response = await client.request(method, path, json=body, headers=headers)
+        assert response.status_code in {401, 403}, (path, response.status_code, response.text)
+    assert await session.scalar(select(func.count()).select_from(User)) == 1
+
+
+async def test_directory_provisioning_is_an_explicit_trusted_exception_and_never_adopts_a_request(
+    app: FastAPI,
+    client: httpx2.AsyncClient,
+    session: AsyncSession,
+) -> None:
+    from altero.errors import ForbiddenError
+    from altero.models import RegistrationRequest, RegistrationStatus
+    from altero.services import federation
+    from tests.test_federation import asserts, make_provider
+
+    key, _ = await verify_application(app, client)
+    provider = await make_provider(session)
+    with pytest.raises(ForbiddenError):
+        await federation.sign_in(session, provider, asserts())
+    assert await session.scalar(select(func.count()).select_from(User)) == 1
+    provider.create_accounts = True
+    await session.commit()
+    outcome = await federation.sign_in(session, provider, asserts())
+    assert outcome.created
+    assert not outcome.user.administrator
+    record = await session.get(RegistrationRequest, key)
+    assert record
+    assert record.status == RegistrationStatus.REVIEW_PENDING
+    assert record.user_id is None
+    # A later email claim is not an account link or an address change.
+    same = await federation.sign_in(session, provider, asserts(email="elsewhere@other.example"))
+    assert same.user.id == outcome.user.id
+    assert same.user.email == "ada@example.org"

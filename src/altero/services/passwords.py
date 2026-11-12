@@ -24,8 +24,8 @@ from argon2.profiles import RFC_9106_LOW_MEMORY
 from altero.errors import InvalidInputError
 from altero.settings import Settings, get_settings
 
-#: Shortest password accepted. NIST SP 800-63B requires at least this for a
-#: user-chosen secret; a second factor is available for anyone who wants more.
+#: Backward-compatible default floor for new passwords. Deployments may require
+#: a longer minimum; this constant does not claim conformance to a standard.
 MINIMUM_LENGTH = 8
 
 #: Longest password accepted. Argon2 is deliberately expensive to compute, so

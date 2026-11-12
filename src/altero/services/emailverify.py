@@ -16,12 +16,16 @@ import hashlib
 import re
 import secrets
 from datetime import UTC, datetime, timedelta
+from typing import TYPE_CHECKING
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError
 from altero.models import EmailVerification, User
+
+if TYPE_CHECKING:
+    from altero.services.registrationpolicy import RegistrationPolicy
 
 #: How long a confirmation link stays usable.
 LIFETIME_HOURS = 24
@@ -101,7 +105,9 @@ async def outstanding_for(session: AsyncSession, user: User) -> EmailVerificatio
     )
 
 
-async def confirm(session: AsyncSession, token: str) -> User:
+async def confirm(
+    session: AsyncSession, token: str, *, registration_policy: RegistrationPolicy | None = None
+) -> User:
     """Apply the confirmation ``token`` identifies and return its user.
 
     The address recorded on the token is what gets adopted, not whatever the
@@ -128,6 +134,10 @@ async def confirm(session: AsyncSession, token: str) -> User:
     if user is None:  # pragma: no cover - defensive
         raise ForbiddenError("That confirmation link is not valid")
 
+    # Existing addresses are grandfathered; moving to another address must
+    # satisfy today's admission policy, even if the link predates a change.
+    if registration_policy and pending.email != user.email:
+        registration_policy.address(pending.email)
     user.email = pending.email
     user.email_verified = _now()
     # Single use: the row goes, so following the link twice fails the second

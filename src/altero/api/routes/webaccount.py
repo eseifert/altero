@@ -38,6 +38,7 @@ from altero.services import (
     notifications,
     passwords,
     reauth,
+    registrationpolicy,
 )
 
 router = APIRouter(prefix="/web", tags=["web"])
@@ -301,6 +302,7 @@ async def change_email(
         new_email=body.email,
         current_password=body.current_password,
         record=record,
+        registration_policy=registrationpolicy.configured(request.app.state.settings),
     )
     # Re-issued by _send_verification so that the mail carries the token; the
     # call above has already checked the password and the address.

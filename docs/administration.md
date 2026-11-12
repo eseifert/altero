@@ -130,6 +130,14 @@ the applicant chooses a password from their status page before signing in.
 Approval sends no notification: the page checks its status periodically and a
 replacement link can resume it. No library or file is exposed during review.
 
+Domain restrictions also apply when an existing account changes its address,
+including confirmation of a link sent before the policy changed. Existing
+accounts keep their sign-in access and may confirm their current address.
+The allowlist proves a mailbox domain, not current organizational membership.
+An administrator who explicitly enables a provider's **Create accounts** trusts
+that directory to admit users directly. Existing directory subjects remain the
+identity; matching email claims never adopt local accounts or pending requests.
+
 ### Password reset
 
 An administrator can either set a password or issue a single-use link that lets the account holder choose a new one.

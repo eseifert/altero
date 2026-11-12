@@ -36,6 +36,7 @@ from altero.services import (
     logincodes,
     passwordreset,
     passwords,
+    registrationpolicy,
     webauth,
     websessions,
 )
@@ -491,14 +492,20 @@ class AddressChange(BaseModel):
 
 
 @router.post("/auth/verify", dependencies=[Depends(require_local_auth)])
-async def verify_email(session: SessionDep, body: Annotated[Token, Body()]) -> Response:
+async def verify_email(
+    request: Request, session: SessionDep, body: Annotated[Token, Body()]
+) -> Response:
     """Confirm an address from the token in a link.
 
     Deliberately needs no session and no CSRF token: the link is followed in
     whatever browser happens to be open, frequently not the one that
     registered, and the token in it is the whole credential.
     """
-    user = await emailverify.confirm(session, body.token)
+    user = await emailverify.confirm(
+        session,
+        body.token,
+        registration_policy=registrationpolicy.configured(request.app.state.settings),
+    )
     return JSONResponse({"user": _serialise(user)})
 
 
