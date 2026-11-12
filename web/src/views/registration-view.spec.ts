@@ -84,3 +84,18 @@ it('does not start polling after unmount during initial configuration', async ()
   expect(vi.getTimerCount()).toBe(0)
   expect(requestMock).not.toHaveBeenCalled()
 })
+
+it('offers a new proof when another mailbox link opens on the same status page', async () => {
+  const { wrapper, router } = await open()
+  await router.push('/registration#token=second-mailbox-proof')
+  await flushPromises()
+  expect(router.currentRoute.value.hash).toBe('')
+  const confirmation = wrapper.findAll('button').find((button) => button.text() === 'Confirm your email address')
+  expect(confirmation).toBeDefined()
+  await confirmation!.trigger('click')
+  await flushPromises()
+  expect(requestMock).toHaveBeenCalledWith('/web/registration/verify', {
+    method: 'POST', body: { token: 'second-mailbox-proof' },
+  })
+  wrapper.unmount()
+})

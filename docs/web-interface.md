@@ -33,6 +33,8 @@ choose a password there, then sign in normally. This does not replace an account
 already signed in in the same browser; use **Sign out and sign in** when ready.
 Expired, cancelled or rejected requests cannot set a password. Contact the
 administrator if the page cannot be resumed.
+Opening another emailed link on that same page asks for confirmation again;
+simply displaying a link never consumes it.
 
 ## Installing it as an app
 

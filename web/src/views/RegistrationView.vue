@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -95,16 +95,25 @@ async function signIn(): Promise<void> {
   await router.push({ name: 'sign-in' })
 }
 
+async function captureProof(): Promise<void> {
+  const token = new URLSearchParams(route.hash.replace(/^#/, '')).get('token')
+  if (!token) return
+  proof.value = token
+  failure.value = notice.value = null
+  enrolled.value = false
+  revision++
+  await router.replace({ path: route.path, query: route.query, hash: '' })
+}
+watch(() => route.hash, () => { void captureProof() })
 onMounted(async () => {
-  proof.value = new URLSearchParams(route.hash.replace(/^#/, '')).get('token')
-  if (proof.value) await router.replace({ path: route.path, query: route.query, hash: '' })
+  await captureProof()
   await auth.loadConfig()
   if (disposed) return
   if (proof.value) loading.value = false
   else await refresh()
   if (disposed) return
   timer = setInterval(() => {
-    if (!busy.value && !enrolled.value && pending.value && document.visibilityState === 'visible') void refresh()
+    if (!busy.value && !proof.value && !enrolled.value && pending.value && document.visibilityState === 'visible') void refresh()
   }, 15000)
 })
 onUnmounted(() => { disposed = true; revision++; clearInterval(timer); proof.value = null })
