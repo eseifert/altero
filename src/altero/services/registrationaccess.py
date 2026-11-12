@@ -4,12 +4,13 @@ import secrets
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select, update
+from sqlalchemy import and_, case, or_, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from altero.errors import InvalidInputError
-from altero.models import RegistrationRequest, RegistrationStatus
+from altero.models import RegistrationRequest, RegistrationStatus, User
 from altero.services import registrations
 from altero.services.emailverify import hash_token
 from altero.services.registrationpolicy import RegistrationPolicy
@@ -165,3 +166,106 @@ async def revoke(session: AsyncSession, token: str | None) -> bool:
     )
     await session.commit()
     return key is not None
+
+
+def _resumable() -> ColumnElement[bool]:
+    account = (
+        select(User.id)
+        .where(
+            User.id == RegistrationRequest.user_id,
+            User.email == RegistrationRequest.email,
+            User.password_hash.is_(None),
+            User.disabled_at.is_(None),
+        )
+        .exists()
+    )
+    return or_(
+        RegistrationRequest.status.in_(PENDING),
+        and_(
+            RegistrationRequest.status == RegistrationStatus.APPROVED,
+            account,
+        ),
+    )
+
+
+async def issue_mailbox_link(
+    session: AsyncSession,
+    request_id: int,
+    *,
+    policy: RegistrationPolicy,
+    now: datetime | None = None,
+) -> tuple[str, str] | None:
+    """Return stored recipient/proof after the caller reserves delivery budgets.
+
+    Issuing mail never revokes an existing applicant cookie. Only consumption
+    of proof delivered to the saved mailbox replaces that credential.
+    """
+    moment = _moment(now)
+    proof = secrets.token_urlsafe(32)
+    recipient = await session.scalar(
+        update(RegistrationRequest)
+        .where(
+            RegistrationRequest.id == request_id,
+            RegistrationRequest.expires > moment,
+            _resumable(),
+            registrations._eligible(policy),
+        )
+        .values(
+            email_token_hash=hash_token(proof),
+            email_token_address=RegistrationRequest.email,
+            email_token_expires=case(
+                (
+                    RegistrationRequest.expires < moment + registrations.EMAIL_PROOF_LIFETIME,
+                    RegistrationRequest.expires,
+                ),
+                else_=moment + registrations.EMAIL_PROOF_LIFETIME,
+            ),
+        )
+        .returning(RegistrationRequest.email_token_address)
+    )
+    await session.commit()
+    return (recipient, proof) if recipient else None
+
+
+async def claim_mailbox(
+    session: AsyncSession,
+    proof: str,
+    *,
+    policy: RegistrationPolicy,
+    now: datetime | None = None,
+) -> str | None:
+    """Atomically spend an address-bound link and renew applicant-only access."""
+    if not proof:
+        return None
+    moment = _moment(now)
+    token = secrets.token_urlsafe(32)
+    key = await session.scalar(
+        update(RegistrationRequest)
+        .where(
+            RegistrationRequest.email_token_hash == hash_token(proof),
+            RegistrationRequest.email_token_address == RegistrationRequest.email,
+            RegistrationRequest.email_token_expires > moment,
+            RegistrationRequest.expires > moment,
+            _resumable(),
+            registrations._eligible(policy),
+        )
+        .values(
+            status=case(
+                (
+                    RegistrationRequest.status == RegistrationStatus.EMAIL_PENDING,
+                    RegistrationStatus.REVIEW_PENDING.name,
+                ),
+                else_=RegistrationRequest.status,
+            ),
+            email_verified=case(
+                (RegistrationRequest.email_verified.is_(None), moment),
+                else_=RegistrationRequest.email_verified,
+            ),
+            applicant_token_hash=hash_token(token),
+            applicant_token_expires=moment + LIFETIME,
+            **registrations._CLEAR_EMAIL_TOKEN,
+        )
+        .returning(RegistrationRequest.id)
+    )
+    await session.commit()
+    return token if key is not None else None

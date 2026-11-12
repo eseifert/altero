@@ -56,7 +56,8 @@ primitives; applicant sessions and public routes remain to be wired.
 An email-pending request can store one outstanding mailbox proof: a unique
 SHA-256 token digest, the recipient address and an expiry no later than the
 request deadline. The raw link token is never stored. All three proof fields
-are present together or absent together; later states cannot retain them. This
+are present together or absent together; cancelled/rejected/expired requests
+cannot retain them. This
 internal issuer returns the stored recipient and a fresh random token, retaining
 only its SHA-256 digest. Resending replaces the old proof without extending the
 request deadline. A link lasts at most 24 hours; equality with either expiry
@@ -175,6 +176,15 @@ must set the applicant credential HttpOnly, SameSite=Lax and Secure over HTTPS,
 with path `/web/registration`; the CSRF cookie uses `/` for the interface to read.
 These routes issue no applicant credential, create no application or user, and
 send no mail. They do not enable the planned registration workflow.
+
+Mailbox links can also resume review-pending requests and approved accounts
+that still have no password. Issuance sends a fresh proof to the saved recipient
+without revoking an existing applicant cookie. Consuming that one-use proof
+renews applicant access, preserving an existing verification timestamp and
+approval decision. Proofs remain bounded by the application deadline; after
+that, a passwordless admitted account needs administrator-issued recovery.
+Enrollment clears outstanding mailbox proofs as well as the applicant token.
+Resumption cannot replace an existing password or recover a suspended account.
 
 `registration_budgets` persists fixed-window registration and mail quotas.
 Bucket keys are SHA-256 digests of a purpose and address/recipient identifier,

@@ -103,6 +103,7 @@ def _enrollment_query(token: str, moment: datetime) -> Select[tuple[Registration
             RegistrationRequest.status == RegistrationStatus.APPROVED,
             User.disabled_at.is_(None),
             User.password_hash.is_(None),
+            User.email == RegistrationRequest.email,
         )
     )
 
@@ -148,6 +149,7 @@ async def enroll(
         record, user = row
         user.password_hash, user.password_changed = digest, moment
         record.applicant_token_hash = record.applicant_token_expires = None
+        record.email_token_hash = record.email_token_address = record.email_token_expires = None
         await session.commit()
         return True
     except Exception:
