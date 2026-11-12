@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Store separate hashed applicant-access tokens for registration status; existing account credentials remain unchanged.
+- Add internal applicant-only status and cancellation credentials, separate from account sessions.
 - Add a bounded internal registration review queue restricted to current administrators.
 - Add internal administrator rejection of verified registration requests with atomic decision history and reservation release.
 - Recheck eligibility on pending registration mailbox changes and atomically revoke earlier proofs.

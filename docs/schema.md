@@ -122,7 +122,21 @@ from mailbox proofs and account sessions. Digests are unique; both fields must
 be present together, and expiry must follow creation. Applicant access may
 outlive the application deadline so a status page can report the outcome. It
 does not identify a user or grant library access. Existing requests migrate
-without a token. This persistence alone issues no credential or public route.
+without a token. Internal issuance returns a fresh random token once, stores
+only its SHA-256 digest and replaces the previous token. It lasts seven days,
+independently of the unchanged application deadline. Only a live pending
+request can receive one; the trusted caller must already be authorized.
+
+Status lookup returns only the request ID, state and application deadline. It
+reports a due pending request as expired without mutating history, and retains
+terminal outcomes until token expiry. Cancellation authenticates the token and
+checks its expiry, the request state and deadline in one conditional write.
+It clears mailbox proofs and reservations, while retaining the applicant token
+for status reads. Revocation clears only the credential. Neither operation
+creates a user or account session; normal browser and v3 credentials cannot be
+obtained from this token. Initial submission/token delivery must be made atomic,
+and replacements must authenticate the applicant, before wiring public callers.
+No public endpoint, cookie or CSRF exception is enabled by these helpers.
 
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
