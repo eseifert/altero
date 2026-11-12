@@ -44,6 +44,7 @@ from altero.models.oauth import (
     OAuthToken,
 )
 from altero.models.registration import RegistrationRequest, RegistrationStatus
+from altero.models.registrationbudget import RegistrationBudget
 from altero.models.search import SavedSearch, SearchCondition
 from altero.models.setting import Setting
 from altero.models.storage import StorageDownload, StorageUpload
@@ -109,6 +110,7 @@ __all__ = [
     "PasskeyCredential",
     "PasswordReset",
     "ProfileVisibility",
+    "RegistrationBudget",
     "RegistrationRequest",
     "RegistrationStatus",
     "SavedSearch",

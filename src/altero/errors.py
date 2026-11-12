@@ -72,6 +72,14 @@ class InvalidInputError(AlteroError):
     """The request data is malformed or violates the schema."""
 
 
+class RegistrationLimitError(AlteroError):
+    """A durable registration or mailbox budget has been spent."""
+
+    def __init__(self, retry_after: int) -> None:
+        super().__init__("Too many registration requests. Try again shortly.")
+        self.retry_after = retry_after
+
+
 class PreconditionFailedError(AlteroError):
     """The library changed since the version the client last saw."""
 

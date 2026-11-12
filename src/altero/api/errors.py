@@ -27,6 +27,7 @@ from altero.errors import (
     OAuthError,
     PreconditionFailedError,
     PreconditionRequiredError,
+    RegistrationLimitError,
     RequestTooLargeError,
 )
 
@@ -57,6 +58,7 @@ STATUS_CODES: dict[type[AlteroError], int] = {
     RequestTooLargeError: 413,
     PreconditionRequiredError: 428,
     LoginBackoffError: 429,
+    RegistrationLimitError: 429,
 }
 
 
@@ -114,7 +116,11 @@ async def handle_oauth_error(request: Request, exc: Exception) -> Response:
 
 async def handle_domain_error(request: Request, exc: Exception) -> Response:
     assert isinstance(exc, AlteroError)
-    headers = {"Retry-After": str(exc.retry_after)} if isinstance(exc, LoginBackoffError) else None
+    headers = (
+        {"Retry-After": str(exc.retry_after)}
+        if isinstance(exc, (LoginBackoffError, RegistrationLimitError))
+        else None
+    )
     return _reply(
         request, exc.message, status_for(exc), headers=headers, data=getattr(exc, "data", None)
     )

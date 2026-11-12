@@ -160,6 +160,22 @@ with path `/web/registration`; the CSRF cookie uses `/` for the interface to rea
 These routes issue no applicant credential, create no application or user, and
 send no mail. They do not enable the planned registration workflow.
 
+`registration_budgets` persists fixed-window registration and mail quotas.
+Bucket keys are SHA-256 digests of a purpose and address/recipient identifier,
+never raw recipients, IP addresses or tokens. Reservation acquires overlapping
+buckets in sorted order and commits all charges or none. Workers and restarts
+share the same counters. Equality with the window deadline resets a bucket;
+refusal does not prolong its window. Failed mail delivery and worker crashes
+do not refund an admitted attempt. Exhaustion returns 429 and `Retry-After`.
+The primitive is not yet wired to public submission or mail routes.
+
+These controls bound abuse, not distinguish humans from bots. Verified mailboxes
+can be automated and distributed sources can evade an IP-only limit. Admission
+must remain separate from submission: verification and administrator approval
+precede account/library access. This follows the layered approach in
+[OWASP's anti-automation guidance](https://cheatsheetseries.owasp.org/cheatsheets/Bot_Management_and_Anti-Automation_Cheat_Sheet.html).
+CAPTCHA is not part of 1.0.0.
+
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
 object. The queries are equivalent and the flag avoids a join on every listing.
