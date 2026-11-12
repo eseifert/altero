@@ -28,7 +28,7 @@ trash is not an item-only concept.
 
 **Pending registration requests are separate from accounts.** The
 `registration_requests` table is persistence for the planned verified-email and
-administrator-approval workflow. It stores no password or usable credential and
+administrator-approval workflow. It stores no password or account credential and
 creates no user or library. That public workflow is not enabled yet.
 
 Pending rows reserve a canonical username and email address through unique,
@@ -116,6 +116,13 @@ Reading neither sweeps expiry nor commits the caller's transaction. Rows may
 change between pages; decisions must recheck state and deadlines. The queue
 reads applicant metadata only, with no library or credential access. It has no
 public endpoint yet.
+
+Applicant access has its own nullable digest/expiry pair on the request, separate
+from mailbox proofs and account sessions. Digests are unique; both fields must
+be present together, and expiry must follow creation. Applicant access may
+outlive the application deadline so a status page can report the outcome. It
+does not identify a user or grant library access. Existing requests migrate
+without a token. This persistence alone issues no credential or public route.
 
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the

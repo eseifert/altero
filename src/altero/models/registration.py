@@ -22,7 +22,7 @@ class RegistrationRequest(Base):
     """Admission history with unique reservations only while awaiting a decision.
 
     An ID identifies a row; it proves no identity and authenticates no request.
-    No password, session, library or credential is attached to an applicant.
+    No password, account session, library or library credential belongs to an applicant.
     The public gated-registration workflow is not enabled yet.
     """
 
@@ -31,6 +31,13 @@ class RegistrationRequest(Base):
         UniqueConstraint("reserved_username", name="uq_registration_requests_username"),
         UniqueConstraint("reserved_email", name="uq_registration_requests_email"),
         UniqueConstraint("email_token_hash", name="uq_registration_requests_email_token"),
+        UniqueConstraint("applicant_token_hash", name="uq_registration_requests_applicant_token"),
+        CheckConstraint(
+            "(applicant_token_hash IS NULL AND applicant_token_expires IS NULL) OR "
+            "(applicant_token_hash IS NOT NULL AND applicant_token_expires IS NOT NULL "
+            "AND applicant_token_expires > created)",
+            name="ck_registration_requests_applicant_token",
+        ),
         CheckConstraint(
             "(email_token_hash IS NULL AND email_token_address IS NULL "
             "AND email_token_expires IS NULL) OR "
@@ -91,6 +98,10 @@ class RegistrationRequest(Base):
     email_token_hash: Mapped[str | None] = mapped_column(String(64), default=None)
     email_token_address: Mapped[str | None] = mapped_column(String(320), default=None)
     email_token_expires: Mapped[datetime | None] = mapped_column(DateTime, default=None)
+    #: A separate applicant-only credential. It never identifies an account,
+    #: and may outlive the application deadline to report a terminal outcome.
+    applicant_token_hash: Mapped[str | None] = mapped_column(String(64), default=None)
+    applicant_token_expires: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     decided_at: Mapped[datetime | None] = mapped_column(DateTime, default=None)
     #: Historical IDs, deliberately not foreign keys: deleting an administrator
     #: or an admitted account must not erase who made the admission decision.
