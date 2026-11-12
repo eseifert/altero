@@ -213,6 +213,9 @@ when pending capacity is full. Failed delivery spends its attempt and can be
 retried after the cooldown. The proof write checks the recipient snapshot used
 for budgeting, so a concurrent address change cannot redirect unbudgeted mail.
 Links carry the proof in the SPA URL fragment, keeping it out of HTTP URL logs.
+Authenticated resends use these same buckets and the current token plus recipient
+snapshot in the proof write. They cannot create a new application after a
+concurrent cancellation, or send mail using a revoked token.
 
 Submission holds a shared capacity-bucket row until its reservation commits.
 After expiring due requests it checks the pending count (default cap 1,000), so

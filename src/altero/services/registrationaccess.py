@@ -194,6 +194,7 @@ async def issue_mailbox_link(
     *,
     policy: RegistrationPolicy,
     expected_email: str | None = None,
+    applicant_token: str | None = None,
     now: datetime | None = None,
 ) -> tuple[str, str] | None:
     """Return stored recipient/proof after the caller reserves delivery budgets.
@@ -209,6 +210,12 @@ async def issue_mailbox_link(
             RegistrationRequest.id == request_id,
             RegistrationRequest.expires > moment,
             RegistrationRequest.email == expected_email if expected_email is not None else true(),
+            and_(
+                RegistrationRequest.applicant_token_hash == hash_token(applicant_token),
+                RegistrationRequest.applicant_token_expires > moment,
+            )
+            if applicant_token is not None
+            else true(),
             _resumable(),
             registrations._eligible(policy),
         )
