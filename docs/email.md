@@ -10,6 +10,7 @@ altero can run without an SMTP relay. Configure email only if your instance need
 | Group invitations                  | Available in-app for existing accounts; link can be logged | Delivered by email                    |
 | Administrator-issued password link | Link shown to administrator                                | Also delivered by email when possible |
 | Self-service password reset        | **Unavailable**                                            | Available when enabled                |
+| Approval-based registration        | **Unavailable**                                            | Mailbox proof before administrator review |
 | Email second-factor code           | Not useful without delivery                                | Delivered by email                    |
 | Security notices                   | Not delivered                                              | Delivered to confirmed addresses      |
 | Group activity digests             | In-app notification still exists                           | Optional email copy                   |
@@ -21,6 +22,7 @@ Most messages fall back to the log when no relay is configured. Without `ALTERO_
 altero sends plain-text mail for:
 
 - confirming an email address;
+- confirming or resuming an approval-based registration request;
 - group invitations;
 - password-setting links;
 - email second-factor codes;
@@ -31,6 +33,12 @@ altero sends plain-text mail for:
 Security notices are sent only to a **confirmed** email address.
 
 Confirmation links are valid for 24 hours. Administrator-issued or self-service password links are single-use and valid for 12 hours. Email sign-in codes are valid for ten minutes, work once and are tied to the browser session that requested them.
+
+Registration links have a separate purpose: they grant access only to the
+applicant's status and password setup after approval. They never sign in or
+authorize a library. They require SMTP and a public URL, never fall back to
+logged links, and are limited to one message/minute and five/day per recipient.
+See [registration abuse controls and recovery](administration.md#limit-automated-applications).
 
 For reset links issued before a public-address correction, see [historical upgrade notes](release-history.md#historical-upgrade-notes).
 

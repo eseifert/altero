@@ -138,6 +138,46 @@ An administrator who explicitly enables a provider's **Create accounts** trusts
 that directory to admit users directly. Existing directory subjects remain the
 identity; matching email claims never adopt local accounts or pending requests.
 
+### Limit automated applications
+
+For a public instance, enable `ALTERO_REGISTRATION_APPROVAL` before enabling
+`ALTERO_OPEN_REGISTRATION`. Optionally set `ALTERO_REGISTRATION_DOMAINS` to exact
+mailbox domains, listing permitted subdomains separately. Configure the
+[trusted reverse proxy](deployment.md#behind-a-reverse-proxy) so address limits
+identify the caller correctly.
+
+By default, applications and recovery attempts share limits of five per source
+address/hour and 100 per instance/hour. Mail is limited to one message per
+recipient/minute and five/day. These budgets persist across workers and restarts;
+failed delivery spends the allowance too. Rate refusals return `429` with
+`Retry-After`. The pending queue is capped at 1,000 requests. Reviewers receive
+no per-request notification, and applications collect no password to hash.
+
+These controls bound automated submissions and prevent unapproved library
+access. They do not identify a human: bots can own mailboxes and rotate source
+addresses. Review applicants using your institution's own eligibility process.
+CAPTCHA is not included. To pause general applications while reviewing the
+queue, disable open registration while leaving approval enabled; invited
+addresses may still apply. To stop all applications, also withdraw outstanding
+invitations or close access at the reverse proxy.
+
+Requests expire seven days after submission. A mailbox link lasts at most
+24 hours and works once; resuming renews applicant access but does not extend
+the request deadline. A rejected or cancelled request releases its reservation,
+so the same details may be submitted again within the mail limits. Rejection is
+not an address ban. Unverified submissions can reserve somebody else's username
+temporarily; expiry releases it and trusted administrator provisioning remains
+available. Expired/cancelled history older than 30 days is pruned during later
+submissions after applicant access expires. Approval/rejection history is kept.
+
+If delivery fails, the request remains recoverable: correct the relay, wait for
+the recipient budget, then submit the same username and address again. The
+response deliberately does not reveal whether an account or request exists.
+After approval, the existing status page or a replacement mailbox link allows
+password setup until the original deadline. After that, use an administrator
+password-reset link for the approved account. A lost password-setup response
+may have committed: try ordinary sign-in before requesting recovery.
+
 ### Password reset
 
 An administrator can either set a password or issue a single-use link that lets the account holder choose a new one.

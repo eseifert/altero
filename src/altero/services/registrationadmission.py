@@ -27,7 +27,7 @@ async def approve(
     Account, personal library, released reservations and decision share one
     transaction. The account is never an administrator and has no password yet;
     only its authenticated applicant may complete credential enrollment later.
-    The future route must authenticate its reviewer and check CSRF.
+    The caller must authenticate its reviewer and check CSRF.
     """
     moment = registrations._utc(now or registrations._now())
     try:
@@ -101,6 +101,7 @@ def _enrollment_query(token: str, moment: datetime) -> Select[tuple[Registration
             RegistrationRequest.applicant_token_hash == hash_token(token),
             RegistrationRequest.applicant_token_expires > moment,
             RegistrationRequest.status == RegistrationStatus.APPROVED,
+            RegistrationRequest.expires > moment,
             User.disabled_at.is_(None),
             User.password_hash.is_(None),
             User.email == RegistrationRequest.email,

@@ -46,8 +46,8 @@ async def submit(
     """Commit a new application and its initial applicant credential together.
 
     Return the raw token only after commit; failures roll back the reservation,
-    credential and expiry cleanup. A future route must deliver it only to the
-    submitting browser. No public registration switch or route uses this yet.
+    credential and expiry cleanup. The public mailbox-first flow discards the
+    initial token: only consuming its emailed proof grants applicant access.
     """
     moment = _moment(now)
     try:
@@ -82,7 +82,7 @@ async def issue(
 
     A row ID grants no authority to call this. Initial credentials belong to
     submit(), which commits them with the reservation. This replacement helper
-    requires prior applicant authentication; no public caller exists yet. The
+    requires prior applicant authentication; no public route calls it. The
     raw token is returned once; only its digest is persisted.
     """
     moment = _moment(now)

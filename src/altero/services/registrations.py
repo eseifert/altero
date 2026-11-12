@@ -1,8 +1,8 @@
-"""Internal pending-request operations; public gated registration is not enabled.
+"""Pending-request operations for opt-in verified registration.
 
 Use a session without unrelated pending writes: these operations own their
 commit/rollback boundaries. An application is not an account or a credential.
-The later activation operation must check account availability again, since an
+Admission rechecks account availability, since an
 operator may provision an account while somebody has a pending reservation.
 """
 
@@ -93,7 +93,7 @@ async def prepare_submission(
     """Stage a reservation and expiry cleanup without committing either.
 
     Internal composition point: the caller owns commit/rollback and must finish
-    the operation before returning. No public caller enables registration yet.
+    the operation before returning.
     """
     if not enabled:
         raise ForbiddenError("Gated registration is not enabled")
@@ -406,7 +406,7 @@ async def review_queue(
     """Read a bounded page of live verified requests, oldest row ID first.
 
     This read commits nothing and does not sweep expiry. The actor must come
-    from an authenticated administrator session in the future public caller.
+    from an authenticated administrator session supplied by the caller.
     A request can expire or change after this read; decisions recheck its state.
     """
     if await session.scalar(_reviewer_query(actor_id)) is None:
@@ -437,8 +437,8 @@ async def reject(
 ) -> bool:
     """Record a current administrator's rejection of a live verified request.
 
-    No public route calls this yet. The future route must authenticate its
-    browser session and check CSRF before supplying the actor ID. PostgreSQL
+    The route must authenticate its browser session and check CSRF before
+    supplying the actor ID. PostgreSQL
     locks the reviewer against concurrent demotion, suspension or deletion;
     the decision predicate repeats authorization on both databases. These
     operations own their transaction, as the other request transitions do.

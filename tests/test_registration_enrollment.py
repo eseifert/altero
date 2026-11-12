@@ -106,3 +106,25 @@ async def test_competing_enrollments_cannot_replace_the_winning_password(
     assert user
     winning = " first" if results[0] else " second"
     assert passwords.verify_password(user.password_hash, SECRET + winning)
+
+
+async def test_enrollment_stops_at_request_deadline_even_with_a_live_applicant_token(
+    session: AsyncSession,
+) -> None:
+    from sqlalchemy import select
+
+    from altero.models import RegistrationRequest
+
+    key, token = await approved(session)
+    request = await session.scalar(
+        select(RegistrationRequest).where(RegistrationRequest.user_id == key)
+    )
+    assert request
+    request.expires = NOW + timedelta(hours=1)
+    await session.commit()
+    later = NOW + timedelta(hours=1)
+    assert await registrationaccess.status(session, token, now=later)
+    assert not await enroll(session, token, now=later)
+    user = await session.get(User, key)
+    assert user
+    assert user.password_hash is None
