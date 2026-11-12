@@ -7,50 +7,32 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-- Bound approved password setup by the original request deadline, even when applicant access lasts longer.
-- Handle a replacement mailbox link opened on an existing registration status page and require confirmation again.
-- Require the bundled common-password list and license in both release artifacts, with matching bytes.
-- Recheck gated email-domain policy on account address changes and link confirmation while preserving existing sign-in access.
-- Add an administrator registration queue with verified applicant details, approval proof, rejection and pagination.
-- Add email confirmation, applicant status, cancellation, resends and approved password setup to the browser.
-- Show a mailbox-first account request form when approval is required; keep initial owner setup password-based.
-- Add administrator review and applicant enrollment routes with separate CSRF realms, recent approval proof and enrollment limits.
-- Bind authenticated registration resends to the current token, recipient and shared mail quotas.
-- Add opt-in mailbox-first registration; invitations cannot bypass approval and first-account bootstrap stays explicit.
-- Budget mailbox-first registration and recovery uniformly; reveal access only through one-use email links.
-- Resume pending and approved passwordless applicants through one-use mailbox links without disrupting an existing browser session.
-- Add single-use approved-applicant password enrollment with atomic token revocation and race-safe password storage.
-- Admit verified registration requests atomically with account/library creation and current reviewer/domain checks.
-- Add configurable password length and an offline common-password blocklist; existing passwords can still sign in.
-- Keep registration request IDs monotonic after cleanup so stale review actions cannot identify a newer application.
-- Bound pending registrations across workers and prune old expired/cancelled requests without deleting review decisions.
-- Add durable registration/mail budget reservations shared across workers and restarts.
-- Add isolated applicant status, cancellation and logout routes with token-bound CSRF; public submission remains disabled.
-- Commit pending registration reservations and initial applicant credentials atomically, including rollback of expiry cleanup.
-- Add internal applicant-only status and cancellation credentials, separate from account sessions.
-- Add a bounded internal registration review queue restricted to current administrators.
-- Add internal administrator rejection of verified registration requests with atomic decision history and reservation release.
-- Recheck eligibility on pending registration mailbox changes and atomically revoke earlier proofs.
-- Add internal registration prerequisites and exact-domain eligibility rules; the public workflow remains disabled.
+## [1.0.0-rc.1] — 2026-11-12
+
+The first release candidate adds optional email-verified self-registration with
+administrator approval. Feature work is now frozen for 1.0.0; remaining changes
+are fixes, documentation and translations. CAPTCHA remains deferred.
+
+Back up the database and attachment storage together before applying the
+[upgrade instructions][upgrade]. Registration approval is off by default and
+preserves existing accounts. Enabling it requires SMTP and a trusted public URL;
+see [registration settings](docs/configuration.md#accounts) and
+[review and recovery](docs/administration.md#review-registration-requests).
+New registration text currently falls back to English outside the English
+catalogs; the wider translation review remains deferred.
+
+- Add verified-email registration with administrator approval; requested by [@arminbahl] ([Issue#66]).
+- Keep applicants outside libraries, keys, OAuth and desktop access; invitations still require approval.
+- Support exact email-domain allowlists and recheck address changes while preserving existing sign-in access.
+- Offer applicant status, cancellation, one-use mailbox recovery and password setup after approval.
+- Limit application and mail traffic across workers/restarts, bound pending requests and retain review decisions.
+- Add configurable password length and an offline common-password list; preserve existing passwords for sign-in.
+- Verify registration with real SMTP refusal, replay, concurrent decisions, restarts and lost replies.
 - Document PostgreSQL security updates, version checks and conditional search-index and backup repairs.
-- Separate i18n behavior tests from standalone catalog validation and remove redundant translation wording checks.
-- Persist and atomically consume address-bound registration mailbox proofs; public registration remains unchanged.
-- Add internal pending-registration reservations and lifecycle foundations; the public approval workflow is not enabled yet.
-- Clarify Romanian and Turkish warnings that library deletion and replacement bypass Trash.
-- Clarify Bulgarian and Croatian warnings that library deletion and replacement bypass Trash.
-- Clarify Czech and Slovak warnings that library deletion and replacement bypass Trash.
-- Keep Japanese library spelling consistent across archive, restore and collection messages.
-- Clarify Russian related-item controls: add a related record or remove its link while keeping both records.
-- Align Japanese library and merge messages with Zotero's 項目 term and use ごみ箱 consistently for Trash.
-- Use Koš consistently in Slovenian merge warnings and explain that library deletion and replacement bypass Trash.
-- Keep Russian creation, navigation and merge labels consistent with the library's item term.
-- Use Кошик consistently in Ukrainian merge warnings and explain that library deletion and replacement bypass Trash.
-- Align Ukrainian navigation and merge labels with the library's document term and clarify version-selection instructions.
-- Use the library's Trash term in Latvian confirmations and explain that library deletion and replacement bypass Trash.
-- Keep Latvian creation, navigation and merge labels consistent with the library's item term.
-- Align Swedish creation, navigation, related-item and merge labels with the library's item term.
-- Seed valid child items in upgrade checks for releases that reject child collection memberships; retain the historical repair fixture for older releases.
-- Simplify documentation for users, operators and contributors; keep release-specific details in historical records.
+- Clarify library-deletion warnings and keep item, merge and Trash terms consistent in reviewed translations.
+- Separate i18n behavior tests from catalog validation; keep missing translations visible as warnings.
+- Preserve populated upgrades from every beta on SQLite and PostgreSQL, including files and repeat startup.
+- Simplify documentation for users, operators and contributors; keep recorded checks in release history.
 
 ## [1.0.0-beta.8] — 2026-11-08
 
@@ -466,6 +448,7 @@ The first release meant to be used by somebody other than its author.
 [config]: docs/configuration.md
 [@orshih6]: https://github.com/orshih6
 [GHSA-75xw-v7vm-5v6r]: https://github.com/eseifert/altero/security/advisories/GHSA-75xw-v7vm-5v6r
+[1.0.0-rc.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-rc.1
 [1.0.0-beta.8]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.8
 [CI#42428262993]: https://github.com/eseifert/altero/actions/runs/42428262993
 [1.0.0-beta.7]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.7
@@ -521,3 +504,5 @@ The first release meant to be used by somebody other than its author.
 
 [@arminbahl]: https://github.com/arminbahl
 [Issue#68]: https://github.com/eseifert/altero/issues/68
+
+[Issue#66]: https://github.com/eseifert/altero/issues/66

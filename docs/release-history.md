@@ -18,6 +18,7 @@ These notes retain requirements that may matter when upgrading an older instance
 | beta.6 to beta.7 | No database or storage migration was required. |
 | beta.8 with SMTP | Set `ALTERO_PUBLIC_URL` before starting; SMTP without a public URL is refused. Account links no longer use request host headers. |
 | beta.8 child-item repair | Child notes and attachments incorrectly filed in collections are repaired and receive new versions. Sync every desktop afterwards. Parents and attachment bytes remain intact. |
+| rc.1 registration | Existing accounts remain admitted. Approval-based registration is opt-in and requires SMTP/public URL; new-password policy applies without changing existing passwords. See [Accounts](configuration.md#accounts). |
 | OIDC issuer saved under beta.7 | If its trailing slash was removed, re-save the exact issuer from provider discovery after upgrading. Existing values cannot be repaired automatically. |
 
 An old password-reset message with an incorrect host is not revoked by upgrading.

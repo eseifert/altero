@@ -149,8 +149,9 @@ identify the caller correctly.
 By default, applications and recovery attempts share limits of five per source
 address/hour and 100 per instance/hour. Mail is limited to one message per
 recipient/minute and five/day. These budgets persist across workers and restarts;
-failed delivery spends the allowance too. Rate refusals return `429` with
-`Retry-After`. The pending queue is capped at 1,000 requests. Reviewers receive
+failed delivery spends the allowance too. Counters use fixed windows beginning
+with the first charged attempt, rather than rolling-window ceilings. Rate
+refusals return `429` with `Retry-After`. The pending queue is capped at 1,000 requests. Reviewers receive
 no per-request notification, and applications collect no password to hash.
 
 These controls bound automated submissions and prevent unapproved library

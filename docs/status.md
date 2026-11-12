@@ -30,6 +30,7 @@ only copy yet. Recorded results and their limits are in
 | OIDC and SAML browser sign-in             |   ✅   | Sign-in only; never a v3 API credential                                                                                  |
 | OAuth 2.0 and OIDC provider               |   ✅   | Scoped tokens for third-party applications, confinable to chosen libraries and collections; requires a stable public URL |
 | Passkeys and optional second factors      |   ✅   | Passkeys require a stable public URL                                                                                     |
+| Verified-email registration and approval |   ✅   | Opt-in; SMTP/public URL required, with durable abuse limits and optional domain restrictions; CAPTCHA deferred |
 | Import a personal library from zotero.org |   ✅   | Preserves object keys and versions                                                                                       |
 | Zotero iOS and Android apps               |   ⚠️   | Unofficial: needs a build pointed at altero; Android reported working on a device, iOS untested                          |
 
