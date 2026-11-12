@@ -98,6 +98,17 @@ requests cannot be reopened. Conflicting reservations and failed commits preserv
 the previous mailbox and proof together. The caller must authenticate the
 applicant before using this operation; the row ID alone grants no authority.
 
+Internal rejection requires a currently enabled instance administrator, checked
+in the database rather than from a cached account object. PostgreSQL locks the
+reviewer's row against concurrent demotion, suspension or deletion; the
+conditional decision write also includes the authorization predicate. Only a
+live review-pending request can become rejected. One write records actor/time,
+releases both reservations and preserves mailbox verification/history. Replays
+cannot replace the decision. Expiry cleanup shares the same transaction, so a
+failed commit preserves both the request and due reservations. Rejection creates
+no account or credential. Applicant authentication, CSRF-protected review routes
+and account activation are still unwired.
+
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
 object. The queries are equivalent and the flag avoids a join on every listing.

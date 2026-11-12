@@ -9,7 +9,7 @@ operator may provision an account while somebody has a pending reservation.
 import secrets
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import case, func, or_, select, true, update
+from sqlalchemy import Select, case, func, or_, select, true, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import ColumnElement
@@ -329,6 +329,53 @@ async def consume_email_verification(
         )
         .values(
             status=RegistrationStatus.REVIEW_PENDING, email_verified=moment, **_CLEAR_EMAIL_TOKEN
+        )
+        .returning(RegistrationRequest.id)
+    )
+    await session.commit()
+    return key is not None
+
+
+def _reviewer_query(actor_id: int) -> Select[tuple[int]]:
+    return select(User.id).where(
+        User.id == actor_id, User.administrator.is_(True), User.disabled_at.is_(None)
+    )
+
+
+async def reject(
+    session: AsyncSession,
+    request_id: int,
+    *,
+    actor_id: int,
+    now: datetime | None = None,
+) -> bool:
+    """Record a current administrator's rejection of a live verified request.
+
+    No public route calls this yet. The future route must authenticate its
+    browser session and check CSRF before supplying the actor ID. PostgreSQL
+    locks the reviewer against concurrent demotion, suspension or deletion;
+    the decision predicate repeats authorization on both databases. These
+    operations own their transaction, as the other request transitions do.
+    """
+    if await session.scalar(_reviewer_query(actor_id).with_for_update()) is None:
+        raise ForbiddenError("Only a current administrator can review registration")
+    moment = _utc(now or _now())
+    await _expire_due(session, moment)
+    key = await session.scalar(
+        update(RegistrationRequest)
+        .where(
+            RegistrationRequest.id == request_id,
+            RegistrationRequest.status == RegistrationStatus.REVIEW_PENDING,
+            RegistrationRequest.expires > moment,
+            _reviewer_query(actor_id).exists(),
+        )
+        .values(
+            status=RegistrationStatus.REJECTED,
+            decided_by=actor_id,
+            decided_at=moment,
+            reserved_username=None,
+            reserved_email=None,
+            **_CLEAR_EMAIL_TOKEN,
         )
         .returning(RegistrationRequest.id)
     )
