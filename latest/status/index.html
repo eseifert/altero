@@ -1812,8 +1812,9 @@ start with <a href="../getting-started/">Getting started</a>.</p>
 acceptance runs on Linux. Basic sync has community reports on Windows and
 macOS; broader conflict and recovery coverage on those platforms remains
 unverified. Mobile apps need a separate build pointed at your server.</p>
-<p>Keep a current backup of important libraries and don’t rely on altero as your
-only copy yet. Recorded results and their limits are in
+<p>The release candidate is ready for final testing before 1.0.0 stable. Keep
+current backups of your libraries, and back up the server database and attachment
+storage together before upgrading. Recorded results and their limits are in
 <a href="../client-compatibility/">desktop compatibility checks</a>,
 <a href="../testing-podman/#recorded-run">Podman testing</a> and
 <a href="../release-history/">release validation history</a>.</p>
@@ -1886,6 +1887,11 @@ only copy yet. Recorded results and their limits are in
 <td>Passkeys and optional second factors</td>
 <td style="text-align: center;">✅</td>
 <td>Passkeys require a stable public URL</td>
+</tr>
+<tr>
+<td>Verified-email registration and approval</td>
+<td style="text-align: center;">✅</td>
+<td>Opt-in; SMTP/public URL required, with durable abuse limits and optional domain restrictions; CAPTCHA deferred</td>
 </tr>
 <tr>
 <td>Import a personal library from zotero.org</td>

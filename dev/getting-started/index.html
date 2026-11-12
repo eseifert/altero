@@ -1766,7 +1766,9 @@
 For an existing server, go straight to <a href="../clients/">Connecting a Zotero client</a>.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Use a separate Zotero profile or a library you can recreate. Keep a current backup of important libraries and don’t rely on altero as your only copy yet.</p>
+<p>This is the first release candidate for 1.0.0, ready for final testing before
+the stable release. Keep current backups of your libraries. Back up the server
+database and attachment storage together before upgrading.</p>
 </div>
 <h2 id="1-start-altero">1. Start altero<a class="headerlink" href="#1-start-altero" title="Permanent link">&para;</a></h2>
 <p>With Docker and Docker Compose installed, run:</p>
@@ -1781,7 +1783,9 @@ The default image tag is <code>latest</code>, which includes prereleases.</p>
 <a href="../deployment/">Deployment</a>.</p>
 <h2 id="2-create-your-account">2. Create your account<a class="headerlink" href="#2-create-your-account" title="Permanent link">&para;</a></h2>
 <p>Open <a href="http://localhost:8000/app/">http://localhost:8000/app/</a> and register. The first account administers
-the instance; public registration then closes unless an administrator enables it.</p>
+the instance; public registration then closes unless an administrator enables it.
+Claim this account before exposing a fresh instance publicly. For additional
+users, operators can enable <a href="../administration/#review-registration-requests">verified-email requests and approval</a>.</p>
 <p>Alternatively, create an account from the shell:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>docker<span class="w"> </span>compose<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>altero<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>password<span class="w"> </span>&lt;username&gt;

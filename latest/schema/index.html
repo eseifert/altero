@@ -1782,9 +1782,9 @@ and tags via the <code>Timestamped</code> mixin in <code>altero/db.py</code>.</p
 trash is not an item-only concept.</p>
 <h2 id="deliberate-differences">Deliberate differences<a class="headerlink" href="#deliberate-differences" title="Permanent link">&para;</a></h2>
 <p><strong>Pending registration requests are separate from accounts.</strong> The
-<code>registration_requests</code> table is persistence for the planned verified-email and
-administrator-approval workflow. It stores no password or usable credential and
-creates no user or library. That public workflow is not enabled yet.</p>
+<code>registration_requests</code> table holds the opt-in verified-email and
+administrator-approval workflow. A pending request stores no password or account
+credential and creates no user or library; approval creates the account atomically.</p>
 <p>Pending rows reserve a canonical username and email address through unique,
 nullable columns. Terminal rows release both reservations while retaining the
 request's original fields. Constraints require email proof before review,
@@ -1802,12 +1802,13 @@ refresh the proof or extend the deadline. After the caller authenticates the
 applicant, cancellation releases either pending state; terminal history cannot
 be reopened. Conditional updates resolve concurrent transitions. Cleanup shares
 their transaction so a failed transition does not commit only part of the
-operation. These are internal
-primitives; applicant sessions and public routes remain to be wired.</p>
+operation. Applicant routes compose these primitives with separate credentials
+and CSRF checks; administrator decisions use ordinary account authorization.</p>
 <p>An email-pending request can store one outstanding mailbox proof: a unique
 SHA-256 token digest, the recipient address and an expiry no later than the
 request deadline. The raw link token is never stored. All three proof fields
-are present together or absent together; later states cannot retain them. This
+are present together or absent together; cancelled/rejected/expired requests
+cannot retain them. This
 internal issuer returns the stored recipient and a fresh random token, retaining
 only its SHA-256 digest. Resending replaces the old proof without extending the
 request deadline. A link lasts at most 24 hours; equality with either expiry
@@ -1817,18 +1818,18 @@ request state and both deadlines in one conditional update. The same update
 clears the proof and moves the request to review; concurrent consumers have one
 winner. Cancellation, expiry and trusted verification recording also clear any
 outstanding token. A failed transaction preserves the earlier link and lifecycle
-state together. These helpers send no mail and grant no account or library access;
-delivery, resend limits and applicant authorization still need caller integration.</p>
-<p>The internal gated-registration policy requires configured SMTP and an absolute
+state together. The public workflow composes these helpers with budgeted mail
+delivery and applicant authorization; mailbox proof grants no library access.</p>
+<p>The gated-registration policy requires configured SMTP and an absolute
 HTTP(S) <code>public_url</code>, and refuses SSO-only mode. It retains neither the settings
 nor relay credentials. Allowed domains are normalized to lowercase ASCII DNS
 names, with duplicates removed. An empty list allows any valid DNS domain;
 otherwise matching is exact, and every allowed subdomain must be listed.
 Wildcards, trailing dots and Unicode domain spellings are refused; use the
 domain's ASCII punycode spelling in both the policy and the address. Existing
-account address handling is unchanged. Mailbox verification proves control of
-an address, not current institutional membership. This internal policy has no
-operator setting or public caller yet, and does not prove the relay is reachable.
+accounts retain access, while address changes and their confirmation recheck the
+current policy. Mailbox verification proves control of an address, not current
+institutional membership. Configuration validation does not prove relay reachability.
 Submission and trusted verification recording require this policy explicitly.
 Proof issuance and consumption apply its current domain ceiling in their
 conditional updates, so a link issued under an older allowlist cannot advance
@@ -1845,6 +1846,139 @@ An unchanged normalized address preserves its proof/review state; terminal
 requests cannot be reopened. Conflicting reservations and failed commits preserve
 the previous mailbox and proof together. The caller must authenticate the
 applicant before using this operation; the row ID alone grants no authority.</p>
+<p>Internal rejection requires a currently enabled instance administrator, checked
+in the database rather than from a cached account object. PostgreSQL locks the
+reviewer's row against concurrent demotion, suspension or deletion; the
+conditional decision write also includes the authorization predicate. Only a
+live review-pending request can become rejected. One write records actor/time,
+releases both reservations and preserves mailbox verification/history. Replays
+cannot replace the decision. Expiry cleanup shares the same transaction, so a
+failed commit preserves both the request and due reservations. Rejection creates
+no account or credential. The public review routes authenticate the reviewer
+and require account CSRF before supplying the actor ID.</p>
+<p>Internal approval locks the reviewer and request, rechecks current domain policy
+and account availability, then creates a non-administrator account and personal
+library in the same transaction as the decision and reservation release. An
+operator-provisioned identity wins over an older pending reservation. Approval
+alone issues no password, session or API credential; applicant-authenticated
+enrollment must set the first password. Competing approve/reject/cancel operations
+have one terminal winner, and failed admission rolls back the account and library.</p>
+<p>Enrollment accepts only a live applicant token for an approved request whose
+account is enabled and still has no password, before the original request
+deadline. It checks authorization before Argon2, releases the read transaction
+while hashing, then locks and rechecks
+the request and user. Password storage and token revocation commit together.
+Concurrent enrollments cannot replace the winning password; a suspended account
+or operator-provisioned password cannot be overridden through this path. It
+creates no browser session: the ordinary sign-in flow follows enrollment.</p>
+<p>The internal review queue checks current administrator permission on every read
+and returns only live review-pending requests, ordered by increasing row ID. Its
+cursor is the last returned ID; pages default to 50 and are capped at 200.
+Reading neither sweeps expiry nor commits the caller's transaction. Rows may
+change between pages; decisions must recheck state and deadlines. The queue
+reads applicant metadata only, with no library or credential access. The
+administrator endpoint exposes this bounded queue.</p>
+<p>Applicant access has its own nullable digest/expiry pair on the request, separate
+from mailbox proofs and account sessions. Digests are unique; both fields must
+be present together, and expiry must follow creation. Applicant access may
+outlive the application deadline so a status page can report the outcome. It
+does not identify a user or grant library access. Existing requests migrate
+without a token. Internal issuance returns a fresh random token once, stores
+only its SHA-256 digest and replaces the previous token. It lasts seven days,
+independently of the unchanged application deadline. Only a live pending
+request can receive one; the trusted caller must already be authorized.</p>
+<p>Status lookup returns only the request ID, state and application deadline. It
+reports a due pending request as expired without mutating history, and retains
+terminal outcomes until token expiry. Cancellation authenticates the token and
+checks its expiry, the request state and deadline in one conditional write.
+It clears mailbox proofs and reservations, while retaining the applicant token
+for status reads. Revocation clears only the credential. Neither operation
+creates a user or account session; normal browser and v3 credentials cannot be
+obtained from this token. The combined internal submission operation commits
+the reservation, initial applicant-token digest and due-reservation cleanup in
+one transaction, returning the raw token only after success. Failure rolls back
+all three and leaves the identity available for retry. Internal composition
+stages these writes without committing; callers must finish or roll back the
+transaction. The public submission flow discards the initial applicant token
+and delivers a one-use mailbox proof instead. Only consuming that proof grants
+applicant access; resubmission and authenticated resend provide budgeted recovery
+from a lost response without granting an ordinary account session.</p>
+<p><code>GET /web/registration</code> reads only the request named by the separate
+<code>altero_applicant</code> cookie, returning ID/state/deadline with <code>Cache-Control:
+no-store</code>. Account cookies, API keys and bearer headers cannot authenticate it.
+A successful read sets a separate readable <code>altero_applicant_csrf</code> cookie,
+derived from the applicant credential with a domain-separated HMAC. Unsafe
+<code>POST /web/registration/cancel</code> and <code>/logout</code> require that value in both the
+cookie and <code>X-CSRF-Token</code>; an attacker-chosen matching pair is insufficient.
+Cancellation repeats token/state/deadline checks in its write and returns 409
+if the request can no longer be cancelled. Logout revokes applicant access and
+clears only its cookies, leaving any account session intact. Mailbox verification
+sets the applicant credential HttpOnly, SameSite=Lax and Secure over HTTPS,
+with path <code>/web/registration</code>; the CSRF cookie uses <code>/</code> for the interface to read.
+With registration approval explicitly enabled, <code>POST /web/registration/apply</code>
+accepts details without a password and returns a generic 202 without cookies.
+<code>open_registration</code> controls general applications; invitations permit a gated
+application even when it is closed. The first instance account remains the
+explicit bootstrap exception. The legacy register route refuses additional
+direct account creation whenever approval is required. Public submission and
+mailbox verification are CSRF exceptions: the browser has no applicant cookie
+yet, and verification authenticates only the one-use mailbox proof from its body.
+<code>POST /web/registration/verify</code> consumes that proof and sets a path-scoped
+HttpOnly applicant cookie. No account session or library access is created.
+Verification attempts are capped at 20/source address/hour.</p>
+<p>Mailbox links can also resume review-pending requests and approved accounts
+that still have no password. Issuance sends a fresh proof to the saved recipient
+without revoking an existing applicant cookie. Consuming that one-use proof
+renews applicant access, preserving an existing verification timestamp and
+approval decision. Proofs remain bounded by the application deadline; after
+that, a passwordless admitted account needs administrator-issued recovery.
+Enrollment clears outstanding mailbox proofs as well as the applicant token.
+Resumption cannot replace an existing password or recover a suspended account.</p>
+<p><code>/web/admin/registrations</code> exposes bounded live verified requests to current
+administrators. Its approve/reject POST routes require account CSRF; approval
+also requires the administrator's recent identity proof, as ordinary account
+creation does. Neither route accepts applicant cookies or API credentials.
+<code>POST /web/registration/enroll</code> uses applicant CSRF and caps attempts at
+five/token/hour and 20/source address/hour before hashing. It stores the first
+password only after approval, clears applicant cookies and issues no account
+session; normal sign-in follows. <code>/resend</code> requires applicant CSRF and shares
+the submission/recipient budgets without making another application.</p>
+<p><code>registration_budgets</code> persists fixed-window registration and mail quotas.
+Bucket keys are SHA-256 digests of a purpose and address/recipient identifier,
+never raw recipients, IP addresses or tokens. Reservation acquires overlapping
+buckets in sorted order and commits all charges or none. Workers and restarts
+share the same counters. Equality with the window deadline resets a bucket;
+refusal does not prolong its window. Failed mail delivery and worker crashes
+do not refund an admitted attempt. Exhaustion returns 429 and <code>Retry-After</code>.
+The public submission path uses these budgets before attempting mail delivery.
+The mailbox-first orchestration spends five submissions per source
+address/hour, 100 submissions per instance/hour, one message per recipient/minute
+and five messages per recipient/day by default. New requests, duplicate details
+and recovery attempts use the same buckets. Acknowledgment returns no token or
+availability flag; an existing account receives only a generic notice in its own
+mailbox. Matching pending/passwordless requests receive a proof link, including
+when pending capacity is full. Failed delivery spends its attempt and can be
+retried after the cooldown. The proof write checks the recipient snapshot used
+for budgeting, so a concurrent address change cannot redirect unbudgeted mail.
+Links carry the proof in the SPA URL fragment, keeping it out of HTTP URL logs.
+Authenticated resends use these same buckets and the current token plus recipient
+snapshot in the proof write. They cannot create a new application after a
+concurrent cancellation, or send mail using a revoked token.</p>
+<p>Submission holds a shared capacity-bucket row until its reservation commits.
+After expiring due requests it checks the pending count (default cap 1,000), so
+concurrent workers cannot each claim the last slot. A full queue returns 429
+with a 60-second retry interval. Under that same transaction it prunes expired
+and cancelled requests created over 30 days ago, only after their applicant
+credential expires. Approval/rejection audit history is preserved. A failed
+submission rolls back both expiry and pruning along with the new reservation.
+SQLite uses <code>AUTOINCREMENT</code> for request IDs, matching PostgreSQL's sequence:
+pruning cannot recycle an old request ID into a newer applicant or review page.</p>
+<p>These controls bound abuse, not distinguish humans from bots. Verified mailboxes
+can be automated and distributed sources can evade an IP-only limit. Admission
+must remain separate from submission: verification and administrator approval
+precede account/library access. This follows the layered approach in
+<a href="https://cheatsheetseries.owasp.org/cheatsheets/Bot_Management_and_Anti-Automation_Cheat_Sheet.html">OWASP's anti-automation guidance</a>.
+CAPTCHA is not part of 1.0.0.</p>
 <p><strong>The trash is a flag, not a table.</strong> The dataserver records trashed objects in
 <code>deletedItems(itemID, dateDeleted)</code>; altero uses a <code>deleted</code> boolean on the
 object. The queries are equivalent and the flag avoids a join on every listing.

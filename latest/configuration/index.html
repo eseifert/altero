@@ -2007,6 +2007,41 @@
 <td>Whether anybody may register from the browser. First-account and invited-address registration are also available, except in SSO-only mode.</td>
 </tr>
 <tr>
+<td><code>ALTERO_REGISTRATION_APPROVAL</code></td>
+<td><code>false</code></td>
+<td>Require mailbox proof and administrator approval for additional local accounts. Requires SMTP/public URL; incompatible with SSO-only mode. Open registration still controls general applications; invitations open a gated application, never direct admission.</td>
+</tr>
+<tr>
+<td><code>ALTERO_REGISTRATION_DOMAINS</code></td>
+<td><code>[]</code></td>
+<td>Exact allowed ASCII mailbox domains; subdomains must be listed. Empty permits any valid domain. Environment values are JSON arrays.</td>
+</tr>
+<tr>
+<td><code>ALTERO_REGISTRATION_MAX_PENDING</code></td>
+<td><code>1000</code></td>
+<td>Instance-wide cap on live pending applications.</td>
+</tr>
+<tr>
+<td><code>ALTERO_REGISTRATION_IP_LIMIT</code></td>
+<td><code>5</code></td>
+<td>Submission attempts per source address/hour. Configure trusted proxy addresses correctly.</td>
+</tr>
+<tr>
+<td><code>ALTERO_REGISTRATION_GLOBAL_LIMIT</code></td>
+<td><code>100</code></td>
+<td>Instance-wide submission attempts/hour, including recovery/duplicate attempts. Recipient mail remains capped at one/minute and five/day.</td>
+</tr>
+<tr>
+<td><code>ALTERO_PASSWORD_MIN_LENGTH</code></td>
+<td><code>8</code></td>
+<td>Minimum length for new passwords, from 8 to 1024 characters. Existing passwords can still sign in.</td>
+</tr>
+<tr>
+<td><code>ALTERO_PASSWORD_BLOCK_COMMON</code></td>
+<td><code>true</code></td>
+<td>Refuse common passwords using the bundled offline list; no composition rules or periodic resets.</td>
+</tr>
+<tr>
 <td><code>ALTERO_PASSWORD_RESET</code></td>
 <td><code>false</code></td>
 <td>Offer self-service password reset for confirmed addresses. Requires SMTP and a public URL. Administrators can issue reset links independently, except in SSO-only mode.</td>
@@ -2018,6 +2053,19 @@
 </tr>
 </tbody>
 </table>
+<p>The common-password list is bundled from
+<a href="https://github.com/django/django/blob/5.2/django/contrib/auth/common-passwords.txt.gz">Django 5.2</a>
+under its BSD license (distributed beside the list in the Python package).
+It contains 19,640 entries and is checked offline; no password is sent to another
+service. SHA-256 of the pinned gzip file:
+<code>3c1baed62596de36860824eb3f436d5932d37ca8b06e59df78f5a44ec175afe4</code>.
+The comparison ignores case and outer whitespace, but accepted passwords are
+hashed exactly as entered. Updating the policy does not invalidate existing
+passwords or require periodic password changes.
+Registration, account changes, administrator-issued passwords and reset links
+use the same policy. A refused password leaves a reset link usable. Browser
+registration and account password forms read the configured minimum from
+<code>/web/config</code>.</p>
 <h2 id="public-url-and-email">Public URL and email<a class="headerlink" href="#public-url-and-email" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

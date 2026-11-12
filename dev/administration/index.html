@@ -1243,6 +1243,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#review-registration-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Review registration requests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limit-automated-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Limit automated applications
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#password-reset" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2212,6 +2234,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#review-registration-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Review registration requests
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limit-automated-applications" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Limit automated applications
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#password-reset" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2641,6 +2685,62 @@
 <li><code>ALTERO_OPEN_REGISTRATION</code> enables registration; or</li>
 <li>the email address has been invited to a group.</li>
 </ul>
+<p>With <code>ALTERO_REGISTRATION_APPROVAL=true</code>, the latter two open an application
+instead of creating an account. Configure SMTP and <code>ALTERO_PUBLIC_URL</code> first;
+see <a href="../configuration/">registration settings</a>. The first owner remains an
+explicit setup exception. Create the first administrator while the instance
+is private, before exposing its registration page. Administrator and CLI
+account creation are trusted provisioning paths and do not enter this queue.</p>
+<h3 id="review-registration-requests">Review registration requests<a class="headerlink" href="#review-registration-requests" title="Permanent link">&para;</a></h3>
+<p>Open <strong>Administration → Registration requests</strong>. Only requests with a verified
+mailbox appear. Choose <strong>Review</strong>, check the address and username, then
+<strong>Approve</strong> or <strong>Reject</strong>. Approval requires recent identity confirmation and
+rechecks the current domain policy. It creates a regular, passwordless account;
+the applicant chooses a password from their status page before signing in.
+Approval sends no notification: the page checks its status periodically and a
+replacement link can resume it. No library or file is exposed during review.</p>
+<p>Domain restrictions also apply when an existing account changes its address,
+including confirmation of a link sent before the policy changed. Existing
+accounts keep their sign-in access and may confirm their current address.
+The allowlist proves a mailbox domain, not current organizational membership.
+An administrator who explicitly enables a provider's <strong>Create accounts</strong> trusts
+that directory to admit users directly. Existing directory subjects remain the
+identity; matching email claims never adopt local accounts or pending requests.</p>
+<h3 id="limit-automated-applications">Limit automated applications<a class="headerlink" href="#limit-automated-applications" title="Permanent link">&para;</a></h3>
+<p>For a public instance, enable <code>ALTERO_REGISTRATION_APPROVAL</code> before enabling
+<code>ALTERO_OPEN_REGISTRATION</code>. Optionally set <code>ALTERO_REGISTRATION_DOMAINS</code> to exact
+mailbox domains, listing permitted subdomains separately. Configure the
+<a href="../deployment/#behind-a-reverse-proxy">trusted reverse proxy</a> so address limits
+identify the caller correctly.</p>
+<p>By default, applications and recovery attempts share limits of five per source
+address/hour and 100 per instance/hour. Mail is limited to one message per
+recipient/minute and five/day. These budgets persist across workers and restarts;
+failed delivery spends the allowance too. Counters use fixed windows beginning
+with the first charged attempt, rather than rolling-window ceilings. Rate
+refusals return <code>429</code> with <code>Retry-After</code>. The pending queue is capped at 1,000 requests. Reviewers receive
+no per-request notification, and applications collect no password to hash.</p>
+<p>These controls bound automated submissions and prevent unapproved library
+access. They do not identify a human: bots can own mailboxes and rotate source
+addresses. Review applicants using your institution's own eligibility process.
+CAPTCHA is not included. To pause general applications while reviewing the
+queue, disable open registration while leaving approval enabled; invited
+addresses may still apply. To stop all applications, also withdraw outstanding
+invitations or close access at the reverse proxy.</p>
+<p>Requests expire seven days after submission. A mailbox link lasts at most
+24 hours and works once; resuming renews applicant access but does not extend
+the request deadline. A rejected or cancelled request releases its reservation,
+so the same details may be submitted again within the mail limits. Rejection is
+not an address ban. Unverified submissions can reserve somebody else's username
+temporarily; expiry releases it and trusted administrator provisioning remains
+available. Expired/cancelled history older than 30 days is pruned during later
+submissions after applicant access expires. Approval/rejection history is kept.</p>
+<p>If delivery fails, the request remains recoverable: correct the relay, wait for
+the recipient budget, then submit the same username and address again. The
+response deliberately does not reveal whether an account or request exists.
+After approval, the existing status page or a replacement mailbox link allows
+password setup until the original deadline. After that, use an administrator
+password-reset link for the approved account. A lost password-setup response
+may have committed: try ordinary sign-in before requesting recovery.</p>
 <h3 id="password-reset">Password reset<a class="headerlink" href="#password-reset" title="Permanent link">&para;</a></h3>
 <p>An administrator can either set a password or issue a single-use link that lets the account holder choose a new one.</p>
 <p>The link is valid for 12 hours. If the account has a confirmed address and outgoing mail is configured, altero can email it. The administrator is also shown the link so an instance without mail can still recover an account.</p>

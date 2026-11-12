@@ -2549,7 +2549,7 @@ it is unset, those URLs use the request's address instead.</p>
 <li><code>ALTERO_MAIL_FROM</code>; and</li>
 <li><code>ALTERO_PUBLIC_URL</code>.</li>
 </ul>
-<p>Without an SMTP relay, most messages are written to the log instead. Self-service password reset is the exception: it is not enabled without a relay because a password-reset link must not be exposed in server logs.</p>
+<p>Without an SMTP relay, most messages are written to the log instead. Self-service password reset and approval-based registration require a relay and a public URL; their links never fall back to server logs.</p>
 <p>See <a href="../email/">Email</a> for relay URLs, Docker details, security notices and group digests.</p>
 <h2 id="single-sign-on">Single sign-on<a class="headerlink" href="#single-sign-on" title="Permanent link">&para;</a></h2>
 <p>OpenID Connect and SAML 2.0 providers are configured in <strong>Administration → Sign-in providers</strong>.</p>

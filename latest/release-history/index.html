@@ -1574,6 +1574,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#release-candidate-1-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Release candidate 1 validation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#beta8-validation" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1729,6 +1740,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#release-candidate-1-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Release candidate 1 validation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#beta8-validation" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1836,6 +1858,10 @@ These notes retain requirements that may matter when upgrading an older instance
 <td>Child notes and attachments incorrectly filed in collections are repaired and receive new versions. Sync every desktop afterwards. Parents and attachment bytes remain intact.</td>
 </tr>
 <tr>
+<td>rc.1 registration</td>
+<td>Existing accounts remain admitted. Approval-based registration is opt-in and requires SMTP/public URL; new-password policy applies without changing existing passwords. See <a href="../configuration/#accounts">Accounts</a>.</td>
+</tr>
+<tr>
 <td>OIDC issuer saved under beta.7</td>
 <td>If its trailing slash was removed, re-save the exact issuer from provider discovery after upgrading. Existing values cannot be repaired automatically.</td>
 </tr>
@@ -1917,6 +1943,44 @@ over live HTTP; restoring its bytes made the intact snapshot pass again.
 This local run does not establish a hosted CI result, historic dependency-lock
 compatibility, downgrade safety or a full desktop acceptance run.</p>
 <h2 id="recorded-release-checks">Recorded release checks<a class="headerlink" href="#recorded-release-checks" title="Permanent link">&para;</a></h2>
+<h3 id="release-candidate-1-validation">Release candidate 1 validation<a class="headerlink" href="#release-candidate-1-validation" title="Permanent link">&para;</a></h3>
+<p>Local preparation on 2026-11-12–13 used Python 3.14.10, Node 24.22.1,
+SQLAlchemy 2.0.57 and PostgreSQL 18.4:</p>
+<ul>
+<li>The full backend run passes 3,923 cases with PostgreSQL, Keycloak and
+  SimpleSAMLphp enabled, without skips. Six additional source-archive output
+  regressions pass in the 32-case release-check suite.</li>
+<li>All 1,445 frontend unit tests, template types, Ruff, Ty and strict docs pass.
+  Catalog validation reports zero errors and missing new registration copy in
+  57 catalogs; those messages fall back to English. Further translation review
+  remains deferred.</li>
+<li>The complete Chromium matrix passes all 270 desktop/phone cases without
+  retries, skips or flaky results, using unchanged built assets throughout.</li>
+<li>Ten Chromium desktop/phone registration cases pass without skips or retries,
+  using a genuine local SMTP sink. They cover verification, approval, enrollment,
+  rejection/replay, Arabic-direction cancellation, accessibility, restart,
+  lost committed replies and SMTP refusal/retry with durable mail limits.
+  A separate genuine PostgreSQL HTTP/SMTP run reaches ordinary sign-in and
+  library access only after approval and password enrollment.</li>
+<li>All 333 pinned desktop source-replay checks and the network-consumer manifest
+  check pass. Two actual Zotero 10.0.7 credential scenarios pass on each database:
+  48 phases covering browser linking, revocation/relinking, expired/cancelled
+  linking, reduced key access and preservation of pending desktop edits.</li>
+<li>All sixteen populated beta.1–beta.8 upgrade cells pass on SQLite and fresh
+  PostgreSQL databases, ending at <code>1.0.0rc1</code> and revision <code>c9f532ad410b</code>.
+  They preserve files, permissions and library state through repeat startup.</li>
+<li>Artifact inspection rejects browser diagnostics and local state; the rebuilt
+  source archive excludes them even when they remain in the workspace. The wheel
+  and source archive carry matching browser files and the licensed offline
+  password list. Real HTTP from the isolated wheel verifies its import path,
+  version, blocklist, browser assets/font and authenticated API writes/reads.</li>
+</ul>
+<p>PostgreSQL 18.7 was announced during preparation, but its Alpine image was
+unavailable from the registry. These checks establish 18.4 results, not patched
+18.7 coverage; follow the <a href="../deployment/">PostgreSQL update instructions</a>.
+The full desktop matrix remains the recorded beta.7 run below. This candidate's
+credential checks do not replace it. Broader non-Linux, Podman and arm64 runtime
+coverage is not claimed. Hosted CI and publication remain separate.</p>
 <h3 id="beta8-validation">Beta.8 validation<a class="headerlink" href="#beta8-validation" title="Permanent link">&para;</a></h3>
 <p>Local release preparation on 2026-11-08 used Python 3.14.10 and Node 24.22.1:</p>
 <ul>

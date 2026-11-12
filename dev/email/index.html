@@ -2050,6 +2050,11 @@
 <td>Available when enabled</td>
 </tr>
 <tr>
+<td>Approval-based registration</td>
+<td><strong>Unavailable</strong></td>
+<td>Mailbox proof before administrator review</td>
+</tr>
+<tr>
 <td>Email second-factor code</td>
 <td>Not useful without delivery</td>
 <td>Delivered by email</td>
@@ -2071,6 +2076,7 @@
 <p>altero sends plain-text mail for:</p>
 <ul>
 <li>confirming an email address;</li>
+<li>confirming or resuming an approval-based registration request;</li>
 <li>group invitations;</li>
 <li>password-setting links;</li>
 <li>email second-factor codes;</li>
@@ -2080,6 +2086,11 @@
 </ul>
 <p>Security notices are sent only to a <strong>confirmed</strong> email address.</p>
 <p>Confirmation links are valid for 24 hours. Administrator-issued or self-service password links are single-use and valid for 12 hours. Email sign-in codes are valid for ten minutes, work once and are tied to the browser session that requested them.</p>
+<p>Registration links have a separate purpose: they grant access only to the
+applicant's status and password setup after approval. They never sign in or
+authorize a library. They require SMTP and a public URL, never fall back to
+logged links, and are limited to one message/minute and five/day per recipient.
+See <a href="../administration/#limit-automated-applications">registration abuse controls and recovery</a>.</p>
 <p>For reset links issued before a public-address correction, see <a href="../release-history/#historical-upgrade-notes">historical upgrade notes</a>.</p>
 <h2 id="run-without-smtp">Run without SMTP<a class="headerlink" href="#run-without-smtp" title="Permanent link">&para;</a></h2>
 <p>With <code>ALTERO_SMTP_URL</code> unset, altero logs messages at <code>WARNING</code> instead of sending them.</p>
