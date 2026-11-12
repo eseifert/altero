@@ -23,6 +23,8 @@ name: altero
 
 services:
   db:
+    # Moving stable-major tag: existing containers need an explicit pull/recreate.
+    # See docs/deployment.md for minor updates and conditional index repairs.
     image: postgres:18-alpine
     environment:
       POSTGRES_USER: altero

@@ -97,6 +97,13 @@ uv run pytest -q tests/test_concurrency.py
 Replace `<postgres-image>` with that image name. If the test container already
 exists, start it instead of creating another.
 
+Pull the selected image before creating a test container and record
+`SHOW server_version`; a moving tag does not update an existing container.
+Keep prerelease PostgreSQL checks separate from the stable CI baseline. See the
+[database update procedure](docs/deployment.md#update-postgresql-within-a-major-version)
+for the November 2026 fixes and conditional index/backup repair steps. Historical
+test reports retain the database version actually used.
+
 > [!WARNING]
 > These fixtures drop and recreate tables. Never point them at a database holding a real library.
 

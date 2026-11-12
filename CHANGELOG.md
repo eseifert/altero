@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Document PostgreSQL security updates, version checks and conditional search-index and backup repairs.
 - Separate i18n behavior tests from standalone catalog validation and remove redundant translation wording checks.
 - Persist and atomically consume address-bound registration mailbox proofs; public registration remains unchanged.
 - Add internal pending-registration reservations and lifecycle foundations; the public approval workflow is not enabled yet.

@@ -109,6 +109,51 @@ Some older upgrades rebuild search indexes or rename stored files. Allow time
 and free disk space. A rollback may require restoring **both** the database and
 storage backup; running an older image alone is not a recovery plan.
 
+### Update PostgreSQL within a major version
+
+The database has its own security updates; pulling only the altero image leaves
+it unchanged. Compose uses the moving `postgres:18-alpine` tag. After backing up
+the database and attachments, update it during a maintenance window:
+
+```sh
+docker compose stop altero
+docker compose pull db
+docker compose up -d --wait db
+docker compose exec db psql -U altero -d altero -c 'SHOW server_version;'
+```
+
+Check the reported version against the release you intend to install before
+starting altero with `docker compose up -d altero`. In a checkout, add
+`-f docker/compose.yaml` to each command. Use your configured database user/name
+if you changed the defaults. A cached image or a registry still publishing an
+update can leave the database on an older version even after a pull. A minor
+update keeps the existing volume and needs neither `pg_upgrade` nor a reload.
+
+The [November 12, 2026 PostgreSQL update](https://www.postgresql.org/about/news/postgresql-187-1712-1616-1520-1425-and-19-rc-2-released-3442/)
+ships security and correctness fixes in 18.7, 17.12, 16.16, 15.20 and 14.25.
+PostgreSQL 14 has reached end of life; plan a major upgrade if you still use it.
+PostgreSQL 19 RC 2 is a prerelease, and is not the Compose or CI default.
+
+Review the [18.7 release notes](https://www.postgresql.org/docs/release/18.7/)
+and the notes for your installed major version before restarting clients.
+altero's attachment full-text search uses a GIN index with `gin_trgm_ops` and
+`btree_gin`. If you suspect the GIN corruption described by upstream, rebuild
+that index **after updating PostgreSQL**, while altero is stopped:
+
+```sh
+docker compose exec db psql -v ON_ERROR_STOP=1 -U altero -d altero \
+    -c 'REINDEX INDEX ix_item_fulltext_library_content_trgm;'
+```
+
+Allow time and free disk space; this command blocks access to the table while
+rebuilding. The shipped schema has no GiST trigram indexes, partitioned tables
+or unconstrained `bpchar` columns, so those separate repair instructions apply
+only if you added them. For `missing chunk number` errors, upstream prescribes
+reindexing the affected table, including its TOAST index. If you use PostgreSQL
+incremental backups, take a new full backup after updating and base subsequent
+incrementals on it. These repairs are operator maintenance, not altero schema
+migrations; updating alone does not repair an already damaged index.
+
 ### Upgrade PostgreSQL across a major version
 
 altero's migrations do not upgrade PostgreSQL's own on-disk data format.
