@@ -51,6 +51,46 @@ compatibility, downgrade safety or a full desktop acceptance run.
 
 ## Recorded release checks
 
+### Release candidate 1 validation
+
+Local preparation on 2026-11-12–13 used Python 3.14.10, Node 24.22.1,
+SQLAlchemy 2.0.57 and PostgreSQL 18.4:
+
+- The full backend run passes 3,923 cases with PostgreSQL, Keycloak and
+  SimpleSAMLphp enabled, without skips. Six additional source-archive output
+  regressions pass in the 32-case release-check suite.
+- All 1,445 frontend unit tests, template types, Ruff, Ty and strict docs pass.
+  Catalog validation reports zero errors and missing new registration copy in
+  57 catalogs; those messages fall back to English. Further translation review
+  remains deferred.
+- The complete Chromium matrix passes all 270 desktop/phone cases without
+  retries, skips or flaky results, using unchanged built assets throughout.
+- Ten Chromium desktop/phone registration cases pass without skips or retries,
+  using a genuine local SMTP sink. They cover verification, approval, enrollment,
+  rejection/replay, Arabic-direction cancellation, accessibility, restart,
+  lost committed replies and SMTP refusal/retry with durable mail limits.
+  A separate genuine PostgreSQL HTTP/SMTP run reaches ordinary sign-in and
+  library access only after approval and password enrollment.
+- All 333 pinned desktop source-replay checks and the network-consumer manifest
+  check pass. Two actual Zotero 10.0.7 credential scenarios pass on each database:
+  48 phases covering browser linking, revocation/relinking, expired/cancelled
+  linking, reduced key access and preservation of pending desktop edits.
+- All sixteen populated beta.1–beta.8 upgrade cells pass on SQLite and fresh
+  PostgreSQL databases, ending at `1.0.0rc1` and revision `c9f532ad410b`.
+  They preserve files, permissions and library state through repeat startup.
+- Artifact inspection rejects browser diagnostics and local state; the rebuilt
+  source archive excludes them even when they remain in the workspace. The wheel
+  and source archive carry matching browser files and the licensed offline
+  password list. Real HTTP from the isolated wheel verifies its import path,
+  version, blocklist, browser assets/font and authenticated API writes/reads.
+
+PostgreSQL 18.7 was announced during preparation, but its Alpine image was
+unavailable from the registry. These checks establish 18.4 results, not patched
+18.7 coverage; follow the [PostgreSQL update instructions](deployment.md).
+The full desktop matrix remains the recorded beta.7 run below. This candidate's
+credential checks do not replace it. Broader non-Linux, Podman and arm64 runtime
+coverage is not claimed. Hosted CI and publication remain separate.
+
 ### Beta.8 validation
 
 Local release preparation on 2026-11-08 used Python 3.14.10 and Node 24.22.1:
