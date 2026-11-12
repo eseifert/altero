@@ -78,7 +78,7 @@ async def expire(session: AsyncSession, *, now: datetime | None = None) -> int:
     return count
 
 
-async def submit(
+async def prepare_submission(
     session: AsyncSession,
     *,
     username: str,
@@ -89,10 +89,10 @@ async def submit(
     policy: RegistrationPolicy | None = None,
     now: datetime | None = None,
 ) -> RegistrationRequest:
-    """Reserve an applicant's name/address, only with explicit internal opt-in.
+    """Stage a reservation and expiry cleanup without committing either.
 
-    No public route or operator setting enables this yet. Mail verification,
-    approval, admission checks and abuse budgets must be integrated first.
+    Internal composition point: the caller owns commit/rollback and must finish
+    the operation before returning. No public caller enables registration yet.
     """
     if not enabled:
         raise ForbiddenError("Gated registration is not enabled")
@@ -108,7 +108,7 @@ async def submit(
     if deadline <= moment:
         raise InvalidInputError("A registration request must expire in the future")
 
-    await expire(session, now=moment)
+    await _expire_due(session, moment)
     # SQLite's built-in lower() folds ASCII only. Match the canonical Python
     # lower-case reservation even for an existing accented username.
     fold = (
@@ -136,13 +136,41 @@ async def submit(
         expires=deadline,
     )
     session.add(record)
+    return record
+
+
+async def submit(
+    session: AsyncSession,
+    *,
+    username: str,
+    email: str,
+    expires: datetime,
+    display_name: str = "",
+    enabled: bool = False,
+    policy: RegistrationPolicy | None = None,
+    now: datetime | None = None,
+) -> RegistrationRequest:
+    """Commit an internal reservation without issuing an applicant credential."""
     try:
+        record = await prepare_submission(
+            session,
+            username=username,
+            email=email,
+            expires=expires,
+            display_name=display_name,
+            enabled=enabled,
+            policy=policy,
+            now=now,
+        )
         await session.commit()
     except IntegrityError:
         # The unique reservation columns choose one winner across workers;
         # a pre-insert SELECT alone cannot reserve an identity.
         await session.rollback()
         raise InvalidInputError(UNAVAILABLE) from None
+    except Exception:
+        await session.rollback()
+        raise
     return record
 
 

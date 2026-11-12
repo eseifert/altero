@@ -134,8 +134,14 @@ checks its expiry, the request state and deadline in one conditional write.
 It clears mailbox proofs and reservations, while retaining the applicant token
 for status reads. Revocation clears only the credential. Neither operation
 creates a user or account session; normal browser and v3 credentials cannot be
-obtained from this token. Initial submission/token delivery must be made atomic,
-and replacements must authenticate the applicant, before wiring public callers.
+obtained from this token. The combined internal submission operation commits
+the reservation, initial applicant-token digest and due-reservation cleanup in
+one transaction, returning the raw token only after success. Failure rolls back
+all three and leaves the identity available for retry. Internal composition
+stages these writes without committing; callers must finish or roll back the
+transaction. Replacements must authenticate the applicant before wiring public callers.
+Delivery to the submitting browser and recovery from a lost response still need
+public-flow integration; database atomicity alone cannot guarantee receipt.
 No public endpoint, cookie or CSRF exception is enabled by these helpers.
 
 **The trash is a flag, not a table.** The dataserver records trashed objects in

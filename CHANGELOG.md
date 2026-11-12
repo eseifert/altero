@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Commit pending registration reservations and initial applicant credentials atomically, including rollback of expiry cleanup.
 - Add internal applicant-only status and cancellation credentials, separate from account sessions.
 - Add a bounded internal registration review queue restricted to current administrators.
 - Add internal administrator rejection of verified registration requests with atomic decision history and reservation release.
