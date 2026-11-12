@@ -70,6 +70,17 @@ outstanding token. A failed transaction preserves the earlier link and lifecycle
 state together. These helpers send no mail and grant no account or library access;
 mail policy, resend limits and applicant authorization still need caller integration.
 
+The internal gated-registration policy requires configured SMTP and an absolute
+HTTP(S) `public_url`, and refuses SSO-only mode. It retains neither the settings
+nor relay credentials. Allowed domains are normalized to lowercase ASCII DNS
+names, with duplicates removed. An empty list allows any valid DNS domain;
+otherwise matching is exact, and every allowed subdomain must be listed.
+Wildcards, trailing dots and Unicode domain spellings are refused; use the
+domain's ASCII punycode spelling in both the policy and the address. Existing
+account address handling is unchanged. Mailbox verification proves control of
+an address, not current institutional membership. This internal policy has no
+operator setting or public caller yet, and does not prove the relay is reachable.
+
 **The trash is a flag, not a table.** The dataserver records trashed objects in
 `deletedItems(itemID, dateDeleted)`; altero uses a `deleted` boolean on the
 object. The queries are equivalent and the flag avoids a join on every listing.
