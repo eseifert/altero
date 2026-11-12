@@ -117,6 +117,14 @@ alone issues no password, session or API credential; applicant-authenticated
 enrollment must set the first password. Competing approve/reject/cancel operations
 have one terminal winner, and failed admission rolls back the account and library.
 
+Enrollment accepts only a live applicant token for an approved request whose
+account is enabled and still has no password. It checks authorization before
+Argon2, releases the read transaction while hashing, then locks and rechecks
+the request and user. Password storage and token revocation commit together.
+Concurrent enrollments cannot replace the winning password; a suspended account
+or operator-provisioned password cannot be overridden through this path. It
+creates no browser session: the ordinary sign-in flow follows enrollment.
+
 The internal review queue checks current administrator permission on every read
 and returns only live review-pending requests, ordered by increasing row ID. Its
 cursor is the last returned ID; pages default to 50 and are capped at 200.

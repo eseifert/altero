@@ -2,14 +2,15 @@
 
 from datetime import datetime
 
-from sqlalchemy import func, or_, select
+from sqlalchemy import Select, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.db import UNICODE_LOWER
 from altero.errors import ForbiddenError, InvalidInputError
 from altero.models import Library, LibraryType, RegistrationRequest, RegistrationStatus, User
-from altero.services import registrationlimits, registrations
+from altero.services import passwords, registrationaccess, registrationlimits, registrations
+from altero.services.emailverify import hash_token
 from altero.services.registrationpolicy import RegistrationPolicy
 
 
@@ -87,6 +88,68 @@ async def approve(
     except IntegrityError:
         await session.rollback()
         raise InvalidInputError(registrations.UNAVAILABLE) from None
+    except Exception:
+        await session.rollback()
+        raise
+
+
+def _enrollment_query(token: str, moment: datetime) -> Select[tuple[RegistrationRequest, User]]:
+    return (
+        select(RegistrationRequest, User)
+        .join(User, User.id == RegistrationRequest.user_id)
+        .where(
+            RegistrationRequest.applicant_token_hash == hash_token(token),
+            RegistrationRequest.applicant_token_expires > moment,
+            RegistrationRequest.status == RegistrationStatus.APPROVED,
+            User.disabled_at.is_(None),
+            User.password_hash.is_(None),
+        )
+    )
+
+
+async def enroll(
+    session: AsyncSession,
+    token: str,
+    password: str,
+    *,
+    policy: passwords.PasswordPolicy | None = None,
+    now: datetime | None = None,
+) -> bool:
+    """Set an approved applicant's first password and spend its token atomically.
+
+    Authenticate cheaply before hashing, then reacquire and recheck the request
+    and account after hashing. No database write lock is held during Argon2.
+    Public callers must check applicant CSRF and reserve abuse budgets first.
+    """
+    if not token:
+        return False
+    try:
+        candidate = (
+            await session.execute(_enrollment_query(token, registrationaccess._moment(now)))
+        ).first()
+        if candidate is None:
+            await session.rollback()
+            return False
+        await session.rollback()
+        passwords.validate_password(password, policy=policy)
+        digest = passwords.hash_password(password)
+        await registrationlimits.lock_capacity(session)
+        moment = registrationaccess._moment(now)
+        row = (
+            await session.execute(
+                _enrollment_query(token, moment)
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+        ).first()
+        if row is None:
+            await session.rollback()
+            return False
+        record, user = row
+        user.password_hash, user.password_changed = digest, moment
+        record.applicant_token_hash = record.applicant_token_expires = None
+        await session.commit()
+        return True
     except Exception:
         await session.rollback()
         raise
