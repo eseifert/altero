@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add administrator review and applicant enrollment routes with separate CSRF realms, recent approval proof and enrollment limits.
 - Bind authenticated registration resends to the current token, recipient and shared mail quotas.
 - Add opt-in mailbox-first registration; invitations cannot bypass approval and first-account bootstrap stays explicit.
 - Budget mailbox-first registration and recovery uniformly; reveal access only through one-use email links.

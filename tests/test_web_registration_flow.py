@@ -191,3 +191,90 @@ async def test_first_account_bootstrap_remains_explicit_and_only_once(
             ).status_code == 403
     finally:
         await fresh.state.database.dispose()
+
+
+async def verify_application(app: FastAPI, client: httpx2.AsyncClient) -> tuple[int, str]:
+    assert (
+        await client.post(
+            "/web/registration/apply", json={"username": "Ada", "email": "ada@example.org"}
+        )
+    ).status_code == 202
+    proof = app.state.mailer.messages[-1].body.split("#token=")[1].split()[0]
+    assert (await client.post("/web/registration/verify", json={"token": proof})).status_code == 200
+    status = await client.get("/web/registration")
+    csrf = client.cookies.get("altero_applicant_csrf")
+    assert csrf
+    return status.json()["requestID"], csrf
+
+
+async def test_approval_and_enrollment_keep_credential_realms_separate(
+    app: FastAPI,
+    client: httpx2.AsyncClient,
+) -> None:
+    key, applicant_csrf = await verify_application(app, client)
+    assert (await client.get("/web/admin/registrations")).status_code == 401
+    assert (
+        await client.post(
+            "/web/auth/login",
+            json={"username": "operator", "password": "correct horse battery staple"},
+        )
+    ).status_code == 200
+    queue = await client.get("/web/admin/registrations")
+    assert [r["id"] for r in queue.json()["requests"]] == [key]
+    assert (
+        await client.post(f"/web/admin/registrations/{key}/approve", json={})
+    ).status_code == 403
+    headers = {"X-CSRF-Token": client.cookies.get("altero_csrf") or ""}
+    assert (
+        await client.post(
+            f"/web/admin/registrations/{key}/approve",
+            json={"currentPassword": "correct horse battery staple"},
+            headers=headers,
+        )
+    ).status_code == 204
+    assert (await client.get("/web/registration")).json()["status"] == "approved"
+    password = "an uncommon new approved account password"
+    assert (
+        await client.post("/web/registration/enroll", json={"password": password}, headers=headers)
+    ).status_code == 403
+    assert (
+        await client.post(
+            "/web/registration/enroll",
+            json={"password": password},
+            headers={"X-CSRF-Token": applicant_csrf},
+        )
+    ).status_code == 200
+    assert not client.cookies.get("altero_applicant")
+    assert (await client.get("/web/auth/session")).json()["user"]["username"] == "operator"
+    client.cookies.clear()
+    signed = await client.post("/web/auth/login", json={"username": "Ada", "password": password})
+    assert signed.status_code == 200
+    assert signed.json()["user"]["administrator"] is False
+    assert (await client.get("/web/libraries")).status_code == 200
+
+
+async def test_rejection_remains_visible_and_never_allows_enrollment(
+    app: FastAPI,
+    client: httpx2.AsyncClient,
+    session: AsyncSession,
+) -> None:
+    key, applicant_csrf = await verify_application(app, client)
+    assert (
+        await client.post(
+            "/web/auth/login",
+            json={"username": "operator", "password": "correct horse battery staple"},
+        )
+    ).status_code == 200
+    headers = {"X-CSRF-Token": client.cookies.get("altero_csrf") or ""}
+    assert (
+        await client.post(f"/web/admin/registrations/{key}/reject", headers=headers)
+    ).status_code == 204
+    assert (await client.get("/web/registration")).json()["status"] == "rejected"
+    assert (
+        await client.post(
+            "/web/registration/enroll",
+            json={"password": "an uncommon rejected account password"},
+            headers={"X-CSRF-Token": applicant_csrf},
+        )
+    ).status_code == 409
+    assert await session.scalar(select(func.count()).select_from(User)) == 1

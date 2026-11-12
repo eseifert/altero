@@ -195,6 +195,16 @@ that, a passwordless admitted account needs administrator-issued recovery.
 Enrollment clears outstanding mailbox proofs as well as the applicant token.
 Resumption cannot replace an existing password or recover a suspended account.
 
+`/web/admin/registrations` exposes bounded live verified requests to current
+administrators. Its approve/reject POST routes require account CSRF; approval
+also requires the administrator's recent identity proof, as ordinary account
+creation does. Neither route accepts applicant cookies or API credentials.
+`POST /web/registration/enroll` uses applicant CSRF and caps attempts at
+five/token/hour and 20/source address/hour before hashing. It stores the first
+password only after approval, clears applicant cookies and issues no account
+session; normal sign-in follows. `/resend` requires applicant CSRF and shares
+the submission/recipient budgets without making another application.
+
 `registration_budgets` persists fixed-window registration and mail quotas.
 Bucket keys are SHA-256 digests of a purpose and address/recipient identifier,
 never raw recipients, IP addresses or tokens. Reservation acquires overlapping

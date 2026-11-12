@@ -17,7 +17,14 @@ from starlette.responses import JSONResponse, Response
 from altero.api.deps import SessionDep
 from altero.api.local_auth import require_local_auth
 from altero.api.routes.web import _client_address
-from altero.services import registrationaccess, registrationflow, registrationlimits, webauth
+from altero.services import (
+    passwords,
+    registrationaccess,
+    registrationadmission,
+    registrationflow,
+    registrationlimits,
+    webauth,
+)
 from altero.services.registrationaccess import ApplicantStatus
 from altero.services.registrationpolicy import RegistrationPolicy
 
@@ -42,6 +49,10 @@ class Application(BaseModel):
 
 class MailboxProof(BaseModel):
     token: str = Field(min_length=32, max_length=128)
+
+
+class Enrollment(BaseModel):
+    password: str = Field(min_length=1, max_length=1024)
 
 
 def _set_applicant(response: Response, request: Request, token: str) -> None:
@@ -160,6 +171,51 @@ async def cancel(request: Request, session: SessionDep, _csrf: CsrfDep) -> Respo
 async def logout(request: Request, session: SessionDep, _csrf: CsrfDep) -> Response:
     await registrationaccess.revoke(session, request.cookies.get(COOKIE))
     response = Response(status_code=204, headers={"Cache-Control": "no-store"})
+    response.delete_cookie(COOKIE, path=COOKIE_PATH)
+    response.delete_cookie(CSRF_COOKIE, path="/")
+    return response
+
+
+@router.post("/resend", status_code=202, dependencies=[Depends(require_local_auth)])
+async def resend(request: Request, session: SessionDep, _csrf: CsrfDep) -> Response:
+    settings = request.app.state.settings
+    await registrationflow.resend(
+        session,
+        request.cookies.get(COOKIE, ""),
+        policy=_policy(request),
+        public_url=settings.public_url,
+        send=request.app.state.mailer.send,
+        address=_client_address(request),
+        ip_limit=settings.registration_ip_limit,
+        global_limit=settings.registration_global_limit,
+    )
+    return JSONResponse(
+        {"message": "If this request can be resumed, a new link will be emailed."},
+        status_code=202,
+        headers={"Cache-Control": "no-store"},
+    )
+
+
+@router.post("/enroll", dependencies=[Depends(require_local_auth)])
+async def enroll(
+    request: Request, session: SessionDep, body: Enrollment, _csrf: CsrfDep
+) -> Response:
+    token = request.cookies.get(COOKIE, "")
+    await registrationlimits.reserve(
+        session,
+        registrationlimits.Budget(
+            "registration-enroll-address-hour", _client_address(request), 20, timedelta(hours=1)
+        ),
+        registrationlimits.Budget("registration-enroll-token-hour", token, 5, timedelta(hours=1)),
+    )
+    if not await registrationadmission.enroll(
+        session,
+        token,
+        body.password,
+        policy=passwords.PasswordPolicy.from_settings(request.app.state.settings),
+    ):
+        raise HTTPException(409, "This application is not available for password enrollment")
+    response = JSONResponse({"enrolled": True}, headers={"Cache-Control": "no-store"})
     response.delete_cookie(COOKIE, path=COOKIE_PATH)
     response.delete_cookie(CSRF_COOKIE, path="/")
     return response
