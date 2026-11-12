@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Admit verified registration requests atomically with account/library creation and current reviewer/domain checks.
 - Add configurable password length and an offline common-password blocklist; existing passwords can still sign in.
 - Keep registration request IDs monotonic after cleanup so stale review actions cannot identify a newer application.
 - Bound pending registrations across workers and prune old expired/cancelled requests without deleting review decisions.

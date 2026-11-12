@@ -109,6 +109,14 @@ failed commit preserves both the request and due reservations. Rejection creates
 no account or credential. Applicant authentication, CSRF-protected review routes
 and account activation are still unwired.
 
+Internal approval locks the reviewer and request, rechecks current domain policy
+and account availability, then creates a non-administrator account and personal
+library in the same transaction as the decision and reservation release. An
+operator-provisioned identity wins over an older pending reservation. Approval
+alone issues no password, session or API credential; applicant-authenticated
+enrollment must set the first password. Competing approve/reject/cancel operations
+have one terminal winner, and failed admission rolls back the account and library.
+
 The internal review queue checks current administrator permission on every read
 and returns only live review-pending requests, ordered by increasing row ID. Its
 cursor is the last returned ID; pages default to 50 and are capped at 200.
