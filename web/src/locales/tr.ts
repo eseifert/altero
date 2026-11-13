@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Az önce belirlediğiniz şifreyle oturum açın.",
   "Sign out and sign in": "Oturumu kapatıp yeniden aç",
   "An administrator must approve your request before you can use a library.": "Bir kitaplığı kullanabilmeniz için bir yöneticinin başvurunuzu onaylaması gerekir.",
-  "Request deadline: {date}": "Başvurunun sona ereceği tarih: {date}",
+  "Request expires: {date}": "Başvurunun sona ereceği tarih: {date}",
   "Contact the administrator to finish setting up this account.": "Bu hesabın kurulumunu tamamlamak için yöneticiyle iletişime geçin.",
   "Check status": "Durumu kontrol et",
   "Cancel request": "Başvuruyu iptal et",

@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Skráðu þig inn með lykilorðinu sem þú varst að velja.",
   "Sign out and sign in": "Skrá út og inn aftur",
   "An administrator must approve your request before you can use a library.": "Stjórnandi verður að samþykkja umsóknina þína áður en þú getur notað færslusafn.",
-  "Request deadline: {date}": "Umsókn gildir til: {date}",
+  "Request expires: {date}": "Umsókn gildir til: {date}",
   "Contact the administrator to finish setting up this account.": "Hafðu samband við stjórnandann til að ljúka uppsetningu þessa aðgangs.",
   "Check status": "Athuga stöðu",
   "Cancel request": "Afturkalla umsókn",

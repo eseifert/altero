@@ -26,7 +26,7 @@ export default {
   "Sign in with the password you just set.": "ہُنّے رکھے پاس ورڈ نال سائن ان کرو۔",
   "Sign out and sign in": "سائن آؤٹ کر کے مُڑ سائن ان کرو",
   "An administrator must approve your request before you can use a library.": "لائبریری ورتن توں پہلاں منتظم نوں تہاڈی درخواست منظور کرنی پئے گی۔",
-  "Request deadline: {date}": "درخواست دی مدت: {date}",
+  "Request expires: {date}": "درخواست دی مدت مُکدی اے: {date}",
   "Contact the administrator to finish setting up this account.": "ایس کھاتے دی ترتیب مکمل کرن لئی منتظم نال رابطہ کرو۔",
   "Check status": "حالت ویکھو",
   "Cancel request": "درخواست منسوخ کرو",

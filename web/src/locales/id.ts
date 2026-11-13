@@ -33,7 +33,7 @@ export default {
   "Sign in with the password you just set.": "Masuk dengan kata sandi yang baru saja Anda tetapkan.",
   "Sign out and sign in": "Keluar dan masuk kembali",
   "An administrator must approve your request before you can use a library.": "Administrator harus menyetujui permohonan Anda sebelum Anda dapat menggunakan perpustakaan.",
-  "Request deadline: {date}": "Permohonan berlaku hingga: {date}",
+  "Request expires: {date}": "Permohonan berlaku hingga: {date}",
   "Contact the administrator to finish setting up this account.": "Hubungi administrator untuk menyelesaikan penyiapan akun ini.",
   "Check status": "Periksa status",
   "Cancel request": "Batalkan permohonan",

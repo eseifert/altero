@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Kevreit gant ar ger-tremen hoc’h eus lakaet bremañ.",
   "Sign out and sign in": "Digevreañ ha kevreañ en-dro",
   "An administrator must approve your request before you can use a library.": "Ret eo d’ur merour asantiñ ho koulenn a-raok ma c’hallot implijout ul levraoueg.",
-  "Request deadline: {date}": "Termen ar goulenn: {date}",
+  "Request expires: {date}": "Termen talvoudegezh ar goulenn: {date}",
   "Contact the administrator to finish setting up this account.": "Kit e darempred gant ar merour evit echuiñ kefluniañ ar gont-mañ.",
   "Check status": "Gwiriañ ar stad",
   "Cancel request": "Nullañ ar goulenn",

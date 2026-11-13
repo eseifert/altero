@@ -27,7 +27,7 @@ export default {
   "Sign in with the password you just set.": "Meld u aan met het wachtwoord dat u zojuist hebt ingesteld.",
   "Sign out and sign in": "Afmelden en opnieuw aanmelden",
   "An administrator must approve your request before you can use a library.": "Een beheerder moet uw aanvraag goedkeuren voordat u een bibliotheek kunt gebruiken.",
-  "Request deadline: {date}": "Uiterste datum voor de aanvraag: {date}",
+  "Request expires: {date}": "Deze aanvraag vervalt op {date}",
   "Contact the administrator to finish setting up this account.": "Neem contact op met de beheerder om het instellen van dit account af te ronden.",
   "Check status": "Status controleren",
   "Cancel request": "Aanvraag intrekken",

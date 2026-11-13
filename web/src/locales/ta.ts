@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "இப்போது அமைத்த கடவுச்சொல்லைப் பயன்படுத்தி உள்நுழையவும்.",
   "Sign out and sign in": "வெளியேறி மீண்டும் உள்நுழையவும்",
   "An administrator must approve your request before you can use a library.": "நூலகத்தைப் பயன்படுத்துவதற்கு முன் ஒரு நிர்வாகி உங்கள் கோரிக்கையை அங்கீகரிக்க வேண்டும்.",
-  "Request deadline: {date}": "கோரிக்கை காலாவதியாகும் தேதி: {date}",
+  "Request expires: {date}": "கோரிக்கை காலாவதியாகும் தேதி: {date}",
   "Contact the administrator to finish setting up this account.": "இந்தக் கணக்கின் அமைப்பை முடிக்க நிர்வாகியைத் தொடர்புகொள்ளவும்.",
   "Check status": "நிலையைச் சரிபார்க்கவும்",
   "Cancel request": "கோரிக்கையை ரத்துசெய்யவும்",

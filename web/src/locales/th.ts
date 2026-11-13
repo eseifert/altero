@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "ลงชื่อเข้าใช้ด้วยรหัสผ่านที่คุณเพิ่งตั้ง",
   "Sign out and sign in": "ลงชื่อออกแล้วลงชื่อเข้าใช้อีกครั้ง",
   "An administrator must approve your request before you can use a library.": "ผู้ดูแลต้องอนุมัติคำขอของคุณก่อนที่คุณจะใช้ไลบรารีได้",
-  "Request deadline: {date}": "วันหมดอายุของคำขอ: {date}",
+  "Request expires: {date}": "วันหมดอายุของคำขอ: {date}",
   "Contact the administrator to finish setting up this account.": "ติดต่อผู้ดูแลเพื่อดำเนินการตั้งค่าบัญชีนี้ให้เสร็จ",
   "Check status": "ตรวจสอบสถานะ",
   "Cancel request": "ยกเลิกคำขอ",

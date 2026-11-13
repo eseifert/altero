@@ -34,7 +34,7 @@ export default {
   "Sign in with the password you just set.": "Prijavite se z geslom, ki ste ga pravkar nastavili.",
   "Sign out and sign in": "Odjavi se in znova prijavi",
   "An administrator must approve your request before you can use a library.": "Skrbnik mora odobriti vašo prošnjo, preden lahko uporabljate knjižnico.",
-  "Request deadline: {date}": "Prošnja velja do: {date}",
+  "Request expires: {date}": "Prošnja velja do: {date}",
   "Contact the administrator to finish setting up this account.": "Za dokončanje nastavitve tega računa se obrnite na skrbnika.",
   "Check status": "Preveri stanje",
   "Cancel request": "Prekliči prošnjo",

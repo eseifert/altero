@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Inicia sesión co contrasinal que acabas de establecer.",
   "Sign out and sign in": "Pechar sesión e volver iniciala",
   "An administrator must approve your request before you can use a library.": "Un administrador debe aprobar a túa solicitude antes de que poidas utilizar unha biblioteca.",
-  "Request deadline: {date}": "Caducidade da solicitude: {date}",
+  "Request expires: {date}": "Caducidade da solicitude: {date}",
   "Contact the administrator to finish setting up this account.": "Ponte en contacto co administrador para rematar a configuración desta conta.",
   "Check status": "Consultar o estado",
   "Cancel request": "Cancelar a solicitude",

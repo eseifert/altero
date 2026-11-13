@@ -26,7 +26,7 @@ export default {
   "Sign in with the password you just set.": "ابھی مقرر کیے گئے پاس ورڈ سے سائن ان کریں۔",
   "Sign out and sign in": "سائن آؤٹ کر کے دوبارہ سائن ان کریں",
   "An administrator must approve your request before you can use a library.": "کتب خانہ استعمال کرنے سے پہلے منتظم کو آپ کی درخواست منظور کرنی ہوگی۔",
-  "Request deadline: {date}": "درخواست کی آخری تاریخ: {date}",
+  "Request expires: {date}": "درخواست کی میعاد ختم ہو گی: {date}",
   "Contact the administrator to finish setting up this account.": "اس اکاؤنٹ کا سیٹ اپ مکمل کرنے کے لیے منتظم سے رابطہ کریں۔",
   "Check status": "حالت دیکھیں",
   "Cancel request": "درخواست منسوخ کریں",

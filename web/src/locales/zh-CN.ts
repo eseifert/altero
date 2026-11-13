@@ -27,7 +27,7 @@ export default {
   "Sign in with the password you just set.": "使用刚设置的密码登录。",
   "Sign out and sign in": "退出后重新登录",
   "An administrator must approve your request before you can use a library.": "管理员必须先批准你的申请，你才能使用文库。",
-  "Request deadline: {date}": "申请有效期至：{date}",
+  "Request expires: {date}": "申请有效期至：{date}",
   "Contact the administrator to finish setting up this account.": "请联系管理员以完成此账户的设置。",
   "Check status": "查看状态",
   "Cancel request": "取消申请",

@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Mag-sign in gamit ang password na itinakda mo lang.",
   "Sign out and sign in": "Mag-sign out at mag-sign in muli",
   "An administrator must approve your request before you can use a library.": "Kailangang aprubahan ng administrator ang iyong kahilingan bago ka makagamit ng library.",
-  "Request deadline: {date}": "May bisa ang kahilingan hanggang: {date}",
+  "Request expires: {date}": "May bisa ang kahilingan hanggang: {date}",
   "Contact the administrator to finish setting up this account.": "Makipag-ugnayan sa administrator para matapos ang pag-set up ng account na ito.",
   "Check status": "Tingnan ang status",
   "Cancel request": "Kanselahin ang kahilingan",

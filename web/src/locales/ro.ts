@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Autentifică-te cu parola pe care tocmai ai stabilit-o.",
   "Sign out and sign in": "Deconectează-te și autentifică-te din nou",
   "An administrator must approve your request before you can use a library.": "Un administrator trebuie să îți aprobe cererea înainte de a putea folosi o bibliotecă.",
-  "Request deadline: {date}": "Cererea expiră la: {date}",
+  "Request expires: {date}": "Cererea expiră la: {date}",
   "Contact the administrator to finish setting up this account.": "Contactează administratorul pentru a finaliza configurarea acestui cont.",
   "Check status": "Verifică starea",
   "Cancel request": "Anulează cererea",

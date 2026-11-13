@@ -37,7 +37,7 @@ export default {
   "Sign in with the password you just set.": "Sign in with the password you just set.",
   "Sign out and sign in": "Sign out and sign in",
   "An administrator must approve your request before you can use a library.": "An administrator must approve your request before you can use a library.",
-  "Request deadline: {date}": "Request deadline: {date}",
+  "Request expires: {date}": "Request expires: {date}",
   "Contact the administrator to finish setting up this account.": "Contact the administrator to finish setting up this account.",
   "Check status": "Check status",
   "Cancel request": "Cancel request",

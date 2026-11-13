@@ -36,7 +36,7 @@ export default {
   "Sign in with the password you just set.": "使用剛設定的密碼登入。",
   "Sign out and sign in": "登出後重新登入",
   "An administrator must approve your request before you can use a library.": "管理員必須先核准你的申請，你才能使用文獻庫。",
-  "Request deadline: {date}": "申請有效期限：{date}",
+  "Request expires: {date}": "申請有效期限：{date}",
   "Contact the administrator to finish setting up this account.": "請聯絡管理員以完成此帳號的設定。",
   "Check status": "查看狀態",
   "Cancel request": "取消申請",

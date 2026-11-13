@@ -55,6 +55,13 @@ The 28-catalog follow-up is complete. Together with the earlier 31-catalog pass,
 the three permanent library deletion/replacement warnings have been reviewed in
 all 59 catalogs. This does not imply native-speaker approval of the full catalogs.
 
+## Consistency and context
+
+The applicant and administrator views display the existing request’s expiry, not
+a deadline for submitting a new request. The English source now says “Request
+expires”; the corresponding label was checked in every catalog and ambiguous
+submission-deadline wording was clarified.
+
 ## Validation
 
 Run the standalone catalog check described in the

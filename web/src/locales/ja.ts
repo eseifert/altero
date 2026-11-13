@@ -32,7 +32,7 @@ export default {
   "Sign in with the password you just set.": "設定したばかりのパスワードでサインインしてください。",
   "Sign out and sign in": "サインアウトして再度サインイン",
   "An administrator must approve your request before you can use a library.": "ライブラリを利用するには、管理者が申請を承認する必要があります。",
-  "Request deadline: {date}": "申請の有効期限：{date}",
+  "Request expires: {date}": "申請の有効期限：{date}",
   "Contact the administrator to finish setting up this account.": "このアカウントの設定を完了するには、管理者に連絡してください。",
   "Check status": "状況を確認",
   "Cancel request": "申請を取り消す",

@@ -135,7 +135,7 @@ onUnmounted(() => { disposed = true; revision++; clearInterval(timer); proof.val
     </template>
     <template v-else-if="application">
       <p v-if="application.status === 'review_pending'">{{ t('An administrator must approve your request before you can use a library.') }}</p>
-      <p v-if="pending">{{ t('Request deadline: {date}', { date: formatDate(application.expires) }) }}</p>
+      <p v-if="pending">{{ t('Request expires: {date}', { date: formatDate(application.expires) }) }}</p>
       <form v-if="application.status === 'approved' && !auth.ssoOnly" @submit.prevent="enroll">
         <AppTextField v-model="password" type="password" autocomplete="new-password" :label="t('Password')" :hint="t('At least {count} characters', { count: minimum })" required />
         <AppTextField v-model="repeated" type="password" autocomplete="new-password" :label="t('Repeat password')" required :error="repeated && repeated !== password ? t('The two passwords do not match') : null" />

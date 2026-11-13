@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "ចូលដោយប្រើពាក្យសម្ងាត់ដែលអ្នកទើបតែកំណត់។",
   "Sign out and sign in": "ចេញហើយចូលម្ដងទៀត",
   "An administrator must approve your request before you can use a library.": "អ្នកគ្រប់គ្រងត្រូវអនុម័តសំណើរបស់អ្នក មុនពេលអ្នកអាចប្រើបណ្ណាល័យបាន។",
-  "Request deadline: {date}": "សំណើមានសុពលភាពដល់៖ {date}",
+  "Request expires: {date}": "សំណើមានសុពលភាពដល់៖ {date}",
   "Contact the administrator to finish setting up this account.": "ទាក់ទងអ្នកគ្រប់គ្រងដើម្បីបញ្ចប់ការរៀបចំគណនីនេះ។",
   "Check status": "ពិនិត្យស្ថានភាព",
   "Cancel request": "បោះបង់សំណើ",

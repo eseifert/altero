@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Prijavite se lozinkom koju ste upravo postavili.",
   "Sign out and sign in": "Odjavi se i ponovno prijavi",
   "An administrator must approve your request before you can use a library.": "Administrator mora odobriti Vaš zahtjev prije nego što možete koristiti biblioteku.",
-  "Request deadline: {date}": "Zahtjev vrijedi do: {date}",
+  "Request expires: {date}": "Zahtjev vrijedi do: {date}",
   "Contact the administrator to finish setting up this account.": "Obratite se administratoru kako biste dovršili postavljanje ovog računa.",
   "Check status": "Provjeri status",
   "Cancel request": "Povuci zahtjev",

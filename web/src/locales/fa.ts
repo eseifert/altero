@@ -26,7 +26,7 @@ export default {
   "Sign in with the password you just set.": "با گذرواژه‌ای که همین حالا تعیین کردید وارد شوید.",
   "Sign out and sign in": "خروج و ورود دوباره",
   "An administrator must approve your request before you can use a library.": "پیش از اینکه بتوانید از کتابخانه استفاده کنید، مدیر باید درخواست شما را تأیید کند.",
-  "Request deadline: {date}": "مهلت درخواست: {date}",
+  "Request expires: {date}": "درخواست در این تاریخ منقضی می‌شود: {date}",
   "Contact the administrator to finish setting up this account.": "برای تکمیل راه‌اندازی این حساب با مدیر تماس بگیرید.",
   "Check status": "بررسی وضعیت",
   "Cancel request": "لغو درخواست",

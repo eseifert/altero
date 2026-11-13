@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Logige sisse äsja määratud salasõnaga.",
   "Sign out and sign in": "Logi välja ja uuesti sisse",
   "An administrator must approve your request before you can use a library.": "Administraator peab teie taotluse heaks kiitma, enne kui saate raamatukogu kasutada.",
-  "Request deadline: {date}": "Taotlus kehtib kuni: {date}",
+  "Request expires: {date}": "Taotlus kehtib kuni: {date}",
   "Contact the administrator to finish setting up this account.": "Selle konto seadistamise lõpetamiseks võtke ühendust administraatoriga.",
   "Check status": "Kontrolli olekut",
   "Cancel request": "Tühista taotlus",

@@ -32,7 +32,7 @@ export default {
   "Sign in with the password you just set.": "अभी निर्धारित किए गए पासवर्ड से साइन इन करें।",
   "Sign out and sign in": "साइन आउट करके फिर साइन इन करें",
   "An administrator must approve your request before you can use a library.": "लाइब्रेरी का उपयोग करने से पहले किसी व्यवस्थापक को आपका अनुरोध स्वीकार करना होगा।",
-  "Request deadline: {date}": "अनुरोध की वैधता की अंतिम तिथि: {date}",
+  "Request expires: {date}": "अनुरोध की वैधता की अंतिम तिथि: {date}",
   "Contact the administrator to finish setting up this account.": "इस खाते का सेटअप पूरा करने के लिए व्यवस्थापक से संपर्क करें।",
   "Check status": "स्थिति देखें",
   "Cancel request": "अनुरोध रद्द करें",

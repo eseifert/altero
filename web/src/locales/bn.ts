@@ -32,7 +32,7 @@ export default {
   "Sign in with the password you just set.": "সদ্য নির্ধারণ করা পাসওয়ার্ড দিয়ে সাইন ইন করুন।",
   "Sign out and sign in": "সাইন আউট করে আবার সাইন ইন করুন",
   "An administrator must approve your request before you can use a library.": "লাইব্রেরি ব্যবহার করার আগে একজন প্রশাসককে আপনার আবেদন অনুমোদন করতে হবে।",
-  "Request deadline: {date}": "আবেদনের মেয়াদ শেষ হবে: {date}",
+  "Request expires: {date}": "আবেদনের মেয়াদ শেষ হবে: {date}",
   "Contact the administrator to finish setting up this account.": "এই অ্যাকাউন্টের সেটআপ শেষ করতে প্রশাসকের সঙ্গে যোগাযোগ করুন।",
   "Check status": "অবস্থা দেখুন",
   "Cancel request": "আবেদন বাতিল করুন",

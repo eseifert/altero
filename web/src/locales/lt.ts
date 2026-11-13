@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Prisijunkite naudodami ką tik nustatytą slaptažodį.",
   "Sign out and sign in": "Atsijungti ir vėl prisijungti",
   "An administrator must approve your request before you can use a library.": "Administratorius turi patvirtinti jūsų užklausą prieš jums pradedant naudotis biblioteka.",
-  "Request deadline: {date}": "Užklausa galioja iki: {date}",
+  "Request expires: {date}": "Užklausa galioja iki: {date}",
   "Contact the administrator to finish setting up this account.": "Kreipkitės į administratorių, kad užbaigtumėte šios paskyros nustatymą.",
   "Check status": "Tikrinti būseną",
   "Cancel request": "Atšaukti užklausą",

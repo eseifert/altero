@@ -33,7 +33,7 @@ export default {
   "Sign in with the password you just set.": "Đăng nhập bằng mật khẩu bạn vừa đặt.",
   "Sign out and sign in": "Đăng xuất rồi đăng nhập lại",
   "An administrator must approve your request before you can use a library.": "Quản trị viên phải phê duyệt yêu cầu của bạn trước khi bạn có thể sử dụng thư viện.",
-  "Request deadline: {date}": "Yêu cầu hết hạn vào: {date}",
+  "Request expires: {date}": "Yêu cầu hết hạn vào: {date}",
   "Contact the administrator to finish setting up this account.": "Liên hệ với quản trị viên để hoàn tất việc thiết lập tài khoản này.",
   "Check status": "Kiểm tra trạng thái",
   "Cancel request": "Hủy yêu cầu",

@@ -26,7 +26,7 @@ export default {
   "Sign in with the password you just set.": "יש להיכנס עם הסיסמה שהגדרת כעת.",
   "Sign out and sign in": "יציאה וכניסה מחדש",
   "An administrator must approve your request before you can use a library.": "מנהל חייב לאשר את הבקשה שלך לפני שתהיה לך אפשרות להשתמש בספרייה.",
-  "Request deadline: {date}": "תוקף הבקשה עד: {date}",
+  "Request expires: {date}": "תוקף הבקשה עד: {date}",
   "Contact the administrator to finish setting up this account.": "יש לפנות למנהל כדי לסיים את הגדרת החשבון הזה.",
   "Check status": "בדיקת מצב",
   "Cancel request": "ביטול הבקשה",

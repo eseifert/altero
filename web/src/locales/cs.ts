@@ -34,7 +34,7 @@ export default {
   "Sign in with the password you just set.": "Přihlaste se heslem, které jste právě nastavili.",
   "Sign out and sign in": "Odhlásit se a znovu se přihlásit",
   "An administrator must approve your request before you can use a library.": "Než budete moci používat knihovnu, musí správce vaši žádost schválit.",
-  "Request deadline: {date}": "Platnost žádosti do: {date}",
+  "Request expires: {date}": "Platnost žádosti do: {date}",
   "Contact the administrator to finish setting up this account.": "Pro dokončení nastavení tohoto účtu se obraťte na správce.",
   "Check status": "Zkontrolovat stav",
   "Cancel request": "Zrušit žádost",

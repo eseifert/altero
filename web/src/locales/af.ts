@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Meld aan met die wagwoord wat u pas ingestel het.",
   "Sign out and sign in": "Meld af en meld weer aan",
   "An administrator must approve your request before you can use a library.": "’n Administrateur moet u versoek goedkeur voordat u ’n biblioteek kan gebruik.",
-  "Request deadline: {date}": "Sperdatum vir die versoek: {date}",
+  "Request expires: {date}": "Versoek verval: {date}",
   "Contact the administrator to finish setting up this account.": "Kontak die administrateur om die opstel van hierdie rekening te voltooi.",
   "Check status": "Gaan status na",
   "Cancel request": "Kanselleer versoek",

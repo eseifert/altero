@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Συνδεθείτε με τον κωδικό πρόσβασης που μόλις ορίσατε.",
   "Sign out and sign in": "Αποσύνδεση και επανασύνδεση",
   "An administrator must approve your request before you can use a library.": "Ένας διαχειριστής πρέπει να εγκρίνει το αίτημά σας πριν μπορέσετε να χρησιμοποιήσετε βιβλιοθήκη.",
-  "Request deadline: {date}": "Το αίτημα λήγει στις: {date}",
+  "Request expires: {date}": "Το αίτημα λήγει στις: {date}",
   "Contact the administrator to finish setting up this account.": "Επικοινωνήστε με τον διαχειριστή για να ολοκληρώσετε τη ρύθμιση αυτού του λογαριασμού.",
   "Check status": "Έλεγχος κατάστασης",
   "Cancel request": "Ακύρωση αιτήματος",

@@ -27,7 +27,7 @@ export default {
   "Sign in with the password you just set.": "Melden Sie sich mit dem soeben festgelegten Passwort an.",
   "Sign out and sign in": "Abmelden und erneut anmelden",
   "An administrator must approve your request before you can use a library.": "Ein Administrator muss Ihren Antrag genehmigen, bevor Sie eine Bibliothek verwenden können.",
-  "Request deadline: {date}": "Antragsfrist: {date}",
+  "Request expires: {date}": "Antrag gültig bis: {date}",
   "Contact the administrator to finish setting up this account.": "Wenden Sie sich an den Administrator, um die Einrichtung dieses Kontos abzuschließen.",
   "Check status": "Status prüfen",
   "Cancel request": "Antrag zurückziehen",

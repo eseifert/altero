@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "ഇപ്പോൾ സജ്ജമാക്കിയ പാസ്‌വേഡ് ഉപയോഗിച്ച് സൈൻ ഇൻ ചെയ്യുക.",
   "Sign out and sign in": "സൈൻ ഔട്ട് ചെയ്ത് വീണ്ടും സൈൻ ഇൻ ചെയ്യുക",
   "An administrator must approve your request before you can use a library.": "ലൈബ്രറി ഉപയോഗിക്കുന്നതിന് മുമ്പ് ഒരു അഡ്‌മിനിസ്ട്രേറ്റർ നിങ്ങളുടെ അപേക്ഷ അംഗീകരിക്കണം.",
-  "Request deadline: {date}": "അപേക്ഷയുടെ കാലാവധി അവസാനിക്കുന്നത്: {date}",
+  "Request expires: {date}": "അപേക്ഷയുടെ കാലാവധി അവസാനിക്കുന്നത്: {date}",
   "Contact the administrator to finish setting up this account.": "ഈ അക്കൗണ്ടിന്റെ സജ്ജീകരണം പൂർത്തിയാക്കാൻ അഡ്‌മിനിസ്ട്രേറ്ററെ ബന്ധപ്പെടുക.",
   "Check status": "നില പരിശോധിക്കുക",
   "Cancel request": "അപേക്ഷ റദ്ദാക്കുക",

@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Сая тохируулсан нууц үгээрээ нэвтэрнэ үү.",
   "Sign out and sign in": "Гараад дахин нэвтрэх",
   "An administrator must approve your request before you can use a library.": "Номын сан ашиглахын өмнө администратор таны хүсэлтийг зөвшөөрөх ёстой.",
-  "Request deadline: {date}": "Хүсэлтийн хүчинтэй хугацаа: {date}",
+  "Request expires: {date}": "Хүсэлтийн хүчинтэй хугацаа: {date}",
   "Contact the administrator to finish setting up this account.": "Энэ бүртгэлийн тохиргоог дуусгахын тулд администратортой холбогдоно уу.",
   "Check status": "Төлөв шалгах",
   "Cancel request": "Хүсэлт цуцлах",

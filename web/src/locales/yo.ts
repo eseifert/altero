@@ -28,7 +28,7 @@ export default {
   "Sign in with the password you just set.": "Wọlé pẹ̀lú ọ̀rọ̀ aṣínà tí o ṣẹ̀ṣẹ̀ ṣètò.",
   "Sign out and sign in": "Jáde kí o sì tún wọlé",
   "An administrator must approve your request before you can use a library.": "Alábòójútó gbọ́dọ̀ fọwọ́ sí ìbéèrè rẹ kí o tó lè lo ilé ìkàwé.",
-  "Request deadline: {date}": "Ìbéèrè wúlò títí di: {date}",
+  "Request expires: {date}": "Ìbéèrè wúlò títí di: {date}",
   "Contact the administrator to finish setting up this account.": "Kàn sí alábòójútó láti parí ètò àkọọ́lẹ̀ yìí.",
   "Check status": "Ṣàyẹ̀wò ipò",
   "Cancel request": "Fagilé ìbéèrè",

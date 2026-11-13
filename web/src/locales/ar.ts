@@ -26,7 +26,7 @@ export default {
   "Sign in with the password you just set.": "سجّل الدخول بكلمة السر التي عيّنتها للتو.",
   "Sign out and sign in": "تسجيل الخروج ثم الدخول مجددًا",
   "An administrator must approve your request before you can use a library.": "يجب أن يوافق مسؤول على طلبك قبل أن تتمكن من استخدام مكتبة.",
-  "Request deadline: {date}": "تنتهي صلاحية الطلب في: {date}",
+  "Request expires: {date}": "تنتهي صلاحية الطلب في: {date}",
   "Contact the administrator to finish setting up this account.": "تواصل مع المسؤول لإكمال إعداد هذا الحساب.",
   "Check status": "التحقق من الحالة",
   "Cancel request": "إلغاء الطلب",

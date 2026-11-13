@@ -36,7 +36,7 @@ export default {
   "Sign in with the password you just set.": "Entre com a senha que você acabou de definir.",
   "Sign out and sign in": "Sair e entrar novamente",
   "An administrator must approve your request before you can use a library.": "Um administrador precisa aprovar sua solicitação antes que você possa usar uma biblioteca.",
-  "Request deadline: {date}": "Prazo da solicitação: {date}",
+  "Request expires: {date}": "A solicitação expira em: {date}",
   "Contact the administrator to finish setting up this account.": "Entre em contato com o administrador para concluir a configuração desta conta.",
   "Check status": "Verificar status",
   "Cancel request": "Cancelar solicitação",

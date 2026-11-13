@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Pierakstieties ar tikko iestatīto paroli.",
   "Sign out and sign in": "Izrakstīties un pierakstīties vēlreiz",
   "An administrator must approve your request before you can use a library.": "Administratoram jāapstiprina jūsu pieprasījums, pirms varat izmantot bibliotēku.",
-  "Request deadline: {date}": "Pieprasījums ir derīgs līdz: {date}",
+  "Request expires: {date}": "Pieprasījums ir derīgs līdz: {date}",
   "Contact the administrator to finish setting up this account.": "Sazinieties ar administratoru, lai pabeigtu šī konta iestatīšanu.",
   "Check status": "Pārbaudīt statusu",
   "Cancel request": "Atcelt pieprasījumu",

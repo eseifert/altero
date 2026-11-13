@@ -27,7 +27,7 @@ export default {
   "Sign in with the password you just set.": "Shiga da kalmar sirrin da ka saita yanzu.",
   "Sign out and sign in": "Fita sannan ka sake shiga",
   "An administrator must approve your request before you can use a library.": "Dole ne mai gudanarwa ya amince da buƙatarka kafin ka iya amfani da ɗakin karatu.",
-  "Request deadline: {date}": "Buƙatar za ta ƙare: {date}",
+  "Request expires: {date}": "Buƙatar za ta ƙare: {date}",
   "Contact the administrator to finish setting up this account.": "Tuntuɓi mai gudanarwa don kammala saita wannan asusu.",
   "Check status": "Duba hali",
   "Cancel request": "Soke buƙata",

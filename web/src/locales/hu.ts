@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Jelentkezzen be az imént beállított jelszóval.",
   "Sign out and sign in": "Kijelentkezés és újbóli bejelentkezés",
   "An administrator must approve your request before you can use a library.": "Egy adminisztrátornak jóvá kell hagynia a kérelmét, mielőtt könyvtárat használhatna.",
-  "Request deadline: {date}": "A kérelem lejárata: {date}",
+  "Request expires: {date}": "A kérelem lejárata: {date}",
   "Contact the administrator to finish setting up this account.": "A fiók beállításának befejezéséhez forduljon az adminisztrátorhoz.",
   "Check status": "Állapot ellenőrzése",
   "Cancel request": "Kérelem visszavonása",

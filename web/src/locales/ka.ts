@@ -32,7 +32,7 @@ export default {
   "Sign in with the password you just set.": "შედით ახლახან დაყენებული პაროლით.",
   "Sign out and sign in": "გამოსვლა და ხელახლა შესვლა",
   "An administrator must approve your request before you can use a library.": "ბიბლიოთეკის გამოყენებამდე ადმინისტრატორმა თქვენი მოთხოვნა უნდა დაამტკიცოს.",
-  "Request deadline: {date}": "მოთხოვნის ვადა: {date}",
+  "Request expires: {date}": "მოთხოვნის ვადა იწურება: {date}",
   "Contact the administrator to finish setting up this account.": "ამ ანგარიშის დაყენების დასასრულებლად დაუკავშირდით ადმინისტრატორს.",
   "Check status": "სტატუსის შემოწმება",
   "Cancel request": "მოთხოვნის გაუქმება",

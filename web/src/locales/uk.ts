@@ -33,7 +33,7 @@ export default {
   "Sign in with the password you just set.": "Увійдіть із паролем, який ви щойно встановили.",
   "Sign out and sign in": "Вийти й увійти знову",
   "An administrator must approve your request before you can use a library.": "Адміністратор має схвалити вашу заявку, перш ніж ви зможете користуватися бібліотекою.",
-  "Request deadline: {date}": "Заявка дійсна до: {date}",
+  "Request expires: {date}": "Заявка дійсна до: {date}",
   "Contact the administrator to finish setting up this account.": "Зверніться до адміністратора, щоб завершити налаштування цього облікового запису.",
   "Check status": "Перевірити стан",
   "Cancel request": "Скасувати заявку",

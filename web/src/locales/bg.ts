@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Влезте с паролата, която току-що зададохте.",
   "Sign out and sign in": "Изход и повторен вход",
   "An administrator must approve your request before you can use a library.": "Администратор трябва да одобри заявката Ви, преди да можете да използвате библиотека.",
-  "Request deadline: {date}": "Заявката изтича на: {date}",
+  "Request expires: {date}": "Заявката изтича на: {date}",
   "Contact the administrator to finish setting up this account.": "Свържете се с администратора, за да завършите настройването на този акаунт.",
   "Check status": "Проверка на състоянието",
   "Cancel request": "Отмяна на заявката",

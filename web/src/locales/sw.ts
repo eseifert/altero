@@ -27,7 +27,7 @@ export default {
   "Sign in with the password you just set.": "Ingia kwa nenosiri uliloweka sasa hivi.",
   "Sign out and sign in": "Toka kisha ingia tena",
   "An administrator must approve your request before you can use a library.": "Msimamizi lazima aidhinishe ombi lako kabla hujaweza kutumia maktaba.",
-  "Request deadline: {date}": "Ombi litaisha: {date}",
+  "Request expires: {date}": "Ombi litaisha: {date}",
   "Contact the administrator to finish setting up this account.": "Wasiliana na msimamizi ili kukamilisha usanidi wa akaunti hii.",
   "Check status": "Angalia hali",
   "Cancel request": "Ghairi ombi",

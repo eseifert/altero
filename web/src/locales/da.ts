@@ -27,7 +27,7 @@ export default {
   "Sign in with the password you just set.": "Log ind med den adgangskode, du lige har angivet.",
   "Sign out and sign in": "Log ud og log ind igen",
   "An administrator must approve your request before you can use a library.": "En administrator skal godkende din anmodning, før du kan bruge et bibliotek.",
-  "Request deadline: {date}": "Anmodningen udløber: {date}",
+  "Request expires: {date}": "Anmodningen udløber: {date}",
   "Contact the administrator to finish setting up this account.": "Kontakt administratoren for at færdiggøre opsætningen af denne konto.",
   "Check status": "Kontrollér status",
   "Cancel request": "Annuller anmodning",

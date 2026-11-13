@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Hasi saioa ezarri berri duzun pasahitzarekin.",
   "Sign out and sign in": "Amaitu saioa eta hasi berriro",
   "An administrator must approve your request before you can use a library.": "Administratzaile batek zure eskaera onartu behar du liburutegi bat erabili ahal izan aurretik.",
-  "Request deadline: {date}": "Eskaeraren iraungitze-data: {date}",
+  "Request expires: {date}": "Eskaeraren iraungitze-data: {date}",
   "Contact the administrator to finish setting up this account.": "Jarri administratzailearekin harremanetan kontu honen konfigurazioa osatzeko.",
   "Check status": "Egiaztatu egoera",
   "Cancel request": "Utzi eskaera bertan behera",

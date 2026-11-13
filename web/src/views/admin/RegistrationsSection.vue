@@ -75,7 +75,7 @@ onMounted(() => page(0))
           <span v-if="row.displayName" dir="auto"> · {{ row.displayName }}</span>
           <p dir="auto">{{ row.email }}</p>
           <p>{{ t('Created {date}', { date: formatDate(row.created) }) }}</p>
-          <p>{{ t('Request deadline: {date}', { date: formatDate(row.expires) }) }}</p>
+          <p>{{ t('Request expires: {date}', { date: formatDate(row.expires) }) }}</p>
         </div>
         <AppButton variant="text" :disabled="busy" @click="choose(row)">{{ t('Review') }}</AppButton>
         <form v-if="selected?.id === row.id" class="registrations__decision" @submit.prevent="decide('approve')">

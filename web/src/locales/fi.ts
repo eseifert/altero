@@ -30,7 +30,7 @@ export default {
   "Sign in with the password you just set.": "Kirjaudu sisään juuri asettamallasi salasanalla.",
   "Sign out and sign in": "Kirjaudu ulos ja takaisin sisään",
   "An administrator must approve your request before you can use a library.": "Ylläpitäjän on hyväksyttävä pyyntösi ennen kuin voit käyttää kirjastoa.",
-  "Request deadline: {date}": "Pyyntö vanhenee: {date}",
+  "Request expires: {date}": "Pyyntö vanhenee: {date}",
   "Contact the administrator to finish setting up this account.": "Ota yhteyttä ylläpitäjään tämän tilin käyttöönoton viimeistelemiseksi.",
   "Check status": "Tarkista tila",
   "Cancel request": "Peru pyyntö",

@@ -33,7 +33,7 @@ export default {
   "Sign in with the password you just set.": "방금 설정한 비밀번호로 로그인하세요.",
   "Sign out and sign in": "로그아웃 후 다시 로그인",
   "An administrator must approve your request before you can use a library.": "라이브러리를 사용하려면 관리자가 먼저 요청을 승인해야 합니다.",
-  "Request deadline: {date}": "요청 만료일: {date}",
+  "Request expires: {date}": "요청 만료일: {date}",
   "Contact the administrator to finish setting up this account.": "이 계정의 설정을 마치려면 관리자에게 문의하세요.",
   "Check status": "상태 확인",
   "Cancel request": "요청 취소",
