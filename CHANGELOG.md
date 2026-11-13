@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Translate registration and approval into Japanese, Korean and both Chinese variants.
 - Translate registration and approval into Basque, Estonian, Greek, Hungarian, Latvian and Lithuanian.
 - Translate registration and approval into Bulgarian, Mongolian, Romanian, Russian, Turkish and Ukrainian.
 - Translate registration and approval into Croatian, Czech, Polish, Serbian, Slovak and Slovenian.
