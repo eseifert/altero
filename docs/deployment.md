@@ -83,6 +83,12 @@ docker compose -f docker/compose.yaml config
 
 ### Upgrade altero
 
+**Pulling altero does not update PostgreSQL.** Check for database security
+updates as part of the same maintenance window. When an update is due, follow
+[Update PostgreSQL within a major version](#update-postgresql-within-a-major-version):
+back up, pull and recreate `db`, verify its running version and complete any
+applicable repairs before resuming altero.
+
 1. Read the [changelog](https://github.com/eseifert/altero/blob/master/CHANGELOG.md) for changes between your installed and target releases. For older installations, also check [historical upgrade notes](release-history.md#historical-upgrade-notes).
 2. Back up the database, attachment storage and configuration together; see [Backups](#backups).
 3. Update `ALTERO_IMAGE_TAG` if you pinned the image, then pull and recreate the application:

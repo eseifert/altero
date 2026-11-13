@@ -12,6 +12,7 @@ gained a capability worth naming.
 - Animate collapsible sections with native intrinsic sizing where supported; retain measured heights and reduced-motion behavior.
 - Use native popovers and viewport-aware CSS anchors for the theme menu when supported, with the existing menu as fallback.
 - Require PostgreSQL 18.7+ within major 18 in CI and record the running server version and image digests.
+- Link application upgrades to PostgreSQL maintenance, including backups, database recreation and running-version verification.
 
 ## [1.0.0-rc.1] — 2026-11-13
 
