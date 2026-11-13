@@ -189,7 +189,7 @@ export default {
   'Change the rights': '變更版權',
   'Change this provider': '變更此提供者',
   'Change who can see it': '變更誰可以看到',
-  'Changed elsewhere while you were editing.': '您編輯時已在別處被變更。',
+  'Changed elsewhere while you were editing.': "你編輯時已在別處被變更。",
   'Checked.': '已檢查。',
   'Checking the link…': '正在檢查連結…',
   'Checking the request…': '正在檢查要求…',

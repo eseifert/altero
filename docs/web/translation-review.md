@@ -75,6 +75,14 @@ label now matches the item list and detail pane. Breton, Basque, Malayalam and
 Bokmål merge notices now name the same Trash as their navigation controls, as do
 Tamil, Turkish and Traditional Chinese notices.
 
+Both Chinese variants retain their established 你 address. Later permission and
+consent copy had introduced 您 in Simplified Chinese, and an editing notice did
+the same in Traditional Chinese; these now match the rest of each interface.
+Regional library, account and API-key terms remain distinct. The address/script
+audit also checked the documented German, Dutch, Afrikaans, Spanish, Polish,
+Romanian, Serbian and Turkish conventions; protocol names, placeholders and
+quoted product/navigation labels are intentional exceptions.
+
 ## Validation
 
 Run the standalone catalog check described in the
