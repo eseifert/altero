@@ -21,8 +21,9 @@ must not promise that an account exists or that an email will always arrive.
 | Catalan, Galician, Italian, Portuguese (Brazil/Portugal), Spanish | All 36 registration messages translated; regional terms and established address retained |
 | Danish, Finnish, Icelandic, Norwegian (Bokmål/Nynorsk), Swedish | All 36 registration messages translated; regional terms and established address retained |
 | Croatian, Czech, Polish, Serbian, Slovak, Slovenian | All 36 registration messages translated; regional terms and established address retained |
+| Bulgarian, Mongolian, Romanian, Russian, Turkish, Ukrainian | All 36 registration messages translated; regional terms and established address retained |
 
-The remaining 35 non-English catalogs still need these messages. Both English
+The remaining 29 non-English catalogs still need these messages. Both English
 variants already contain them. Earlier German and Spanish review passes predate
 this new registration copy.
 
