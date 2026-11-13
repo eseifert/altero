@@ -46,5 +46,10 @@
     "vite": "~8.1.6",
     "vitest": "^4.1.12",
     "vue-tsc": "^3.3.9"
+  },
+  "overrides": {
+    "js-beautify": {
+      "glob": "^14.0.6"
+    }
   }
 }

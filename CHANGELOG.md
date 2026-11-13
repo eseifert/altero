@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Update test tooling's glob to fix CVE-2026-118773, which bypassed traversal cancellation.
 - Restrict browser library migration to zotero.org to prevent requests to arbitrary servers and private networks.
 - Stop forwarding migration API keys to other origins when following attachment redirects.
 - Correct the SSO setup notice in every catalog: callbacks require the configured public URL.
