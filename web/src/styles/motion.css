@@ -21,11 +21,23 @@
   transform: scale(0.96);
 }
 
-/* A section opening or closing: its height, measured by `Collapse.vue`. */
+/* A section opening or closing; Collapse measures only for older browsers. */
 .collapse-enter-active,
 .collapse-leave-active {
   overflow: hidden;
   transition: height var(--md-sys-motion-duration-medium) var(--md-sys-motion-easing-standard);
+}
+
+@supports (interpolate-size: allow-keywords) {
+  .collapse-enter-active,
+  .collapse-leave-active {
+    interpolate-size: allow-keywords;
+  }
+
+  .collapse-enter-from,
+  .collapse-leave-to {
+    height: 0;
+  }
 }
 
 /* A toast rises from the edge it sits on and fades as it goes. */

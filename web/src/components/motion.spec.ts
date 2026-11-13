@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref, vShow, withDirectives } from 'vue'
 
 import { i18n } from '@/i18n'
@@ -12,6 +12,11 @@ import ToastHost from './ToastHost.vue'
 beforeEach(() => {
   setActivePinia(createPinia())
   i18n.global.locale.value = 'en-US'
+})
+
+afterEach(() => {
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })
 
 describe('ToastHost', () => {
@@ -80,6 +85,40 @@ describe('ToastHost', () => {
 })
 
 describe('Collapse', () => {
+  it('leaves intrinsic-size animation to CSS without measuring the section', async () => {
+    vi.stubGlobal('CSS', { supports: (property: string, value: string) =>
+      property === 'interpolate-size' && value === 'allow-keywords',
+    })
+    const open = ref(false)
+    const wrapper = mount(defineComponent(() => () => h(Collapse, null, () =>
+      withDirectives(h('section', [h('button', 'Write')]), [[vShow, open.value]]),
+    )), { global: { stubs: { transition: false } } })
+    const section = wrapper.get('section').element
+    const contentHeight = vi.spyOn(section, 'scrollHeight', 'get').mockReturnValue(84)
+    const rect = vi.spyOn(section, 'getBoundingClientRect')
+    open.value = true
+    await nextTick()
+    expect(contentHeight).not.toHaveBeenCalled()
+    expect(section.style.height).toBe('')
+    open.value = false
+    await nextTick()
+    expect(rect).not.toHaveBeenCalled()
+    expect(section.hasAttribute('inert')).toBe(true)
+  })
+
+  it('measures the opening height when intrinsic interpolation is unavailable', async () => {
+    vi.stubGlobal('CSS', { supports: () => false })
+    const open = ref(false)
+    const wrapper = mount(defineComponent(() => () => h(Collapse, null, () =>
+      withDirectives(h('section', 'Content'), [[vShow, open.value]]),
+    )), { global: { stubs: { transition: false } } })
+    const section = wrapper.get('section').element
+    vi.spyOn(section, 'scrollHeight', 'get').mockReturnValue(84)
+    open.value = true
+    await nextTick()
+    expect(section.style.height).toBe('84px')
+  })
+
   it('retires controls immediately while their content is leaving', async () => {
     const open = ref(true)
     const clicked = vi.fn()

@@ -73,8 +73,13 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
       expect(await accessibilityProblems(page)).toEqual([])
     })
 
-    test('collection branches animate, survive interrupted toggles and release their height', async ({ page }, info) => {
-      const name = `Motion ${reducedMotion} ${info.project.name}`
+    for (const intrinsic of [true, false]) test(`collection branches animate, survive interrupted toggles and release their height (${intrinsic ? 'intrinsic' : 'measured'})`, async ({ page }, info) => {
+      if (!intrinsic) await page.addInitScript(() => {
+        const supports = CSS.supports.bind(CSS)
+        CSS.supports = (property: string, value?: string) => property === 'interpolate-size'
+          ? false : value === undefined ? supports(property) : supports(property, value)
+      })
+      const name = `Motion ${intrinsic} ${reducedMotion} ${info.project.name}`
       const [parent] = await create('collections', [{ name }])
       const [child] = await create('collections', [{ name: `${name} child`, parentCollection: parent }])
       const [grandchild] = await create('collections', [{ name: `${name} grandchild`, parentCollection: child }])
@@ -85,12 +90,19 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
       // Record the actual transition classes and computed styles as Vue applies
       // them, including transitions too brief for a Playwright poll to catch.
       await row.locator('..').evaluate((element) => {
-        const samples: { duration: number; height: string }[] = []
+        const samples: { duration: number; height: string; frames: unknown[] }[] = []
         ;(window as unknown as { branchMotion: typeof samples }).branchMotion = samples
         new MutationObserver(() => {
           const branch = element.querySelector('ul.collapse-enter-active, ul.collapse-leave-active')
           if (branch instanceof HTMLElement) {
-            samples.push({ duration: parseFloat(getComputedStyle(branch).transitionDuration), height: branch.style.height })
+            const transition = branch.getAnimations().find(animation =>
+              animation instanceof CSSTransition && animation.transitionProperty === 'height',
+            )
+            samples.push({
+              duration: parseFloat(getComputedStyle(branch).transitionDuration), height: branch.style.height,
+              frames: transition?.effect instanceof KeyframeEffect
+                ? transition.effect.getKeyframes().map(frame => frame.height) : [],
+            })
           }
         }).observe(element, { childList: true, attributes: true, subtree: true, attributeFilter: ['class', 'style'] })
       })
@@ -98,8 +110,11 @@ for (const reducedMotion of ['no-preference', 'reduce'] as const) {
       await row.getByRole('button', { name: 'Expand', exact: true }).click()
       await expect(branch).toBeVisible()
       await expect.poll(() => page.evaluate(() => (window as unknown as { branchMotion: unknown[] }).branchMotion.length)).toBeGreaterThan(0)
-      const samples = await page.evaluate(() => (window as unknown as { branchMotion: { duration: number; height: string }[] }).branchMotion)
-      expect(samples.some((sample) => sample.height.endsWith('px'))).toBe(true)
+      const samples = await page.evaluate(() => (window as unknown as { branchMotion: { duration: number; height: string; frames: unknown[] }[] }).branchMotion)
+      expect(samples.some((sample) => sample.height.endsWith('px'))).toBe(!intrinsic)
+      if (intrinsic && reducedMotion === 'no-preference') {
+        expect(samples.some(sample => sample.frames.includes('auto'))).toBe(true)
+      }
       expect(samples.some((sample) => reducedMotion === 'reduce' ? sample.duration <= 0.001 : sample.duration >= 0.12 && sample.duration <= 0.25)).toBe(true)
       await expect(branch).toHaveCSS('height', /[1-9][\d.]*px/)
       await expect.poll(() => branch.evaluate((element) => (element as HTMLElement).style.height)).toBe('')

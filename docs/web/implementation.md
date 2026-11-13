@@ -67,6 +67,12 @@ keys move inside; Tab and Shift+Tab close the menu and continue from its trigger
 Escape restores the trigger, while moving focus outside dismisses the menu
 without taking focus back. The theme trigger also opens with Up/Down arrows.
 
+Collapsible sections use `interpolate-size: allow-keywords` when available,
+scoped to their active transition. Older browsers retain measured CSSOM heights.
+Both paths retire departing controls, release heights after completion or
+cancellation, and honor reduced motion. Browser checks exercise native and
+forced measured paths, including nested branches and interrupted toggles.
+
 Tags share `TagPill.vue`, `styles/tag-pills.css` and ordering in `items/tags.ts`.
 The component owns rename drafts and errors; callers provide library filtering
 or item-only removal. Pending additions and removals project over current tags
