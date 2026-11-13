@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Stop persisting checkout credentials in test and container-build jobs; retain them only for the documentation publisher.
 - Pin GitHub Actions to verified commit hashes so mutable upstream tags cannot change workflow code.
 - Update test tooling's minimatch to fix CVE-2026-118764, a glob-pattern amplification denial of service.
 - Give CI jobs read-only repository permissions instead of inheriting the repository's token defaults.
