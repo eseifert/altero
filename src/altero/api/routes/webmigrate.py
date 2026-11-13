@@ -26,7 +26,7 @@ import asyncio
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Annotated, Any
+from typing import Annotated, Any, Literal
 
 import httpx2
 from fastapi import APIRouter, Body
@@ -57,10 +57,9 @@ class StartMigration(BaseModel):
     #: Discard what the library already holds. Without it, a library with
     #: anything in it is refused rather than merged.
     replace: bool = False
-    #: Where to read from. Not offered by the interface -- it is here so that a
-    #: test, or somebody moving between two altero instances, can point it
-    #: somewhere else.
-    server: str = zoteroapi.DEFAULT_BASE_URL
+    #: This public endpoint must not let an account probe the server's network.
+    #: Custom sources remain available to the operator through the CLI.
+    server: Literal["https://api.zotero.org"] = "https://api.zotero.org"
 
 
 async def _run(

@@ -93,7 +93,6 @@ async def start(client: httpx2.AsyncClient, **overrides: Any) -> httpx2.Response
         "apiKey": SOURCE_KEY,
         "currentPassword": PASSWORD,
         "replace": True,
-        "server": "http://zotero.test",
     }
     body.update(overrides)
     return await client.post("/web/migrate/zotero", json=body, headers=csrf_headers(client))
@@ -153,6 +152,34 @@ class TestRunningOne:
 
 
 class TestWhatItRefuses:
+    @pytest.mark.parametrize(
+        "server",
+        [
+            "http://127.0.0.1:8000",
+            "http://169.254.169.254/latest/meta-data",
+            "https://api.zotero.org.attacker.example",
+            "https://api.zotero.org@attacker.example",
+        ],
+    )
+    async def test_the_browser_cannot_choose_an_outbound_server(
+        self, ada: httpx2.AsyncClient, monkeypatch: pytest.MonkeyPatch, server: str
+    ) -> None:
+        from altero.api.routes import webmigrate
+
+        started = False
+
+        async def record_start(**kwargs: Any) -> None:
+            nonlocal started
+            started = True
+
+        monkeypatch.setattr(webmigrate, "_run", record_start)
+        response = await start(ada, server=server)
+        await asyncio.sleep(0)
+
+        assert response.status_code == 400
+        assert not started
+        assert (await ada.get("/web/migrate/zotero")).json() is None
+
     async def test_it_needs_the_account_password(
         self, ada: httpx2.AsyncClient, reachable: None
     ) -> None:

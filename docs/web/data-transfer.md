@@ -11,6 +11,8 @@ Choose the tool that matches your goal:
 ## Moving in from zotero.org
 
 This is a one-time copy, not continuing synchronization between servers.
+Browser migration reads only `https://api.zotero.org`; it cannot target a
+custom server. Use library archives to move between altero instances.
 
 1. Finish syncing to zotero.org, back up your library and pause edits.
 2. In zotero.org's account settings, create an API key with read access to your personal library.
