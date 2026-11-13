@@ -67,6 +67,15 @@ keys move inside; Tab and Shift+Tab close the menu and continue from its trigger
 Escape restores the trigger, while moving focus outside dismisses the menu
 without taking focus back. The theme trigger also opens with Up/Down arrows.
 
+The theme menu uses an auto popover in the top layer when popovers with a
+source, CSS anchors, logical placement and flip fallbacks are all supported.
+Its source associates it with its trigger without inline styles or shared anchor
+names. Native dismissal updates the interface state; keyboard opening enters the
+menu while pointer opening keeps focus on its trigger. If a required feature is
+missing, the same menu uses its existing absolute positioning and outside-click
+handling. No polyfill or browser-target change is required. Keep virtual-caret editor menus
+on their existing positioning path.
+
 Collapsible sections use `interpolate-size: allow-keywords` when available,
 scoped to their active transition. Older browsers retain measured CSSOM heights.
 Both paths retire departing controls, release heights after completion or

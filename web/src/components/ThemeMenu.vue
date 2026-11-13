@@ -27,7 +27,20 @@ const OPTIONS: Array<{ value: ThemePreference; label: () => string }> = [
 const open = ref(false)
 const root = useTemplateRef<HTMLElement>('root')
 const trigger = useTemplateRef<HTMLButtonElement>('trigger')
+const list = useTemplateRef<HTMLElement>('list')
 const items = ref<HTMLButtonElement[]>([])
+
+// Use the top layer only when the menu can also stay attached to its trigger.
+// The ordinary positioned menu remains the fallback; no polyfill is needed.
+const nativeMenu = typeof HTMLElement !== 'undefined'
+  && 'popover' in HTMLElement.prototype
+  && typeof HTMLElement.prototype.showPopover === 'function'
+  && typeof ToggleEvent !== 'undefined' && 'source' in ToggleEvent.prototype
+  && globalThis.CSS?.supports?.('anchor-name', '--theme-menu') === true
+  && CSS.supports('position-anchor', '--theme-menu')
+  && CSS.supports('position-area', 'block-end span-inline-start')
+  && CSS.supports('position-try-fallbacks', 'flip-block, flip-inline, flip-block flip-inline')
+let openingIndex: number | null = null
 
 const current = computed(
   () => OPTIONS.find((option) => option.value === theme.preference) ?? OPTIONS[2],
@@ -39,24 +52,47 @@ function collect(element: unknown, index: number): void {
   }
 }
 
-async function toggle(): Promise<void> {
+async function toggle(event: MouseEvent): Promise<void> {
   if (open.value) close()
-  else await show()
+  else await show(undefined, event.detail === 0)
 }
 
-async function show(index = OPTIONS.findIndex(option => option.value === theme.preference)): Promise<void> {
+async function show(index = OPTIONS.findIndex(option => option.value === theme.preference), enter = true): Promise<void> {
   open.value = true
+  openingIndex = enter ? Math.max(index, 0) : null
 
-  // Opening moves focus into the menu, at whichever option is in force, so it
-  // can be driven from the keyboard without tabbing through the list first.
   await nextTick()
-  if (open.value) items.value[Math.max(index, 0)]?.focus()
+  if (!open.value) return
+  if (nativeMenu && list.value && trigger.value) {
+    if (!list.value.matches(':popover-open')) {
+      // The source both anchors the menu and keeps its trigger in the native
+      // light-dismiss group. TypeScript's DOM declarations predate this option.
+      const menu = list.value as HTMLElement & { showPopover(options: { source: HTMLElement }): void }
+      menu.showPopover({ source: trigger.value })
+      // Native opening focuses from the toggle event, after promotion.
+      return
+    }
+  }
+  focusOnOpen()
+}
+
+function focusOnOpen(): void {
+  if (openingIndex === null) trigger.value?.focus()
+  else items.value[openingIndex]?.focus()
+}
+
+function onToggle(event: Event): void {
+  // A queued event for a replaced menu must not close its successor.
+  if (event.currentTarget !== list.value) return
+  if ((event as ToggleEvent).newState === 'closed') open.value = false
+  else if (open.value) focusOnOpen()
 }
 
 function close({ refocus = true } = {}): void {
   if (!open.value) return
-  open.value = false
   if (refocus) trigger.value?.focus()
+  if (nativeMenu && list.value?.matches(':popover-open')) list.value.hidePopover()
+  open.value = false
 }
 
 function choose(value: ThemePreference): void {
@@ -107,7 +143,7 @@ watch(open, (isOpen) => {
   // Listened for only while the menu is open: a handler per mounted menu,
   // running on every key of every keystroke, is a cost for nothing.
   if (isOpen) {
-    document.addEventListener('pointerdown', onDocumentPointerDown)
+    if (!nativeMenu) document.addEventListener('pointerdown', onDocumentPointerDown)
     document.addEventListener('keydown', onDocumentKeydown)
     document.addEventListener('focusin', onDocumentFocusIn)
   } else {
@@ -140,7 +176,15 @@ onBeforeUnmount(() => {
       <AppIcon :name="`theme-${current.value}`" :size="24" />
     </button>
 
-    <ul v-if="open" class="theme-menu__list" role="menu" :aria-label="t('Color theme')">
+    <ul
+      v-if="open"
+      ref="list"
+      class="theme-menu__list"
+      role="menu"
+      :popover="nativeMenu ? 'auto' : undefined"
+      :aria-label="t('Color theme')"
+      @toggle="onToggle"
+    >
       <li v-for="(option, index) in OPTIONS" :key="option.value" role="none">
         <button
           :ref="(element) => collect(element, index)"
@@ -188,6 +232,10 @@ onBeforeUnmount(() => {
   background: var(--md-sys-state-hover-surface);
 }
 
+.theme-menu__trigger[aria-expanded='true'] {
+  background: var(--md-sys-color-secondary-container);
+}
+
 .theme-menu__list {
   position: absolute;
   inset-inline-end: 0;
@@ -200,6 +248,24 @@ onBeforeUnmount(() => {
   background: var(--md-sys-color-surface-container-high);
   box-shadow: 0 6px 16px rgb(0 0 0 / 18%);
   list-style: none;
+}
+
+/* Never reset popover centering without the positioning features we use. */
+@supports (position-area: block-end span-inline-start) and (position-try-fallbacks: flip-block) {
+  .theme-menu__list[popover] {
+    position: fixed;
+    inset: auto;
+    position-area: block-end span-inline-start;
+    position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+    justify-self: end;
+    inline-size: max-content;
+    min-inline-size: 0;
+    max-inline-size: calc(100vw - 1rem);
+    max-block-size: calc(100vh - 1rem);
+    overflow: auto;
+    margin: var(--md-spacing-2) 0;
+    color: var(--md-sys-color-on-surface);
+  }
 }
 
 .theme-menu__option {

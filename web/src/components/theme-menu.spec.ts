@@ -135,6 +135,19 @@ describe('ThemeMenu', () => {
     expect(document.activeElement).toBe(wrapper.findAll('[role="menuitemradio"]')[1].element)
   })
 
+  it('keeps pointer focus on the trigger until an arrow enters the menu', async () => {
+    const wrapper = open()
+    const trigger = wrapper.get('.theme-menu__trigger')
+    ;(trigger.element as HTMLButtonElement).focus()
+    trigger.element.dispatchEvent(new MouseEvent('click', { detail: 1, bubbles: true }))
+    await wrapper.vm.$nextTick()
+    expect(wrapper.get('[role="menu"]').isVisible()).toBe(true)
+    expect(document.activeElement).toBe(trigger.element)
+    await trigger.trigger('keydown', { key: 'ArrowDown' })
+    await wrapper.vm.$nextTick()
+    expect(document.activeElement).toBe(wrapper.findAll('[role="menuitemradio"]')[0].element)
+  })
+
   it('moves between the options with the arrow keys, wrapping round', async () => {
     const wrapper = open()
     await wrapper.get('.theme-menu__trigger').trigger('click')
