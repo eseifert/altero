@@ -24,11 +24,11 @@ jobs:
     name: Format, lint and types
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Pinned to an exact release: setup-uv publishes floating major tags only
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 
@@ -55,9 +55,9 @@ jobs:
         working-directory: web
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           # Matches web/.nvmrc. Vite 8 needs ^20.19 || >=22.12, so the runner's
           # default is not something to rely on.
@@ -89,7 +89,7 @@ jobs:
       - name: Build
         run: npm run build
 
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 
@@ -123,7 +123,7 @@ jobs:
             if (stats.skipped || stats.unexpected || stats.flaky) process.exit(1)
           '
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: playwright-traces
@@ -168,7 +168,7 @@ jobs:
       ALTERO_TEST_SIMPLESAMLPHP_URL: http://localhost:18081
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Check PostgreSQL version and image
         env:
@@ -177,7 +177,7 @@ jobs:
 
       # Pinned to an exact release: setup-uv publishes floating major tags only
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 
@@ -228,7 +228,7 @@ jobs:
           --health-timeout 5s
           --health-retries 10
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Tagged applications/migrations are the upgrade starting points.
           fetch-depth: 0
@@ -240,7 +240,7 @@ jobs:
 
       # Pinned to an exact release: setup-uv publishes floating major tags only
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 
@@ -265,7 +265,7 @@ jobs:
           --state-dir .compatibility/upgrades
           --postgres-url postgresql+asyncpg://altero:altero@localhost:5432/altero
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: beta-upgrade-results
@@ -280,11 +280,11 @@ jobs:
     name: Documentation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Pinned to an exact release: setup-uv publishes floating major tags only
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 

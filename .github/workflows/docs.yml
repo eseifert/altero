@@ -30,7 +30,7 @@ jobs:
       # The whole history, so that the gh-pages branch this run adds to is
       # fetched along with it: mike reads what is already published there to
       # decide what `latest` should point at.
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -42,7 +42,7 @@ jobs:
 
       # Pinned to an exact release: setup-uv publishes floating major tags only
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 

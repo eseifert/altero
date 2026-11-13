@@ -23,9 +23,9 @@ jobs:
     name: Replay pinned client contracts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 
@@ -44,7 +44,7 @@ jobs:
           print("reference=" + reference["dataserver"]["revision"])
           PY
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         id: source
         with:
           repository: zotero/zotero
@@ -52,7 +52,7 @@ jobs:
           path: .compatibility/zotero
           persist-credentials: false
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         id: reference
         with:
           repository: zotero/dataserver
@@ -60,7 +60,7 @@ jobs:
           path: .compatibility/dataserver
           persist-credentials: false
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version-file: web/.nvmrc
           # The newest Node 24, not whichever the runner image carries: a
@@ -110,7 +110,7 @@ jobs:
           uv run python -m tools.compatibility interactions --zotero-source .compatibility/zotero \
             --check --output .compatibility/interactions.json --markdown .compatibility/interactions.md
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: desktop-compatibility
@@ -128,23 +128,23 @@ jobs:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 
       - name: Install Python dependencies
         run: uv sync --locked
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: zotero/zotero
           ref: main
           path: .compatibility/zotero
           persist-credentials: false
 
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version-file: web/.nvmrc
           # The newest Node 24, not whichever the runner image carries: a
@@ -166,7 +166,7 @@ jobs:
             --markdown .compatibility/upstream.md \
             --evidence .compatibility/upstream-evidence.json
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: desktop-compatibility-upstream
@@ -232,14 +232,14 @@ jobs:
     env:
       ACCEPTANCE_POSTGRES_URL: postgresql+asyncpg://altero:altero@localhost:5432/altero
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Check PostgreSQL version and image
         env:
           POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
         run: python3 tools/check_postgres.py "$POSTGRES_CONTAINER"
 
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           enable-cache: true
 
@@ -280,7 +280,7 @@ jobs:
             --scenario "${{ matrix.scenario }}" --postgres-url "$ACCEPTANCE_POSTGRES_URL" \
             --state-dir .compatibility/desktop-run
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: desktop-acceptance-${{ matrix.scenario }}
