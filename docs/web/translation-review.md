@@ -48,8 +48,9 @@ the library normally has a Trash. The completed follow-up batches are below.
 | Arabic, Hebrew, Persian, Punjabi (Shahmukhi), Urdu | All three warnings now explicitly state that nothing moves to Trash |
 | Bengali, Hindi, Malayalam, Tamil | All three warnings now explicitly state that nothing moves to Trash |
 | Georgian, Greek, Korean, Mongolian, Serbian | All three warnings reviewed; make the bypass explicit and retain the library owner and file scope |
+| Indonesian, Khmer, Tagalog, Thai, Vietnamese | All three warnings now explicitly state that nothing moves to Trash |
 
-8 catalogs still await this warning pass. Broader review must keep item records
+3 catalogs still await this warning pass. Broader review must keep item records
 distinct from account/activity records and preserve the difference between ending
 sessions, closing browser tabs and deleting data.
 

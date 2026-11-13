@@ -348,11 +348,11 @@ export default {
   'Everything else': 'Lahat ng iba pa',
   'Everything here is filed in a collection.': 'Nakalagay sa isang koleksyon ang lahat ng narito.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Kasama nitong mawawala ang lahat ng nasa loob nito: mga item, koleksyon, tag at attachment. Walang basurahan para sa isang library.',
+    "Ide-delete ang lahat ng nasa loob nito: mga item, koleksyon, tag at attachment. Walang ililipat sa basurahan.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Ide-delete muna ang lahat ng nasa iyong library dito, kasama ang mga file, at walang basurahan para rito.',
+    "Ide-delete muna ang lahat ng nasa iyong library sa server na ito, kasama ang mga file. Walang ililipat sa basurahan.",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Ide-delete muna ang lahat ng nasa {name}, kasama ang mga file, at walang basurahan para rito.',
+    "Ide-delete muna ang lahat ng nasa {name}, kasama ang mga file. Walang ililipat sa basurahan.",
   'Everything the permissions above cover': 'Lahat ng saklaw ng mga pahintulot sa itaas',
   'Exit Full Screen': 'Lumabas sa Full Screen',
   'Expand': 'I-expand',

@@ -348,11 +348,11 @@ export default {
   'Everything here is filed in a collection.':
     'Semua item di sini sudah dimasukkan ke dalam koleksi.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Seluruh isinya ikut terhapus: item, koleksi, tag, dan lampiran. Tidak ada Keranjang Sampah untuk perpustakaan.',
+    "Seluruh isinya dihapus: item, koleksi, tag, dan lampiran. Tidak ada yang dipindahkan ke Keranjang Sampah.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Semua isi perpustakaan Anda di sini dihapus terlebih dahulu, termasuk berkasnya, dan tidak ada Keranjang Sampah untuk itu.',
+    "Semua isi perpustakaan Anda di server ini dihapus terlebih dahulu, termasuk berkas. Tidak ada yang dipindahkan ke Keranjang Sampah.",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Semua isi {name} dihapus terlebih dahulu, termasuk berkasnya, dan tidak ada Keranjang Sampah untuk itu.',
+    "Semua isi {name} dihapus terlebih dahulu, termasuk berkas. Tidak ada yang dipindahkan ke Keranjang Sampah.",
   'Everything the permissions above cover': 'Semua yang dicakup izin di atas',
   'Exit Full Screen': 'Keluar dari Mode Layar Penuh',
   'Expand': 'Bentangkan',

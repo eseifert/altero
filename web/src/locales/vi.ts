@@ -341,11 +341,11 @@ export default {
   'Everything else': 'Mọi thứ khác',
   'Everything here is filed in a collection.': 'Mọi thứ ở đây đều đã được phân loại vào bộ sưu tập.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Mọi thứ bên trong cũng bị xóa theo: các mục, bộ sưu tập, thẻ và tệp đính kèm. Không có thùng rác nào cho cả một thư viện.',
+    "Mọi thứ bên trong đều bị xóa: các mục, bộ sưu tập, thẻ và tệp đính kèm. Không có gì được chuyển vào thùng rác.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Mọi thứ trong thư viện của bạn ở đây sẽ bị xóa trước, kể cả các tệp, và không có thùng rác nào để lấy lại.',
+    "Mọi thứ trong thư viện của bạn trên máy chủ này sẽ bị xóa trước, kể cả các tệp. Không có gì được chuyển vào thùng rác.",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Mọi thứ trong {name} sẽ bị xóa trước, kể cả các tệp, và không có thùng rác nào để lấy lại.',
+    "Mọi thứ trong {name} sẽ bị xóa trước, kể cả các tệp. Không có gì được chuyển vào thùng rác.",
   'Everything the permissions above cover': 'Mọi thứ mà các quyền ở trên cho phép',
   'Exit Full Screen': 'Thoát chế độ toàn màn hình',
   'Expand': 'Mở rộng',

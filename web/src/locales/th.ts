@@ -339,11 +339,11 @@ export default {
   'Everything else': 'อื่น ๆ ทั้งหมด',
   'Everything here is filed in a collection.': 'ทุกอย่างที่นี่จัดอยู่ในคอลเล็กชั่นแล้ว',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'ทุกอย่างในนั้นจะถูกลบไปด้วย ทั้งรายการ คอลเล็กชั่น แท็ก และไฟล์แนบ ไลบรารีไม่มีถังขยะรองรับ',
+    "ทุกอย่างในนั้นจะถูกลบ ทั้งรายการ คอลเล็กชั่น แท็ก และไฟล์แนบ โดยไม่มีสิ่งใดถูกย้ายไปยังถังขยะ",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'ทุกอย่างในไลบรารีของคุณที่นี่จะถูกลบก่อน รวมถึงไฟล์ และไม่มีถังขยะรองรับ',
+    "ทุกอย่างในไลบรารีของคุณบนเซิร์ฟเวอร์นี้จะถูกลบก่อน รวมถึงไฟล์ โดยไม่มีสิ่งใดถูกย้ายไปยังถังขยะ",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'ทุกอย่างใน {name} จะถูกลบก่อน รวมถึงไฟล์ และไม่มีถังขยะรองรับ',
+    "ทุกอย่างใน {name} จะถูกลบก่อน รวมถึงไฟล์ โดยไม่มีสิ่งใดถูกย้ายไปยังถังขยะ",
   'Everything the permissions above cover': 'ทุกอย่างที่สิทธิ์ด้านบนครอบคลุม',
   Expand: 'ขยาย',
   'Exit Full Screen': 'ออกจากภาพเต็มหน้าจอ',
