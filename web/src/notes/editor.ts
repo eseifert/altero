@@ -106,7 +106,7 @@ export function createNoteEditor(options: NoteEditorOptions): NoteEditor {
     enableCoreExtensions: { keymap: false },
     extensions: [
       ...noteSchemaExtensions().map(extension => {
-        const view = Object.hasOwn(views, extension.name) ? views[extension.name] : undefined
+        const view = Object.prototype.hasOwnProperty.call(views, extension.name) ? views[extension.name] : undefined
         return view && extension.type === 'node'
           ? (extension as Node).extend({ addNodeView: () => ({ node }) => view(node) })
           : extension

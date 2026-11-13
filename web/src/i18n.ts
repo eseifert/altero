@@ -341,7 +341,7 @@ export function matchLocale(tag: string): Locale | null {
   if (!variants) return null
 
   for (const subtag of subtags.slice(1)) {
-    if (Object.hasOwn(variants, subtag.toLowerCase())) return variants[subtag.toLowerCase()]
+    if (Object.prototype.hasOwnProperty.call(variants, subtag.toLowerCase())) return variants[subtag.toLowerCase()]
   }
   return DEFAULT_VARIANTS[language]
 }

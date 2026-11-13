@@ -37,6 +37,19 @@ afterEach(() => {
 })
 
 describe('locale resolution', () => {
+  it('resolves regional preferences without Object.hasOwn', () => {
+    const original = Object.getOwnPropertyDescriptor(Object, 'hasOwn')!
+    let resolved: string
+    try {
+      Object.defineProperty(Object, 'hasOwn', { ...original, value: undefined })
+      resolved = subject.resolveLocale(null, ['en-AU'])
+    } finally {
+      Object.defineProperty(Object, 'hasOwn', original)
+    }
+    expect(resolved).toBe('en-GB')
+    expect(subject.matchLocale('en-constructor')).toBe('en-US')
+  })
+
   it('uses account preference, then supported browser languages, then the default', () => {
     expect(subject.resolveLocale('ja', ['de-AT'])).toBe('ja')
     expect(subject.resolveLocale('unsupported', ['cy', 'fr-CA', 'de'])).toBe('fr')

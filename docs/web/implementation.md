@@ -18,6 +18,18 @@ npm run dev          # localhost:5173, proxying the API to :8000
 Without that build the server still runs and the API is fully usable; `/app/`
 answers 503 and says what to run.
 
+## Browser support
+
+Keep the build target at ES2020, Safari 14 (including iOS 14.6), Chrome 87,
+Edge 88 and Firefox 78. Vite lowers syntax; it does not supply missing runtime methods.
+Own-property checks in locale selection and the note editor therefore use
+`Object.prototype.hasOwnProperty.call`, which works without `Object.hasOwn`.
+Feature-detect newer platform APIs and retain the existing fallback behavior.
+
+Browser checks remove selected APIs to exercise these paths in Chromium. They
+do not establish compatibility with an actual older browser or iPhone; verify
+those separately before claiming device coverage.
+
 ## End-to-end tests
 
 `npm run e2e` drives the built interface in Chromium, at desktop and phone

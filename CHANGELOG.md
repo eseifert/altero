@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Keep regional locale selection and note editing working in browsers without `Object.hasOwn`.
+
 ## [1.0.0-rc.1] — 2026-11-13
 
 The first release candidate adds optional email-verified self-registration with
