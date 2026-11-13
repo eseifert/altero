@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- State that permanent deletion bypasses Trash in Arabic, Hebrew, Persian, Shahmukhi Punjabi and Urdu.
 - Clarify permanent-deletion warnings in Breton, Catalan, Estonian, Finnish, Hungarian and Lithuanian.
 - Translate registration and approval messages into Georgian, Hausa and Yoruba.
 - Translate registration and approval messages into Breton and Swahili.

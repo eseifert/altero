@@ -45,8 +45,9 @@ the library normally has a Trash. The completed follow-up batches are below.
 | Catalogs | Permanent deletion/replacement review |
 | --- | --- |
 | Breton, Catalan, Estonian, Finnish, Hungarian, Lithuanian | All three warnings reviewed; replace absent-Trash claims and protective metaphors with explicit bypass wording |
+| Arabic, Hebrew, Persian, Punjabi (Shahmukhi), Urdu | All three warnings now explicitly state that nothing moves to Trash |
 
-22 catalogs still await this warning pass. Broader review must keep item records
+17 catalogs still await this warning pass. Broader review must keep item records
 distinct from account/activity records and preserve the difference between ending
 sessions, closing browser tabs and deleting data.
 
