@@ -25,8 +25,9 @@ must not promise that an account exists or that an email will always arrive.
 | Basque, Estonian, Greek, Hungarian, Latvian, Lithuanian | All 36 registration messages translated; regional terms and established address retained |
 | Chinese (Simplified/Traditional), Japanese, Korean | All 36 registration messages translated; regional terms and established address retained |
 | Arabic, Hebrew, Persian, Punjabi (Shahmukhi), Urdu | All 36 registration messages translated; regional terms and established address retained |
+| Bengali, Hindi | All 36 registration messages translated; regional terms and established address retained |
 
-The remaining 14 non-English catalogs still need these messages. Both English
+The remaining 12 non-English catalogs still need these messages. Both English
 variants already contain them. Earlier German and Spanish review passes predate
 this new registration copy.
 

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Translate registration and approval messages into Bengali and Hindi.
 - Translate registration and approval into Arabic, Hebrew, Persian, Shahmukhi Punjabi and Urdu.
 - Translate registration and approval into Japanese, Korean and both Chinese variants.
 - Translate registration and approval into Basque, Estonian, Greek, Hungarian, Latvian and Lithuanian.
