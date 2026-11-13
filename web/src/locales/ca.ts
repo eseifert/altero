@@ -345,11 +345,11 @@ export default {
   'Everything else': 'La resta',
   'Everything here is filed in a collection.': 'Tot el que hi ha aquí és en alguna col·lecció.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Tot el que conté desapareix amb ell: elements, col·leccions, etiquetes i adjunts. Una biblioteca no té cap paperera que ho reculli.',
+    "Se suprimeix tot el que conté: elements, col·leccions, etiquetes i adjunts. No es mou res a la paperera.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Primer se suprimeix tot el que hi ha a la vostra biblioteca d’aquí, fitxers inclosos, i no hi ha cap paperera que ho reculli.',
+    "Primer se suprimeix tot el que hi ha a la vostra biblioteca d’aquest servidor, fitxers inclosos. No es mou res a la paperera.",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Primer se suprimeix tot el que hi ha a {name}, fitxers inclosos, i no hi ha cap paperera que ho reculli.',
+    "Primer se suprimeix tot el que hi ha a {name}, fitxers inclosos. No es mou res a la paperera.",
   'Everything the permissions above cover': 'Tot el que cobreixen els permisos anteriors',
   Expand: 'Expandeix',
   'Exit Full Screen': 'Surt de la pantalla completa',

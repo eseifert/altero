@@ -346,11 +346,11 @@ export default {
   'Everything else': 'Pep tra all',
   'Everything here is filed in a collection.': 'Kement tra a zo amañ a zo renket en un dastumadeg.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    "Kement tra a zo ennañ a ya gantañ: elfennoù, dastumadegoù, balizoù ha pezhioù-stag. N'eus pod-lastez ebet evit ul levraoueg.",
+    "Kement tra a zo ennañ a vo dilamet: elfennoù, dastumadegoù, balizoù ha pezhioù-stag. Netra ne vo kaset d'ar pod-lastez.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    "Kement tra a zo en ho levraoueg amañ a vo dilamet da gentañ, ar restroù en o zouez, ha n'eus pod-lastez ebet evit se.",
+    "Kement tra a zo en ho levraoueg war ar servijer-mañ a vo dilamet da gentañ, ar restroù en o zouez. Netra ne vo kaset d'ar pod-lastez.",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    "Kement tra a zo e {name} a vo dilamet da gentañ, ar restroù en o zouez, ha n'eus pod-lastez ebet evit se.",
+    "Kement tra a zo e {name} a vo dilamet da gentañ, ar restroù en o zouez. Netra ne vo kaset d'ar pod-lastez.",
   'Everything the permissions above cover': 'Kement tra a zo goloet gant an aotreoù a-us',
   'Exit Full Screen': 'Kuitaat ar mod skramm a-bezh',
   'Expand': 'Displegañ',

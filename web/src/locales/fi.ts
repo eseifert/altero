@@ -341,7 +341,7 @@ export default {
   'Everything else': 'Kaikki muu',
   'Everything here is filed in a collection.': 'Kaikki täällä on lajiteltu johonkin kokoelmaan.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Kaikki sen sisältö lähtee mukana: nimikkeet, kokoelmat, merkit ja liitteet. Kirjastolla ei ole roskakoria.',
+    "Sen koko sisältö poistetaan: nimikkeet, kokoelmat, merkit ja liitteet. Mitään ei siirretä roskakoriin.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
     'Kaikki tämän palvelimen kirjastosi sisältö poistetaan ensin, myös tiedostot, eikä mitään siirretä roskakoriin.',
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':

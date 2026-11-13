@@ -38,11 +38,17 @@ this new registration copy.
 
 ## Existing wording
 
-The last deletion-warning inventory identified 28 catalogs without the earlier
-focused pass. Review must state that permanent library deletion/replacement moves
-nothing to Trash, rather than claiming that the library has no Trash. Broader
-review must keep item records distinct from account/activity records and preserve
-the difference between ending sessions, closing browser tabs and deleting data.
+The earlier focused pass covered 31 catalogs. The remaining 28 are being checked
+against the deletion and restore workflows: nothing is moved to Trash, even though
+the library normally has a Trash. The completed follow-up batches are below.
+
+| Catalogs | Permanent deletion/replacement review |
+| --- | --- |
+| Breton, Catalan, Estonian, Finnish, Hungarian, Lithuanian | All three warnings reviewed; replace absent-Trash claims and protective metaphors with explicit bypass wording |
+
+22 catalogs still await this warning pass. Broader review must keep item records
+distinct from account/activity records and preserve the difference between ending
+sessions, closing browser tabs and deleting data.
 
 ## Validation
 
