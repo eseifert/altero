@@ -344,11 +344,11 @@ export default {
   'Everything else': 'Бусад бүх зүйл',
   'Everything here is filed in a collection.': 'Энд байгаа бүх зүйл цуглуулгад орсон байна.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Доторх бүх зүйл хамт устна: зүйлс, цуглуулгууд, таагууд болон хавсралтууд. Номын санд зориулсан Хогийн сав байхгүй.',
+    "Доторх бүх зүйл устна: зүйлс, цуглуулгууд, таагууд болон хавсралтууд. Юу ч Хогийн сав руу шилжихгүй.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Эндэх таны номын сангийн бүх зүйлийг, файлуудыг оруулаад, эхлээд устгах бөгөөд үүнд Хогийн сав байхгүй.',
+    "Энэ сервер дэх таны номын сангийн бүх зүйлийг, файлуудыг оруулаад, эхлээд устгана. Юу ч Хогийн сав руу шилжихгүй.",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    '{name} доторх бүх зүйлийг, файлуудыг оруулаад, эхлээд устгах бөгөөд үүнд Хогийн сав байхгүй.',
+    "{name} доторх бүх зүйлийг, файлуудыг оруулаад, эхлээд устгана. Юу ч Хогийн сав руу шилжихгүй.",
   'Everything the permissions above cover': 'Дээрх зөвшөөрлүүдийн хамрах бүх зүйл',
   'Exit Full Screen': 'Бүтэн дэлгэцээс гарах',
   'Expand': 'Дэлгэх',

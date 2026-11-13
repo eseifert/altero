@@ -333,11 +333,11 @@ export default {
   'Everything else': '기타',
   'Everything here is filed in a collection.': '모든 항목이 컬렉션에 분류되어 있습니다.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    '항목, 컬렉션, 태그, 첨부 파일 등 모든 내용이 함께 삭제됩니다. 라이브러리는 휴지통으로 이동하지 않습니다.',
+    "항목, 컬렉션, 태그, 첨부 파일 등 모든 내용이 삭제됩니다. 아무것도 휴지통으로 이동하지 않습니다.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    '이 서버의 라이브러리에서 파일을 포함한 모든 내용을 먼저 삭제합니다. 휴지통으로 이동하지 않습니다.',
+    "이 서버에 있는 내 라이브러리에서 파일을 포함한 모든 내용을 먼저 삭제합니다. 아무것도 휴지통으로 이동하지 않습니다.",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    '{name}에서 파일을 포함한 모든 내용을 먼저 삭제합니다. 휴지통으로 이동하지 않습니다.',
+    "{name}에서 파일을 포함한 모든 내용을 먼저 삭제합니다. 아무것도 휴지통으로 이동하지 않습니다.",
   'Everything the permissions above cover': '위 권한에 해당하는 모든 내용',
   'Exit Full Screen': '전체 화면 종료',
   'Expand': '펼치기',

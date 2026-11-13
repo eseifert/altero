@@ -342,11 +342,11 @@ export default {
   'Everything else': 'Све остало',
   'Everything here is filed in a collection.': 'Овде је све разврстано у збирке.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'Са њом нестаје и све што садржи: ставке, збирке, ознаке и прилози. За библиотеку не постоји Смеће.',
+    "Брише се све што садржи: ставке, збирке, ознаке и прилози. Ништа се не премешта у Смеће.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'Све у вашој овдашњој библиотеци прво се брише, укључујући датотеке, и не постоји Смеће из ког би се то могло вратити.',
+    "Прво се брише све у вашој библиотеци на овом серверу, укључујући датотеке. Ништа се не премешта у Смеће.",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    'Све у библиотеци {name} прво се брише, укључујући датотеке, и не постоји Смеће из ког би се то могло вратити.',
+    "Прво се брише све у библиотеци {name}, укључујући датотеке. Ништа се не премешта у Смеће.",
   'Everything the permissions above cover': 'Све што обухватају дозволе изнад',
   'Exit Full Screen': 'Изађи из режима целог екрана',
   'Expand': 'Рашири',

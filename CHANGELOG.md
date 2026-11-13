@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Clarify permanent-deletion warnings in Georgian, Greek, Korean, Mongolian and Serbian.
 - Clarify that permanent deletion bypasses Trash in Bengali, Hindi, Malayalam and Tamil.
 - State that permanent deletion bypasses Trash in Arabic, Hebrew, Persian, Shahmukhi Punjabi and Urdu.
 - Clarify permanent-deletion warnings in Breton, Catalan, Estonian, Finnish, Hungarian and Lithuanian.
