@@ -71,7 +71,7 @@ export default {
   "A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.": "Hatua ya pili ya uthibitishaji kwa asiye na programu ya uthibitishaji, na njia ya kurudi ukipoteza uliyo nayo.",
   "A tag needs a name.": "Lebo inahitaji jina.",
   "A whole number of periods, from 0 to {maximum}.": "Idadi kamili ya vipindi, kutoka 0 hadi {maximum}.",
-  "ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.": "ALTERO_PUBLIC_URL haijawekwa, kwa hiyo anwani ya kurudi iliyo hapa chini inatokana na ombi lililofika — nyuma ya proksi, ni anwani ambayo proksi inaona. Iweke kabla ya kusanidi mtoa huduma.",
+  "Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.": "Weka ALTERO_PUBLIC_URL kabla ya kusanidi au kutumia kuingia mara moja. Anwani za kurudi hutumia URL hii iliyosanidiwa pekee.",
   "API keys": "Funguo za API",
   "Accept": "Kubali",
   "Account created.": "Akaunti imeundwa.",

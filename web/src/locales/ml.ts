@@ -85,8 +85,8 @@ export default {
     'ഓതന്റിക്കേറ്റർ ആപ്പ് ഇല്ലാത്തവർക്കുള്ള രണ്ടാം ഘടകം; ഉള്ളത് നഷ്ടപ്പെട്ടാൽ വീണ്ടും പ്രവേശിക്കാനുള്ള വഴിയും ഇതുതന്നെ.',
   'A tag needs a name.': 'ടാഗിന് ഒരു പേര് വേണം.',
   'A whole number of periods, from 0 to {maximum}.': '0 മുതൽ {maximum} വരെയുള്ള ഒരു പൂർണ്ണസംഖ്യ.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL സജ്ജീകരിച്ചിട്ടില്ല, അതിനാൽ താഴെയുള്ള കോൾബാക്ക് വിലാസം എത്തിയ അഭ്യർത്ഥനയിൽ നിന്നാണ് നിർമ്മിക്കുന്നത് — ഒരു പ്രോക്സിക്ക് പിന്നിലാണെങ്കിൽ അത് പ്രോക്സി കരുതുന്ന വിലാസമായിരിക്കും. ഒരു ദാതാവിനെ കോൺഫിഗർ ചെയ്യുന്നതിന് മുമ്പ് ഇത് സജ്ജീകരിക്കുക.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "ഏകീകൃത സൈൻ ഇൻ ക്രമീകരിക്കുന്നതിനോ ഉപയോഗിക്കുന്നതിനോ മുമ്പ് ALTERO_PUBLIC_URL സജ്ജമാക്കുക. കോൾബാക്ക് വിലാസങ്ങൾ ഈ ക്രമീകരിച്ച URL മാത്രം ഉപയോഗിക്കുന്നു.",
   'API keys': 'API കീകൾ',
   Accept: 'സ്വീകരിക്കുക',
   'Account created.': 'അക്കൗണ്ട് സൃഷ്ടിച്ചു.',

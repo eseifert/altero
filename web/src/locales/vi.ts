@@ -87,8 +87,8 @@ export default {
     'Yếu tố xác thực thứ hai cho người không có ứng dụng xác thực, đồng thời là cách đăng nhập lại nếu bạn làm mất ứng dụng đang dùng.',
   'A tag needs a name.': 'Thẻ cần có tên.',
   'A whole number of periods, from 0 to {maximum}.': 'Một số nguyên từ 0 đến {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL chưa được đặt, nên địa chỉ callback bên dưới được tạo từ bất kỳ yêu cầu nào gửi đến — khi đứng sau proxy, đó là địa chỉ theo cách hiểu của proxy. Hãy đặt biến này trước khi cấu hình nhà cung cấp.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Đặt ALTERO_PUBLIC_URL trước khi cấu hình hoặc sử dụng đăng nhập một lần. Địa chỉ callback chỉ sử dụng URL đã cấu hình này.",
   'API keys': 'Khóa API',
   'Accept': 'Chấp nhận',
   'Account created.': 'Đã tạo tài khoản.',

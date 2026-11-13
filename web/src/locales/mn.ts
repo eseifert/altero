@@ -85,8 +85,8 @@ export default {
     'Баталгаажуулагч апп-гүй хүмүүст зориулсан хоёр дахь хүчин зүйл бөгөөд апп-аа гээсэн тохиолдолд бүртгэлдээ буцаж нэвтрэх арга болно.',
   'A tag needs a name.': 'Таагт нэр өгөх шаардлагатай.',
   'A whole number of periods, from 0 to {maximum}.': '0-ээс {maximum} хүртэлх бүхэл тоо.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL тохируулаагүй тул доорх буцах хаягийг ирсэн хүсэлтээс үүсгэж байна — прокси серверийн ард бол энэ нь проксигийн харж буй хаяг болно. Үйлчилгээ үзүүлэгч тохируулахаас өмнө үүнийг тохируулна уу.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Нэгдсэн нэвтрэлтийг тохируулах эсвэл ашиглахын өмнө ALTERO_PUBLIC_URL-ийг тохируулна уу. Буцах хаягууд зөвхөн энэ тохируулсан URL-ийг ашиглана.",
   'API keys': 'API түлхүүрүүд',
   'Accept': 'Зөвшөөрөх',
   'Account created.': 'Бүртгэл үүслээ.',

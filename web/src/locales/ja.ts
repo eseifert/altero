@@ -84,7 +84,7 @@ export default {
   'A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.': '認証アプリをお持ちでない方のための第二要素であり、アプリを紛失した場合の復帰手段でもあります。',
   'A tag needs a name.': 'タグには名前が必要です。',
   'A whole number of periods, from 0 to {maximum}.': '0 から {maximum} までの整数です。',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.': 'ALTERO_PUBLIC_URL が設定されていないため、下のコールバックアドレスは受信したリクエストから組み立てられます。プロキシの背後ではプロキシ側の認識になります。プロバイダーを設定する前に設定してください。',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.': "シングルサインオンを設定または使用する前に ALTERO_PUBLIC_URL を設定してください。コールバックアドレスには、この設定済み URL だけを使用します。",
   'API keys': 'API キー',
   Accept: '承認',
   'Account created.': 'アカウントを作成しました。',

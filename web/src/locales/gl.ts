@@ -86,8 +86,8 @@ export default {
   'A tag needs a name.': 'Unha etiqueta necesita un nome.',
   'A whole number of periods, from 0 to {maximum}.':
     'Un número enteiro de períodos, de 0 a {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL non está definido, así que o enderezo de retorno de embaixo constrúese a partir da petición que chegue; detrás dun proxy, é o que o proxy crea que é. Defíneo antes de configurar un fornecedor.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Define ALTERO_PUBLIC_URL antes de configurar ou usar o inicio de sesión único. Os enderezos de retorno só usan este URL configurado.",
   'API keys': 'Chaves da API',
   Accept: 'Aceptar',
   'Account created.': 'Conta creada.',

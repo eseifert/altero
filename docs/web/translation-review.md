@@ -83,6 +83,11 @@ audit also checked the documented German, Dutch, Afrikaans, Spanish, Polish,
 Romanian, Serbian and Turkish conventions; protocol names, placeholders and
 quoted product/navigation labels are intentional exceptions.
 
+The SSO setup notice was checked against provider writes and callback generation.
+It previously described a fallback to the incoming request host that the server
+no longer permits. The source and all 59 translations now require
+`ALTERO_PUBLIC_URL` before setup/use and say callback addresses use that URL only.
+
 ## Validation
 
 Run the standalone catalog check described in the

@@ -70,7 +70,7 @@ export default {
   "A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.": "גורם אימות נוסף למי שאין להם יישום אימות, ודרך לחזור לחשבון אם אובדת הגישה לשיטה הקיימת.",
   "A tag needs a name.": "לתגית דרוש שם.",
   "A whole number of periods, from 0 to {maximum}.": "מספר שלם של תקופות, בין 0 ל־{maximum}.",
-  "ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.": "ALTERO_PUBLIC_URL לא הוגדר, ולכן כתובת החזרה שלהלן נבנית מהבקשה שהגיעה — מאחורי שרת מתווך זו הכתובת כפי שהוא רואה אותה. יש להגדיר אותו לפני הגדרת ספק.",
+  "Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.": "יש להגדיר את ALTERO_PUBLIC_URL לפני הגדרת כניסה אחודה או השימוש בה. כתובות החזרה משתמשות רק בכתובת ה־URL שהוגדרה כאן.",
   "API keys": "מפתחות API",
   "Accept": "קבלה",
   "Account created.": "החשבון נוצר.",

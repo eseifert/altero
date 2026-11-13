@@ -95,8 +95,8 @@ export default {
   'A tag needs a name.': 'A tag needs a name.',
   'A whole number of periods, from 0 to {maximum}.':
     'A whole number of periods, from 0 to {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.",
   'API keys': 'API keys',
   Accept: 'Accept',
   'Account created.': 'Account created.',

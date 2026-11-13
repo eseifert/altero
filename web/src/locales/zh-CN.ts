@@ -80,8 +80,8 @@ export default {
     '为没有身份验证器应用的人准备的第二因素，也是你丢失现有验证器时的退路。',
   'A tag needs a name.': '标签需要一个名称。',
   'A whole number of periods, from 0 to {maximum}.': '0 到 {maximum} 之间的整数个周期。',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL 未设置，因此下面的回调地址是从收到的请求构建的——在代理之后，那是代理所认为的地址。请在配置提供方之前设置它。',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "在配置或使用单点登录之前，请设置 ALTERO_PUBLIC_URL。回调地址只使用这个已配置的 URL。",
   'API keys': 'API 密钥',
   'Accept': '接受',
   'Account created.': '账户已创建。',

@@ -85,8 +85,8 @@ export default {
     '’n Tweede faktor vir enigiemand sonder ’n verifikasie-app, en die pad terug as u dié wat u het, verloor.',
   'A tag needs a name.': '’n Etiket het ’n naam nodig.',
   'A whole number of periods, from 0 to {maximum}.': '’n Heelgetal tydperke, van 0 tot {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL is nie gestel nie, dus word die terugroepadres hieronder gebou uit watter versoek ook al aangekom het — agter ’n instaanbediener is dit die instaanbediener se idee daarvan. Stel dit voordat u ’n verskaffer opstel.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Stel ALTERO_PUBLIC_URL voordat u enkelaanmelding opstel of gebruik. Terugroepadresse gebruik slegs hierdie ingestelde URL.",
   'API keys': 'API-sleutels',
   'Accept': 'Aanvaar',
   'Account created.': 'Rekening geskep.',

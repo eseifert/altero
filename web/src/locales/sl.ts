@@ -88,8 +88,8 @@ export default {
     'Drugi dejavnik za vse, ki nimajo aplikacije za preverjanje pristnosti, in pot nazaj, če svojo izgubite.',
   'A tag needs a name.': 'Značka mora imeti ime.',
   'A whole number of periods, from 0 to {maximum}.': 'Celo število obdobij, od 0 do {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL ni nastavljen, zato je spodnji povratni naslov sestavljen iz zahteve, ki je prispela — za posredovalnim strežnikom je to naslov, kot ga vidi posredovalni strežnik. Nastavite ga, preden nastavite ponudnika.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Nastavite ALTERO_PUBLIC_URL pred nastavljanjem ali uporabo enotne prijave. Naslovi za povratni klic uporabljajo samo ta nastavljeni URL.",
   'API keys': 'Ključi API',
   'Accept': 'Sprejmi',
   'Account created.': 'Račun je ustvarjen.',

@@ -72,7 +72,7 @@ export default {
   "A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.": "Ìgbésẹ̀ ìmúdájú kejì fún ẹni tí kò ní ètò ìmúdájú, àti ọ̀nà láti padà wọlé bí o bá pàdánù èyí tí o ní.",
   "A tag needs a name.": "Àmì nílò orúkọ.",
   "A whole number of periods, from 0 to {maximum}.": "Odidi iye àkókò, láti 0 sí {maximum}.",
-  "ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.": "A kò tíì ṣètò ALTERO_PUBLIC_URL, nítorí náà àdírẹ́sì ìpadà ní ìsàlẹ̀ wá láti inú ìbéèrè tó dé — bí ó bá kọjá aṣojú, àdírẹ́sì tí aṣojú náà rí ni a ó lò. Ṣètò rẹ̀ kí o tó ṣètò olùpèsè.",
+  "Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.": "Ṣètò ALTERO_PUBLIC_URL kí o tó ṣètò tàbí lo ìwọlé ẹyọ kan. Àwọn àdírẹ́sì ìpadà ń lo URL tí a ṣètò yìí nìkan.",
   "API keys": "Àwọn bọ́tìnì API",
   "Accept": "Gbà",
   "Account created.": "A ti dá àkọọ́lẹ̀ sílẹ̀.",

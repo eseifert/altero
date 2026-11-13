@@ -71,7 +71,7 @@ export default {
   "A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.": "Tabbaci na biyu ga wanda ba shi da manhajar tantancewa, da hanyar komawa idan ka rasa wadda kake da ita.",
   "A tag needs a name.": "Alama tana buƙatar suna.",
   "A whole number of periods, from 0 to {maximum}.": "Cikakkiyar lambar lokuta, daga 0 zuwa {maximum}.",
-  "ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.": "Ba a saita ALTERO_PUBLIC_URL ba, don haka ana gina adireshin dawowa da ke ƙasa daga buƙatar da ta zo — idan akwai wakili, yadda wakilin ya gan shi ake amfani da shi. Saita shi kafin ka saita mai ba da sabis.",
+  "Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.": "Saita ALTERO_PUBLIC_URL kafin saita ko amfani da shiga ta bai ɗaya. Adireshin dawowa yana amfani da wannan URL da aka saita kawai.",
   "API keys": "Maɓallan API",
   "Accept": "Karɓa",
   "Account created.": "An ƙirƙiri asusu.",

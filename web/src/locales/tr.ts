@@ -84,8 +84,8 @@ export default {
     'Kimlik doğrulama uygulaması olmayanlar için ikinci bir doğrulama yöntemi; uygulamanızı kaybederseniz de hesabınıza geri dönmenin yolu.',
   'A tag needs a name.': 'Etiketin bir adı olmalıdır.',
   'A whole number of periods, from 0 to {maximum}.': '0 ile {maximum} arasında bir tam sayı.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL ayarlanmamış; bu yüzden aşağıdaki geri çağırma adresi gelen istekten oluşturuluyor — bir vekil sunucunun arkasında bu, vekil sunucunun gördüğü adrestir. Bir sağlayıcı yapılandırmadan önce bu değeri ayarlayınız.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Tek oturum açmayı yapılandırmadan veya kullanmadan önce ALTERO_PUBLIC_URL değerini ayarlayın. Geri çağırma adresleri yalnızca bu yapılandırılmış URL’yi kullanır.",
   'API keys': 'API anahtarları',
   'Accept': 'Kabul et',
   'Account created.': 'Hesap oluşturuldu.',

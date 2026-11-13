@@ -86,8 +86,8 @@ export default {
   'A tag needs a name.': 'Merki þarf að hafa heiti.',
   'A whole number of periods, from 0 to {maximum}.':
     'Fjöldi tímabila sem heil tala, frá 0 upp í {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL er ekki stillt, svo svarslóðin hér fyrir neðan er búin til úr þeirri beiðni sem barst — á bak við milliþjón er það hugmynd milliþjónsins um hana. Stilltu hana áður en þú setur upp veitu.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Stilltu ALTERO_PUBLIC_URL áður en þú stillir eða notar staka innskráningu. Svarslóðir nota aðeins þessa stilltu slóð.",
   'API keys': 'API-lyklar',
   'Accept': 'Samþykkja',
   'Account created.': 'Aðgangur stofnaður.',

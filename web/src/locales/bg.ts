@@ -84,8 +84,8 @@ export default {
     'Втори фактор за всеки, който няма приложение за удостоверяване, и начин да влезете отново, ако загубите своето.',
   'A tag needs a name.': 'Маркерът трябва да има име.',
   'A whole number of periods, from 0 to {maximum}.': 'Цял брой периоди, от 0 до {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL не е зададен, затова адресът за обратно извикване по-долу се съставя от пристигналата заявка — зад прокси това е адресът според проксито. Задайте го, преди да настройвате доставчик.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Задайте ALTERO_PUBLIC_URL, преди да настройвате или използвате единен вход. Адресите за обратно извикване използват само този зададен URL.",
   'API keys': 'API ключове',
   'Accept': 'Приемане',
   'Account created.': 'Акаунтът е създаден.',

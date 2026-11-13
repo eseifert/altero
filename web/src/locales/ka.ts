@@ -86,8 +86,8 @@ export default {
     'მეორე ფაქტორი მათთვის, ვისაც ავთენტიფიკატორის აპი არ აქვს, და ანგარიშში დაბრუნების გზა, თუ არსებულს დაკარგავთ.',
   'A tag needs a name.': 'ტეგს სახელი სჭირდება.',
   'A whole number of periods, from 0 to {maximum}.': 'პერიოდების მთელი რაოდენობა, 0-დან {maximum}-მდე.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL არ არის მითითებული, ამიტომ ქვემოთ მოცემული დაბრუნების მისამართი შედგენილია იმ მოთხოვნიდან, რომელიც მოვიდა — პროქსის მიღმა ეს პროქსის წარმოდგენაა მასზე. მიუთითეთ ის პროვაიდერის კონფიგურაციამდე.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "ერთიანი შესვლის გამართვამდე ან გამოყენებამდე დააყენეთ ALTERO_PUBLIC_URL. დაბრუნების მისამართები მხოლოდ ამ მითითებულ URL-ს იყენებს.",
   'API keys': 'API გასაღებები',
   'Accept': 'მიღება',
   'Account created.': 'ანგარიში შეიქმნა.',

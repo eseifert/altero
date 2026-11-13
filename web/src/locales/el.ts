@@ -84,8 +84,8 @@ export default {
     'Ένας δεύτερος παράγοντας για όσους δεν έχουν εφαρμογή ελέγχου ταυτότητας, και ένας τρόπος να επιστρέψετε αν χάσετε αυτήν που έχετε.',
   'A tag needs a name.': 'Η ετικέτα χρειάζεται όνομα.',
   'A whole number of periods, from 0 to {maximum}.': 'Ένας ακέραιος αριθμός περιόδων, από 0 έως {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'Το ALTERO_PUBLIC_URL δεν έχει οριστεί, οπότε η διεύθυνση επιστροφής παρακάτω σχηματίζεται από όποιο αίτημα έφτασε — πίσω από διακομιστή μεσολάβησης, είναι η διεύθυνση όπως τη βλέπει εκείνος. Ορίστε το πριν διαμορφώσετε έναν πάροχο.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Ορίστε το ALTERO_PUBLIC_URL πριν ρυθμίσετε ή χρησιμοποιήσετε την ενιαία σύνδεση. Οι διευθύνσεις επιστροφής χρησιμοποιούν μόνο αυτό το καθορισμένο URL.",
   'API keys': 'Κλειδιά API',
   'Accept': 'Αποδοχή',
   'Account created.': 'Ο λογαριασμός δημιουργήθηκε.',

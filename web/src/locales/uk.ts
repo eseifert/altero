@@ -88,8 +88,8 @@ export default {
     'Другий фактор для тих, хто не має застосунку-автентифікатора, і шлях назад, якщо ви втратите наявний.',
   'A tag needs a name.': 'Тегу потрібна назва.',
   'A whole number of periods, from 0 to {maximum}.': 'Ціле число періодів, від 0 до {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL не задано, тож адреса зворотного виклику нижче будується з запиту, що надійшов, — за проксі це уявлення проксі про неї. Задайте його, перш ніж налаштовувати постачальника.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Укажіть ALTERO_PUBLIC_URL перед налаштуванням або використанням єдиного входу. Адреси зворотного виклику використовують лише цю налаштовану URL-адресу.",
   'API keys': 'Ключі API',
   'Accept': 'Прийняти',
   'Account created.': 'Обліковий запис створено.',

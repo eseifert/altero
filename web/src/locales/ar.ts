@@ -70,7 +70,7 @@ export default {
   "A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.": "عامل ثانٍ لمن لا يملك تطبيق مصادقة، وطريقة لاستعادة الدخول إذا فقدت ما لديك.",
   "A tag needs a name.": "يحتاج الوسم إلى اسم.",
   "A whole number of periods, from 0 to {maximum}.": "عدد صحيح من الفترات، من 0 إلى {maximum}.",
-  "ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.": "لم يُضبط ALTERO_PUBLIC_URL، لذا يُبنى عنوان الاستدعاء أدناه من الطلب الوارد — وخلف وكيل يكون العنوان بحسب ما يراه الوكيل. اضبطه قبل إعداد موفر.",
+  "Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.": "اضبط ALTERO_PUBLIC_URL قبل إعداد تسجيل الدخول الموحد أو استخدامه. تستخدم عناوين الاستدعاء هذا الرابط المضبوط فقط.",
   "API keys": "مفاتيح API",
   "Accept": "قبول",
   "Account created.": "أُنشئ الحساب.",

@@ -85,8 +85,8 @@ export default {
   'A tag needs a name.': 'Ein tagg må ha eit namn.',
   'A whole number of periods, from 0 to {maximum}.':
     'Eit heilt tal på periodar, frå 0 til {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL er ikkje sett, så tilbakekallsadressa nedanfor blir bygd ut frå den førespurnaden som kom inn – bak ein proxy er det proxyen si oppfatning av ho. Set han før du konfigurerer ein leverandør.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Set ALTERO_PUBLIC_URL før du konfigurerer eller brukar eingongspålogging. Tilbakekallsadresser brukar berre denne konfigurerte URL-en.",
   'API keys': 'API-nøklar',
   'Accept': 'Godta',
   'Account created.': 'Kontoen er oppretta.',

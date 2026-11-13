@@ -89,8 +89,8 @@ export default {
   'A tag needs a name.': 'Tag perlu diberi nama.',
   'A whole number of periods, from 0 to {maximum}.':
     'Bilangan bulat jumlah periode, dari 0 sampai {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL belum diatur, sehingga alamat callback di bawah dibentuk dari permintaan apa pun yang datang — di belakang proxy, itu adalah alamat menurut proxy. Atur variabel ini sebelum mengonfigurasi penyedia.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Atur ALTERO_PUBLIC_URL sebelum mengonfigurasi atau menggunakan masuk tunggal. Alamat callback hanya menggunakan URL yang dikonfigurasi ini.",
   'API keys': 'Kunci API',
   'Accept': 'Terima',
   'Account created.': 'Akun dibuat.',

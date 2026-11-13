@@ -80,7 +80,7 @@ export default {
   'A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.': 'Ein zweiter Faktor für alle ohne Authenticator-App – und der Weg zurück, falls die eigene App verloren geht.',
   'A tag needs a name.': 'Ein Tag braucht einen Namen.',
   'A whole number of periods, from 0 to {maximum}.': 'Eine ganze Zahl von 0 bis {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.': 'ALTERO_PUBLIC_URL ist nicht gesetzt, daher wird die Rückruf-Adresse unten aus der eingehenden Anfrage gebildet – hinter einem Proxy ist das dessen Sicht darauf. Vor dem Einrichten eines Anbieters festlegen.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.': "Vor der Einrichtung oder Nutzung von Single Sign-on ALTERO_PUBLIC_URL setzen. Rückrufadressen verwenden ausschließlich diese konfigurierte URL.",
   'API keys': 'API-Schlüssel',
   Accept: 'Annehmen',
   'Account created.': 'Konto angelegt.',

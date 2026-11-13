@@ -86,8 +86,8 @@ export default {
     'जिनके पास ऑथेंटिकेटर ऐप नहीं है उनके लिए दूसरा सत्यापन चरण, और आपका ऐप खो जाने पर वापस साइन इन करने का तरीका।',
   'A tag needs a name.': 'टैग का नाम होना ज़रूरी है।',
   'A whole number of periods, from 0 to {maximum}.': 'अवधियों की पूर्ण संख्या, 0 से {maximum} तक।',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL सेट नहीं है, इसलिए नीचे दिया गया कॉलबैक पता उसी अनुरोध से बनाया गया है जो यहाँ पहुँचा — प्रॉक्सी के पीछे यह वही पता होता है जो प्रॉक्सी समझता है। प्रदाता कॉन्फ़िगर करने से पहले इसे सेट करें।',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "एकल साइन-ऑन कॉन्फ़िगर या उपयोग करने से पहले ALTERO_PUBLIC_URL सेट करें। कॉलबैक पते केवल इसी कॉन्फ़िगर किए गए URL का उपयोग करते हैं।",
   'API keys': 'API कुंजियाँ',
   'Accept': 'स्वीकार करें',
   'Account created.': 'खाता बनाया गया।',

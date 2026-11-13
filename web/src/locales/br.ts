@@ -86,8 +86,8 @@ export default {
   'A tag needs a name.': 'Un anv a zo ezhomm evit ar baliz.',
   'A whole number of periods, from 0 to {maximum}.':
     'Un niver anterin a brantadoù, etre 0 ha {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    "N'eo ket termenet ALTERO_PUBLIC_URL, setu e vez savet ar chomlec'h distreiñ amañ dindan diouzh ar reked a zo erruet — a-dreñv ur proksi, ar pezh a soñj ar proksi eo. Termenit anezhañ a-raok kefluniañ ur pourchaser.",
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Termenit ALTERO_PUBLIC_URL a-raok kefluniañ pe implijout ar c'hevreañ unel. Chomlec'hioù distreiñ a implij ar URL kefluniet-mañ hepken.",
   'API keys': "Alc'hwezioù API",
   'Accept': 'Asantiñ',
   'Account created.': 'Kont krouet.',

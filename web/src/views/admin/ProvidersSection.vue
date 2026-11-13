@@ -174,7 +174,7 @@ const remove = (provider: Provider) =>
     <p class="settings__detail">
       {{
         t(
-          'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.',
+          'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.',
         )
       }}
     </p>

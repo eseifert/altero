@@ -88,8 +88,8 @@ export default {
     'Druhý faktor pro každého, kdo nemá ověřovací aplikaci, a cesta zpět k účtu, pokud tu svou ztratíte.',
   'A tag needs a name.': 'Štítek musí mít název.',
   'A whole number of periods, from 0 to {maximum}.': 'Celé číslo od 0 do {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'Proměnná ALTERO_PUBLIC_URL není nastavena, takže se návratová adresa níže sestavuje z požadavku, který zrovna přišel — za proxy je to tedy adresa, jak ji vidí proxy. Nastavte ji dřív, než začnete konfigurovat poskytovatele.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Před nastavením nebo použitím jednotného přihlášení nastavte ALTERO_PUBLIC_URL. Návratové adresy používají pouze tuto nastavenou URL.",
   'API keys': 'Klíče API',
   'Accept': 'Přijmout',
   'Account created.': 'Účet byl vytvořen.',

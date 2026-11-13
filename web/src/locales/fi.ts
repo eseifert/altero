@@ -85,8 +85,8 @@ export default {
     'Toinen tunnistautumistapa niille, joilla ei ole todennussovellusta, ja keino päästä takaisin sisään, jos kadotat omasi.',
   'A tag needs a name.': 'Merkillä on oltava nimi.',
   'A whole number of periods, from 0 to {maximum}.': 'Jaksojen määrä kokonaislukuna, 0–{maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL-muuttujaa ei ole asetettu, joten alla oleva paluuosoite muodostetaan saapuneen pyynnön perusteella — välityspalvelimen takana se on välityspalvelimen käsitys osoitteesta. Aseta se ennen palveluntarjoajan määrittämistä.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Aseta ALTERO_PUBLIC_URL ennen kertakirjautumisen määrittämistä tai käyttämistä. Paluuosoitteissa käytetään vain tätä määritettyä URL-osoitetta.",
   'API keys': 'API-avaimet',
   'Accept': 'Hyväksy',
   'Account created.': 'Tili luotu.',

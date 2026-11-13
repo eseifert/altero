@@ -75,7 +75,7 @@ export default {
   'A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.': 'Második hitelesítési tényező mindenkinek, akinek nincs hitelesítő alkalmazása, és visszaút a fiókba, ha a meglévőt elveszíti.',
   'A tag needs a name.': 'A címkének nevet kell adni.',
   'A whole number of periods, from 0 to {maximum}.': 'Egész számú időszak, 0 és {maximum} között.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.': 'Az ALTERO_PUBLIC_URL nincs beállítva, ezért az alábbi visszahívási cím abból a kérésből készül, amely éppen beérkezett — proxy mögött ez a proxy elképzelése róla. Állítsa be, mielőtt szolgáltatót konfigurál.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.': "Az egyszeri bejelentkezés beállítása vagy használata előtt állítsa be az ALTERO_PUBLIC_URL értékét. A visszahívási címek kizárólag ezt a beállított URL-t használják.",
   'API keys': 'API-kulcsok',
   'Accept': 'Elfogadás',
   'Account created.': 'Fiók létrehozva.',

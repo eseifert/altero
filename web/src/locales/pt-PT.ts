@@ -80,7 +80,7 @@ export default {
   'A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.': 'Um segundo fator para quem não tem aplicação de autenticação, e a forma de voltar se perder a sua.',
   'A tag needs a name.': 'Uma etiqueta precisa de um nome.',
   'A whole number of periods, from 0 to {maximum}.': 'Um número inteiro, de 0 a {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.': 'ALTERO_PUBLIC_URL não está definido, por isso o endereço de retorno abaixo é construído a partir do pedido recebido — atrás de um proxy, essa é a visão do proxy. Defina-o antes de configurar um fornecedor.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.': "Defina ALTERO_PUBLIC_URL antes de configurar ou utilizar o início de sessão único. Os endereços de retorno utilizam apenas este URL configurado.",
   'API keys': 'Chaves de API',
   Accept: 'Aceitar',
   'Account created.': 'Conta criada.',

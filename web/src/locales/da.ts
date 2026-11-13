@@ -82,8 +82,8 @@ export default {
     'En anden faktor for dem uden en godkendelsesapp, og vejen tilbage, hvis du mister den, du har.',
   'A tag needs a name.': 'Et mærke skal have et navn.',
   'A whole number of periods, from 0 to {maximum}.': 'Et helt antal perioder, fra 0 til {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL er ikke sat, så tilbagekaldsadressen nedenfor bygges ud fra den forespørgsel, der kom ind — bag en proxy er det proxyens opfattelse af den. Sæt den, før du opsætter en udbyder.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Indstil ALTERO_PUBLIC_URL, før du konfigurerer eller bruger enkeltlogon. Tilbagekaldsadresser bruger kun denne konfigurerede URL.",
   'API keys': 'API-nøgler',
   'Accept': 'Acceptér',
   'Account created.': 'Kontoen er oprettet.',

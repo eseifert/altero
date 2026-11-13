@@ -70,7 +70,7 @@ export default {
   "A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.": "عامل دوم برای کسانی که برنامهٔ احراز هویت ندارند، و راه بازگشت در صورت از دست دادن روش فعلی.",
   "A tag needs a name.": "برچسب به نام نیاز دارد.",
   "A whole number of periods, from 0 to {maximum}.": "تعداد صحیحی از دوره‌ها، از 0 تا {maximum}.",
-  "ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.": "ALTERO_PUBLIC_URL تنظیم نشده؛ پس نشانی بازگشت زیر از درخواست دریافتی ساخته می‌شود — پشت پراکسی این نشانی برداشت پراکسی است. پیش از تنظیم ارائه‌دهنده آن را تعیین کنید.",
+  "Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.": "پیش از پیکربندی یا استفاده از ورود یکپارچه، ALTERO_PUBLIC_URL را تنظیم کنید. نشانی‌های بازگشت فقط از همین URL تنظیم‌شده استفاده می‌کنند.",
   "API keys": "کلیدهای API",
   "Accept": "پذیرفتن",
   "Account created.": "حساب ساخته شد.",

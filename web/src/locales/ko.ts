@@ -86,8 +86,8 @@ export default {
     '인증 앱이 없는 사람을 위한 2차 인증 수단이며, 인증 앱을 잃어버렸을 때 다시 로그인하는 방법이기도 합니다.',
   'A tag needs a name.': '태그 이름을 입력하세요.',
   'A whole number of periods, from 0 to {maximum}.': '0부터 {maximum}까지의 정수로 기간 수를 입력하세요.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL이 설정되지 않아 아래 콜백 주소는 수신한 요청을 기준으로 만들어집니다. 프록시 뒤에서는 프록시가 인식하는 주소가 사용됩니다. 제공자를 구성하기 전에 설정하세요.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "통합 로그인을 구성하거나 사용하기 전에 ALTERO_PUBLIC_URL을 설정하세요. 콜백 주소는 이 설정된 URL만 사용합니다.",
   'API keys': 'API 키',
   'Accept': '수락',
   'Account created.': '계정을 만들었습니다.',

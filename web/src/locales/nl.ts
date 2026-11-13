@@ -83,8 +83,8 @@ export default {
   'A tag needs a name.': 'Een label heeft een naam nodig.',
   'A whole number of periods, from 0 to {maximum}.':
     'Een heel aantal perioden, van 0 tot {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL is niet ingesteld, dus het callback-adres hieronder wordt opgebouwd uit het binnengekomen verzoek — achter een proxy is dat het idee van de proxy daarover. Stel het in voordat u een aanbieder configureert.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Stel ALTERO_PUBLIC_URL in voordat u eenmalige aanmelding configureert of gebruikt. Callback-adressen gebruiken uitsluitend deze ingestelde URL.",
   'API keys': 'API-sleutels',
   'Accept': 'Aanvaarden',
   'Account created.': 'Account aangemaakt.',

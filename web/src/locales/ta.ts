@@ -86,8 +86,8 @@ export default {
   'A tag needs a name.': 'குறிச்சொல்லுக்கு ஒரு பெயர் தேவை.',
   'A whole number of periods, from 0 to {maximum}.':
     'காலங்களின் முழு எண்ணிக்கை, 0 முதல் {maximum} வரை.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL அமைக்கப்படவில்லை, எனவே கீழே உள்ள திரும்பும் முகவரி வந்த கோரிக்கையிலிருந்தே உருவாக்கப்படுகிறது — பதிலியின் (proxy) பின்னால் அது பதிலி கருதும் முகவரியாக இருக்கும். வழங்குநரை உள்ளமைக்கும் முன் அதை அமைக்கவும்.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "ஒற்றை உள்நுழைவை உள்ளமைக்கும் அல்லது பயன்படுத்தும் முன் ALTERO_PUBLIC_URL ஐ அமைக்கவும். திரும்பும் முகவரிகள் இந்த உள்ளமைக்கப்பட்ட URL ஐ மட்டுமே பயன்படுத்தும்.",
   'API keys': 'API விசைகள்',
   'Accept': 'ஏற்றுக்கொள்',
   'Account created.': 'கணக்கு உருவாக்கப்பட்டது.',

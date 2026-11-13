@@ -84,8 +84,8 @@ export default {
     'Drugi faktor za sve koji nemaju aplikaciju za autentifikaciju i put natrag ako izgubite svoju.',
   'A tag needs a name.': 'Oznaka mora imati naziv.',
   'A whole number of periods, from 0 to {maximum}.': 'Cijeli broj razdoblja, od 0 do {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL nije postavljen, pa je povratna adresa u nastavku sastavljena iz zahtjeva koji je stigao — iza proxy poslužitelja to je adresa kakvom je vidi proxy. Postavite ga prije konfiguriranja pružatelja.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Postavite ALTERO_PUBLIC_URL prije postavljanja ili korištenja jedinstvene prijave. Povratne adrese koriste samo taj postavljeni URL.",
   'API keys': 'API ključevi',
   'Accept': 'Prihvati',
   'Account created.': 'Račun je stvoren.',

@@ -85,8 +85,8 @@ export default {
     'Bigarren faktore bat autentifikazio-aplikaziorik ez duenarentzat, eta berriro sartzeko bidea daukazuna galtzen baduzu.',
   'A tag needs a name.': 'Etiketak izen bat behar du.',
   'A whole number of periods, from 0 to {maximum}.': 'Aldi kopuru oso bat, 0tik {maximum}era.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL ez dago ezarrita, beraz beheko itzulera-helbidea iritsitako eskaeratik eraikitzen da; proxy baten atzean, proxyak uste duena da. Ezarri hornitzaile bat konfiguratu aurretik.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Ezarri ALTERO_PUBLIC_URL saio-hasiera bakarra konfiguratu edo erabili aurretik. Itzulerako helbideek konfiguratutako URL hau soilik erabiltzen dute.",
   'API keys': 'API gakoak',
   'Accept': 'Onartu',
   'Account created.': 'Kontua sortu da.',

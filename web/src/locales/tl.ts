@@ -86,8 +86,8 @@ export default {
   'A tag needs a name.': 'Kailangan ng pangalan ang tag.',
   'A whole number of periods, from 0 to {maximum}.':
     'Isang buong bilang ng yugto, mula 0 hanggang {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'Hindi naka-set ang ALTERO_PUBLIC_URL, kaya ang callback address sa ibaba ay binubuo mula sa kung anumang request ang dumating — kapag nasa likod ng proxy, iyon ang address ayon sa proxy. I-set ito bago mag-configure ng provider.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Itakda ang ALTERO_PUBLIC_URL bago i-configure o gamitin ang single sign-on. Ang mga callback address ay gumagamit lang ng URL na ito na na-configure.",
   'API keys': 'Mga API key',
   'Accept': 'Tanggapin',
   'Account created.': 'Nagawa ang account.',

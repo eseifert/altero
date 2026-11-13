@@ -87,8 +87,8 @@ export default {
     'Drugi składnik dla tych, którzy nie mają aplikacji uwierzytelniającej, i droga powrotna, jeśli stracisz tę, którą masz.',
   'A tag needs a name.': 'Etykieta potrzebuje nazwy.',
   'A whole number of periods, from 0 to {maximum}.': 'Całkowita liczba okresów, od 0 do {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL nie jest ustawione, więc poniższy adres zwrotny budowany jest z nadchodzącego żądania — za pośrednikiem jest to wyobrażenie pośrednika o nim. Ustaw je, zanim skonfigurujesz dostawcę.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Ustaw ALTERO_PUBLIC_URL przed skonfigurowaniem lub użyciem jednokrotnego logowania. Adresy zwrotne korzystają wyłącznie z tego skonfigurowanego adresu URL.",
   'API keys': 'Klucze API',
   'Accept': 'Przyjmij',
   'Account created.': 'Konto zostało utworzone.',

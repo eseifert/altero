@@ -84,8 +84,8 @@ export default {
     'Antrasis veiksnys tiems, kas neturi autentifikavimo programėlės, ir būdas vėl prisijungti, jei turimą prarasite.',
   'A tag needs a name.': 'Gairei reikia pavadinimo.',
   'A whole number of periods, from 0 to {maximum}.': 'Sveikasis laikotarpių skaičius nuo 0 iki {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL nenustatytas, todėl toliau pateiktas grįžtamasis adresas sudaromas iš bet kokios gautos užklausos – už tarpinio serverio jis bus toks, kokį mato tarpinis serveris. Nustatykite jį prieš konfigūruodami teikėją.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Prieš konfigūruodami ar naudodami bendrąjį prisijungimą, nustatykite ALTERO_PUBLIC_URL. Grįžtamiesiems adresams naudojamas tik šis nustatytas URL.",
   'API keys': 'API raktai',
   'Accept': 'Priimti',
   'Account created.': 'Paskyra sukurta.',

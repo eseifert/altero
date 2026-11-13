@@ -70,7 +70,7 @@ export default {
   "A second factor for anyone without an authenticator app, and the way back in if you lose the one you have.": "جنہاں کول تصدیقی ایپ نہیں، اوہناں لئی تصدیق دا دوجا پڑاؤ، تے موجودہ طریقہ گواچن اُتے واپس آون دا راہ۔",
   "A tag needs a name.": "ٹیگ دا ناں ضروری اے۔",
   "A whole number of periods, from 0 to {maximum}.": "مدتاں دی پوری گنتی، 0 توں {maximum} تک۔",
-  "ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.": "ALTERO_PUBLIC_URL مقرر نہیں، ایس لئی تھلے دتا واپسی دا پتا آئی ہوئی درخواست توں بنیا اے — پراکسی پچھے ایہہ اوہدا سمجھیا ہویا پتا اے۔ فراہم کنندہ ترتیب دین توں پہلاں اَیہنوں مقرر کرو۔",
+  "Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.": "اکّی واری سائن ان نوں ترتیب دین یا ورتن توں پہلاں ALTERO_PUBLIC_URL رکھو۔ واپسی دے پتے صرف ایہہ ترتیب دتا URL ورتدے نیں۔",
   "API keys": "API کنجیاں",
   "Accept": "قبول کرو",
   "Account created.": "کھاتہ بن گیا۔",

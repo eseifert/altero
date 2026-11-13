@@ -85,8 +85,8 @@ export default {
   'A tag needs a name.': 'Lipikul peab olema nimi.',
   'A whole number of periods, from 0 to {maximum}.':
     'Täisarv perioode, vahemikus 0 kuni {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL pole määratud, seega koostatakse allolev tagasipöördumisaadress saabunud päringu põhjal — proksi taga on see proksi arusaam aadressist. Määrake see enne teenusepakkuja seadistamist.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Määrake ALTERO_PUBLIC_URL enne ühekordse sisselogimise seadistamist või kasutamist. Tagasipöördumisaadressid kasutavad ainult seda seadistatud URL-i.",
   'API keys': 'API-võtmed',
   'Accept': 'Nõustu',
   'Account created.': 'Konto loodud.',

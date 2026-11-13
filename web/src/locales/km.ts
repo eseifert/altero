@@ -85,8 +85,8 @@ export default {
     'កត្តាទីពីរសម្រាប់អ្នកដែលគ្មានកម្មវិធីផ្ទៀងផ្ទាត់ និងជាផ្លូវចូលវិញ ប្រសិនបើអ្នកបាត់កម្មវិធីដែលអ្នកកំពុងប្រើ។',
   'A tag needs a name.': 'ស្លាកត្រូវតែមានឈ្មោះ។',
   'A whole number of periods, from 0 to {maximum}.': 'ចំនួនគត់នៃរយៈពេល ពី 0 ដល់ {maximum}។',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL មិនទាន់បានកំណត់ទេ ដូច្នេះអាសយដ្ឋាន callback ខាងក្រោមត្រូវបានបង្កើតចេញពីសំណើណាមួយដែលមកដល់ — បើនៅពីក្រោយ proxy វាជាអាសយដ្ឋានតាមការយល់ឃើញរបស់ proxy។ សូមកំណត់វាមុននឹងកំណត់រចនាសម្ព័ន្ធអ្នកផ្តល់សេវា។',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "កំណត់ ALTERO_PUBLIC_URL មុនពេលកំណត់រចនាសម្ព័ន្ធ ឬប្រើការចូលតែមួយ។ អាសយដ្ឋាន callbackប្រើតែ URL ដែលបានកំណត់នេះប៉ុណ្ណោះ។",
   'API keys': 'កូនសោ API',
   Accept: 'ទទួលយក',
   'Account created.': 'បានបង្កើតគណនី។',

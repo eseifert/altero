@@ -84,8 +84,8 @@ export default {
     'ปัจจัยที่สองสำหรับผู้ที่ไม่มีแอปยืนยันตัวตน และเป็นทางกลับเข้าบัญชีหากคุณทำแอปที่มีอยู่หาย',
   'A tag needs a name.': 'แท็กต้องมีชื่อ',
   'A whole number of periods, from 0 to {maximum}.': 'จำนวนเต็ม ตั้งแต่ 0 ถึง {maximum}',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ยังไม่ได้ตั้งค่า ALTERO_PUBLIC_URL ที่อยู่ callback ด้านล่างจึงสร้างจากคำขอที่เข้ามา — หากอยู่หลังพร็อกซี ก็จะเป็นที่อยู่ตามที่พร็อกซีเข้าใจ ให้ตั้งค่านี้ก่อนกำหนดค่าผู้ให้บริการ',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "ตั้งค่า ALTERO_PUBLIC_URL ก่อนกำหนดค่าหรือใช้การลงชื่อเข้าใช้ครั้งเดียว ที่อยู่ callbackจะใช้ URL ที่กำหนดค่านี้เท่านั้น",
   'API keys': 'คีย์ API',
   Accept: 'ยอมรับ',
   'Account created.': 'สร้างบัญชีแล้ว',

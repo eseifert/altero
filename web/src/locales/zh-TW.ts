@@ -89,8 +89,8 @@ export default {
     '為沒有驗證器應用程式的人準備的第二因素，也是你遺失現有驗證器時的退路。',
   'A tag needs a name.': '標籤需要一個名稱。',
   'A whole number of periods, from 0 to {maximum}.': '0 到 {maximum} 之間的整數個週期。',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL 未設定，因此下面的回呼位址是從收到的要求建構的——在代理伺服器之後，那是代理伺服器所認為的位址。請在設定提供者之前設定它。',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "設定或使用單一登入之前，請先設定 ALTERO_PUBLIC_URL。回呼位址只使用這個已設定的 URL。",
   'API keys': 'API 金鑰',
   Accept: '接受',
   'Account created.': '帳號已建立。',

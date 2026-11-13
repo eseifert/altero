@@ -84,8 +84,8 @@ export default {
     'Otrais faktors tiem, kam nav autentifikācijas lietotnes, un veids, kā atgūt piekļuvi, ja esošo lietotni pazaudējat.',
   'A tag needs a name.': 'Birkai ir vajadzīgs nosaukums.',
   'A whole number of periods, from 0 to {maximum}.': 'Vesels periodu skaits no 0 līdz {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL nav iestatīts, tāpēc tālāk redzamā atgriešanās adrese tiek veidota no saņemtā pieprasījuma — aiz starpniekservera tā ir tāda, kādu to redz starpniekserveris. Iestatiet to pirms nodrošinātāja konfigurēšanas.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Pirms vienotās pierakstīšanās konfigurēšanas vai izmantošanas iestatiet ALTERO_PUBLIC_URL. Atgriešanās adreses izmanto tikai šo konfigurēto URL.",
   'API keys': 'API atslēgas',
   Accept: 'Pieņemt',
   'Account created.': 'Konts izveidots.',

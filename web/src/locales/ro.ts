@@ -86,8 +86,8 @@ export default {
   'A tag needs a name.': 'Eticheta trebuie să aibă un nume.',
   'A whole number of periods, from 0 to {maximum}.':
     'Un număr întreg de perioade, între 0 și {maximum}.',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL nu este setat, așa că adresa de callback de mai jos este construită din cererea care a sosit — în spatele unui proxy, aceasta este adresa așa cum o vede proxy-ul. Setează-l înainte de a configura un furnizor.',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "Setează ALTERO_PUBLIC_URL înainte de a configura sau utiliza autentificarea unică. Adresele de callback folosesc doar acest URL configurat.",
   'API keys': 'Chei API',
   Accept: 'Acceptă',
   'Account created.': 'Cont creat.',

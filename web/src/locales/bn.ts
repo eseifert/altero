@@ -87,8 +87,8 @@ export default {
     'যাদের অথেনটিকেটর অ্যাপ নেই তাদের জন্য দ্বিতীয় যাচাই-পদ্ধতি, এবং আপনার অ্যাপটি হারিয়ে গেলে আবার প্রবেশের উপায়।',
   'A tag needs a name.': 'ট্যাগের একটি নাম দিন।',
   'A whole number of periods, from 0 to {maximum}.': '০ থেকে {maximum} পর্যন্ত একটি পূর্ণসংখ্যা।',
-  'ALTERO_PUBLIC_URL is not set, so the callback address below is built from whatever request arrived — behind a proxy that is the proxy’s idea of it. Set it before configuring a provider.':
-    'ALTERO_PUBLIC_URL সেট করা নেই, তাই নিচের কলব্যাক ঠিকানাটি আগত অনুরোধ থেকেই তৈরি হয় — প্রক্সির পেছনে সেটি প্রক্সির ধারণা অনুযায়ী ঠিকানা। কোনো প্রদানকারী কনফিগার করার আগে এটি সেট করুন।',
+  'Set ALTERO_PUBLIC_URL before configuring or using single sign-on. Callback addresses use only this configured URL.':
+    "একক সাইন ইন কনফিগার বা ব্যবহার করার আগে ALTERO_PUBLIC_URL সেট করুন। কলব্যাক ঠিকানায় শুধু এই কনফিগার করা URL ব্যবহার করা হয়।",
   'API keys': 'API কী',
   'Accept': 'গ্রহণ করুন',
   'Account created.': 'অ্যাকাউন্ট তৈরি হয়েছে।',
