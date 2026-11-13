@@ -83,6 +83,11 @@ verified commit hashes, grant only required token permissions, and keep shell
 inputs in quoted environment variables. The documentation publisher retains
 checkout credentials for its push to `gh-pages`; other jobs discard them.
 
+Dependency upgrades currently retain SQLAlchemy 2.0, bibtexparser 1.x and
+TypeScript 6: newer majors break the parameter-limit test hook, BibTeX writer
+and Vue type checker respectively. Revisit these bounds when updating those
+integrations. Web tooling requires Node 24.15 or newer; use `web/.nvmrc`.
+
 For bug fixes, prove the regression test fails without the fix. Test pure
 rules without a database, service behavior at the service layer, and HTTP
 behavior through the app. Request-path changes also need a real HTTP check.

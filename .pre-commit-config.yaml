@@ -7,7 +7,7 @@
 # `uv run ruff` cannot disagree about what counts as formatted.
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.16.1
+    rev: v0.17.5
     hooks:
       # Lint first: its fixes are formatted by the hook that follows.
       - id: ruff-check

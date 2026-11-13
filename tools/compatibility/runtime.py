@@ -1,7 +1,7 @@
 """A disposable live server shared by generated and desktop acceptance runs."""
 
 import asyncio
-from collections.abc import AsyncIterator, Awaitable, Callable
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -40,7 +40,7 @@ class TestServer:
 @asynccontextmanager
 async def disposable_server(
     root: Path, *, accounts: int = 1, postgres_url: str | None = None
-) -> AsyncIterator[TestServer]:
+) -> AsyncGenerator[TestServer]:
     """Use a fresh SQLite file or a newly created, isolated PostgreSQL database."""
     root.mkdir(parents=True, exist_ok=False)
     database_url = (

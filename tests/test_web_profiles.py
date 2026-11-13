@@ -434,7 +434,7 @@ class TestTheBoundaryStillHolds:
     async def test_the_password_is_not_needed_to_read_a_public_page(
         self, client: httpx2.AsyncClient, owner: User
     ) -> None:
-        assert PASSWORD  # the fixture account has none; nothing here asks for one
+        assert owner.password_hash is None
         assert (await client.get("/web/profiles/ada/items")).status_code == 200
 
 

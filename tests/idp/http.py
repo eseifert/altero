@@ -2,7 +2,7 @@
 
 import asyncio
 import socket
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager, closing
 from html.parser import HTMLParser
 from pathlib import Path
@@ -28,7 +28,7 @@ class Form(HTMLParser):
         self.fields: dict[str, str] = {}
         self.inside = False
         self.feed(document)
-        assert self.action, f"The IdP did not return the expected form ({identifier})"
+        assert len(self.action) > 0, f"The IdP did not return the expected form ({identifier})"
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         attributes = dict(attrs)
@@ -56,7 +56,7 @@ def new_browser(*, headers: dict[str, str] | None = None) -> httpx2.AsyncClient:
 @asynccontextmanager
 async def live_browser(
     root: Path, *, headers: dict[str, str] | None = None, app: FastAPI | None = None
-) -> AsyncIterator[httpx2.AsyncClient]:
+) -> AsyncGenerator[httpx2.AsyncClient]:
     """Serve a fresh database/store on the registered loopback callback port."""
     app = app or create_app(
         Settings(

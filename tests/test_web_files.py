@@ -212,7 +212,7 @@ class TestANewAttachment:
     ) -> None:
         source_id = await personal_library(ada)
         parent_key = await seed_item(ada, session) if parented else None
-        query = {"parentItem": parent_key} if parent_key else {}
+        query: dict[str, Any] = {"parentItem": parent_key} if parent_key else {}
         attachment = (await upload(ada, source_id, **query)).json()["key"]
         target = await group_with_ada(session, file_editing=file_editing)
         before = await library_version(ada, target.id)

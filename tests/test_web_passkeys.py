@@ -264,6 +264,7 @@ class TestManagingThem:
         other = await admin.create_user(session, username="grace")
         await webauth.set_password(session, other, PASSWORD)
         token, _ = await websessions.create(session, other)
+        client.cookies.delete("altero_session")
         client.cookies.set("altero_session", token)
 
         response = await client.request(

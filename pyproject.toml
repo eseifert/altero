@@ -22,7 +22,8 @@ dependencies = [
     "pydantic-settings>=2.10",
     # Cancellation while a browser disconnects must finish connection cleanup
     # and return its pool slot, including under AnyIO's repeated cancellation.
-    "sqlalchemy[asyncio]>=2.0.57",
+    # 2.1 removes the loader hook used by the parameter-limit regression suite.
+    "sqlalchemy[asyncio]>=2.0.57,<2.1",
     "aiosqlite>=0.21",
     "uvicorn[standard]>=0.36",
     "python-multipart>=0.0.32",
@@ -32,7 +33,8 @@ dependencies = [
     "citeproc-py>=0.12.1",
     "citeproc-py-styles>=0.1.6",
     "dateparser>=1.4.1",
-    "bibtexparser>=1.4.4",
+    # The 2.x writer API is incompatible with our BibTeX/BibLaTeX exporter.
+    "bibtexparser>=1.4.4,<2",
     "rispy>=0.10.0",
     # The outbound conversations this server has: reading a library out of
     # api.zotero.org when somebody migrates one in (services/zoteroapi.py), and

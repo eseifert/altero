@@ -12,7 +12,7 @@ where SQLAlchemy folds several rows into one statement it keeps under
 `insertmanyvalues_max_parameters` by itself.
 """
 
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
@@ -62,7 +62,7 @@ def small_chunks(monkeypatch: pytest.MonkeyPatch) -> None:
 
 
 @contextmanager
-def widest_statement(app: FastAPI) -> Iterator[list[tuple[int, str]]]:
+def widest_statement(app: FastAPI) -> Generator[list[tuple[int, str]]]:
     """Collect how many values each non-INSERT statement binds."""
     seen: list[tuple[int, str]] = []
     engine = app.state.database.engine.sync_engine

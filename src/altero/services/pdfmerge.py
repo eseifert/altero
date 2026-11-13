@@ -21,7 +21,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 # PyICU exports these from its C++ extension without Python typing metadata.
-from icu import Collator, Locale  # ty: ignore[unresolved-import]
+from icu import Collator, Locale  # ty: ignore[import-not-found]
 from pypdf import PdfReader
 
 logger = logging.getLogger(__name__)

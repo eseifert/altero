@@ -18,7 +18,7 @@ from altero.services import (
     webauth,
     websessions,
 )
-from tests.test_web_routes import CSRF_HEADER, csrf_headers, register
+from tests.test_web_routes import csrf_headers, register
 
 PASSWORD = "correct horse battery staple"
 NEW_PASSWORD = "a quite different long password"
@@ -406,7 +406,6 @@ class TestNotificationsAndInvitations:
         response = await client.post(f"/web/invitations/{invitation.id}/accept")
 
         assert response.status_code == 403
-        assert CSRF_HEADER
 
     async def test_notifications_need_a_session(self, client: httpx2.AsyncClient) -> None:
         assert (await client.get("/web/notifications")).status_code == 401
@@ -817,6 +816,7 @@ class TestAnAccountWithNoPassword:
         await register(client)
         user = await admin.create_user(session, username="grace", display_name="Grace")
         token, record = await websessions.create(session, user, user_agent="tests")
+        client.cookies.delete("altero_session")
         client.cookies.set("altero_session", token)
         return user, record
 

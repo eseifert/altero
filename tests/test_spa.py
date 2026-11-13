@@ -152,7 +152,7 @@ class TestCompressedAssets:
 
         assert response.headers["content-encoding"] == "br"
         assert response.headers["content-type"].startswith("text/javascript")
-        assert response.headers["vary"] == "Accept-Encoding"
+        assert "Accept-Encoding" in response.headers["vary"].split(", ")
         assert response.headers["cache-control"] == spa.ASSET_CACHE
 
     async def test_gzip_is_the_second_choice(
@@ -183,7 +183,7 @@ class TestCompressedAssets:
 
         assert "content-encoding" not in response.headers
         assert response.text == self.SOURCE
-        assert response.headers["vary"] == "Accept-Encoding"
+        assert "Accept-Encoding" in response.headers["vary"].split(", ")
 
     async def test_an_asset_with_no_copy_is_sent_as_it_is(
         self, built_client: httpx2.AsyncClient

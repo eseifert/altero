@@ -32,9 +32,13 @@ async def test_zfs_transfers_bytes_and_reads_redirect_metadata(desktop, zotero_c
         ]
     )
     storage = DesktopStorage(zotero_client, desktop.api)
-    options = {"original": original} if compressed else {}
     uploaded = await storage.transfer(
-        "upload", desktop.kind, desktop.id, "ABCD2345", content, **options
+        "upload",
+        desktop.kind,
+        desktop.id,
+        "ABCD2345",
+        content,
+        original=original if compressed else None,
     )
     assert uploaded["error"] is None, uploaded
     assert [r["status"] for r in uploaded["requests"]] == [200, 201, 204]
@@ -42,7 +46,12 @@ async def test_zfs_transfers_bytes_and_reads_redirect_metadata(desktop, zotero_c
     assert uploaded["value"]["item"]["syncState"] == "in_sync"
     assert int(uploaded["value"]["item"]["version"]) == 2
     downloaded = await storage.transfer(
-        "download", desktop.kind, desktop.id, "ABCD2345", content, **options
+        "download",
+        desktop.kind,
+        desktop.id,
+        "ABCD2345",
+        content,
+        original=original if compressed else None,
     )
     assert downloaded["error"] is None, downloaded["diagnostics"]
     assert [r["status"] for r in downloaded["requests"]] == [302, 200]
@@ -60,7 +69,7 @@ async def test_zfs_transfers_bytes_and_reads_redirect_metadata(desktop, zotero_c
         "ABCD2345",
         content,
         local_mtime=1785701798544,
-        **options,
+        original=original if compressed else None,
     )
     assert cached["error"] is None
     assert len(cached["requests"]) == 1
@@ -73,7 +82,7 @@ async def test_zfs_transfers_bytes_and_reads_redirect_metadata(desktop, zotero_c
         "ABCD2345",
         content,
         synced_hash=hashlib.md5(original, usedforsecurity=False).hexdigest(),
-        **options,
+        original=original if compressed else None,
     )
     assert existing["error"] is None
     assert existing["value"]["result"]["exists"] == 1

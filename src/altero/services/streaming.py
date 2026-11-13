@@ -21,7 +21,7 @@ streaming needs a shared bus, which this is deliberately not.
 
 import asyncio
 import logging
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
@@ -117,7 +117,7 @@ class Broker:
         self._queues: set[asyncio.Queue[Event]] = set()
 
     @contextmanager
-    def attach(self) -> Iterator[asyncio.Queue[Event]]:
+    def attach(self) -> Generator[asyncio.Queue[Event]]:
         """Yield a queue receiving events for as long as the caller holds it."""
         queue: asyncio.Queue[Event] = asyncio.Queue(maxsize=QUEUE_SIZE)
         self._queues.add(queue)

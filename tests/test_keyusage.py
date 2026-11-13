@@ -10,7 +10,7 @@ is touched at most once per interval -- and immediately when the address
 changes, because that is the part somebody would want to see straight away.
 """
 
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from typing import Any
 
@@ -181,7 +181,7 @@ class TestThroughTheApi:
 
 
 @contextmanager
-def capture_sql_including_bookkeeping(app: Any) -> Iterator[list[str]]:
+def capture_sql_including_bookkeeping(app: Any) -> Generator[list[str]]:
     """Every statement, the key-usage write that ``capture_sql`` leaves out included."""
     from sqlalchemy import event
 

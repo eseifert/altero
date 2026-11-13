@@ -12,7 +12,7 @@ from urllib.parse import urljoin
 
 import httpx2
 import pytest
-from lxml import etree  # ty: ignore[unresolved-import]
+from lxml import etree  # ty: ignore[import-not-found]
 
 from tests.idp.http import ALTERO_URL, Form, live_browser
 from tests.test_web_routes import PASSWORD, csrf_headers

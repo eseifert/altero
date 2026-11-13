@@ -24,7 +24,7 @@ import hashlib
 import logging
 import os
 import shutil
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from pathlib import Path
 
@@ -72,7 +72,7 @@ def _is_current(root: Path) -> bool:
 
 
 @contextmanager
-def _locked(root: Path) -> Iterator[None]:
+def _locked(root: Path) -> Generator[None]:
     with (root / LOCK).open("w") as handle:
         fcntl.flock(handle, fcntl.LOCK_EX)
         try:

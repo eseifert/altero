@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Refresh Python, web and compatibility-parser dependencies; retain compatible SQLAlchemy, BibTeX writer and TypeScript release lines.
 - Bind OIDC and SAML responses to the initiating browser to prevent sign-in CSRF and cross-browser account linking.
 - Add a pinned zizmor CI check to prevent GitHub Actions security regressions.
 - Disable dependency-cache restoration in the privileged documentation publishing job.

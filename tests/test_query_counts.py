@@ -7,7 +7,7 @@ a local SQLite file and falls over against PostgreSQL.
 """
 
 import re
-from collections.abc import Iterator
+from collections.abc import Generator
 from contextlib import contextmanager
 from typing import Any
 
@@ -34,7 +34,7 @@ BOOKKEEPING = "UPDATE api_keys SET last_used"
 
 
 @contextmanager
-def capture_sql(app: FastAPI) -> Iterator[list[str]]:
+def capture_sql(app: FastAPI) -> Generator[list[str]]:
     """Collect every statement the application executes inside the block."""
     statements: list[str] = []
     engine = app.state.database.engine.sync_engine

@@ -11,7 +11,7 @@ from urllib.parse import parse_qs
 
 import httpx2
 import pytest
-from lxml import etree  # ty: ignore[unresolved-import]
+from lxml import etree  # ty: ignore[import-not-found]
 
 from altero.models import IdentityProvider
 from altero.services import oidc, saml

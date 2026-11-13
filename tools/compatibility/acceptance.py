@@ -4,7 +4,7 @@ import asyncio
 import base64
 import json
 import os
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime
 from pathlib import Path
@@ -16,7 +16,7 @@ from tools.compatibility.runtime import disposable_server
 
 
 @asynccontextmanager
-async def display(root: Path, xvfb: bool) -> AsyncIterator[None]:
+async def display(root: Path, xvfb: bool) -> AsyncGenerator[None]:
     if not xvfb:
         yield
         return

@@ -1,7 +1,7 @@
 """Compare actual desktop persistence with the server after explicit phases."""
 
 import json
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -48,7 +48,7 @@ class AcceptanceRun:
         return response
 
     @asynccontextmanager
-    async def browser(self) -> AsyncIterator[httpx2.AsyncClient]:
+    async def browser(self) -> AsyncGenerator[httpx2.AsyncClient]:
         """The web interface signed in as the desktops' user, on their personal library.
 
         Its routes are relative to `/web/libraries/<id>`; the cookie and the

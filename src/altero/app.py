@@ -1,7 +1,7 @@
 """ASGI application factory."""
 
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 from datetime import timedelta
 from pathlib import Path
@@ -112,7 +112,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             return report.items_deleted
 
     @asynccontextmanager
-    async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
         # Before anything is served: a store written by an earlier altero names
         # files a download no longer looks under. See services/storelayout.
         async with database.session_factory() as session:

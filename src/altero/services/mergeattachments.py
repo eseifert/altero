@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from icu import Collator, Locale  # ty: ignore[unresolved-import]
+from icu import Collator, Locale  # ty: ignore[import-not-found]
 
 from altero.models import Item
 from altero.services import pdfmerge, storage

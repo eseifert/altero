@@ -46,7 +46,7 @@ from urllib.parse import urlencode
 # lxml ships partial stubs and ty cannot see `etree` through them; signxml's
 # own test extra pulls lxml-stubs for the same reason. The alternative is a
 # dev dependency for one import.
-from lxml import etree  # ty: ignore[unresolved-import]
+from lxml import etree  # ty: ignore[import-not-found]
 from signxml import XMLVerifier
 
 from altero.errors import ForbiddenError, InvalidInputError
