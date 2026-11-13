@@ -62,6 +62,19 @@ a deadline for submitting a new request. The English source now says “Request
 expires”; the corresponding label was checked in every catalog and ambiguous
 submission-deadline wording was clarified.
 
+The session controls and password-change notices were checked across all 59
+catalogs for ending a session rather than closing a browser or deleting content.
+European Portuguese now retains “else”; Korean and Swahili explicitly name the
+other browsers, matching the session list and avoiding a promise to revoke other
+credentials.
+
+The item, creator, related-item, account, API-key and Trash controls were compared
+across catalogs. Mongolian creation/navigation labels now use the same item noun
+as the list, while activity records keep their separate noun. Tamil’s new-item
+label now matches the item list and detail pane. Breton, Basque, Malayalam and
+Bokmål merge notices now name the same Trash as their navigation controls, as do
+Tamil, Turkish and Traditional Chinese notices.
+
 ## Validation
 
 Run the standalone catalog check described in the

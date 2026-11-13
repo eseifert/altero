@@ -53,7 +53,7 @@ export default {
   "Merged items must all be of the same item type.": "An elfennoù da gendeuziñ a rank bezañ er memes doare elfenn.",
   "Creators": "Krouerien",
   "Items merged.": "An elfennoù zo bet kendeuzet.",
-  "Other versions will be moved to the trash.": "Ar stummoù all a vo kaset d'ar boubellenn.",
+  "Other versions will be moved to the trash.": "Ar stummoù all a vo kaset d'ar pod-lastez.",
   "Could not load the item fields.": "N'eus ket bet gallet kargañ maeziennoù an elfenn.",
   ' from {address}': ' adalek {address}',
   '(empty)': '(goullo)',

@@ -53,7 +53,7 @@ export default {
   "Merged items must all be of the same item type.": "Bateratzeko elementu guztiek mota berekoak izan behar dute.",
   "Creators": "Sortzaileak",
   "Items merged.": "Elementuak bateratu dira.",
-  "Other versions will be moved to the trash.": "Beste bertsioak zakarrontzira eramango dira.",
+  "Other versions will be moved to the trash.": "Beste bertsioak zaborrera eramango dira.",
   "Could not load the item fields.": "Ezin izan dira elementuaren eremuak kargatu.",
   ' from {address}': ' helbide honetatik: {address}',
   '(empty)': '(hutsik)',

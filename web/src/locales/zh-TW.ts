@@ -59,7 +59,7 @@ export default {
   "Merged items must all be of the same item type.": "合併的項目一定得同類型。",
   "Creators": "建立者",
   "Items merged.": "已合併項目。",
-  "Other versions will be moved to the trash.": "其他版本將移至垃圾桶。",
+  "Other versions will be moved to the trash.": "其他版本將移至垃圾筒。",
   "Could not load the item fields.": "無法載入項目欄位。",
   ' from {address}': ' 來自 {address}',
   '(empty)': '（空）',

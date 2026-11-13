@@ -53,7 +53,7 @@ export default {
   "Merged items must all be of the same item type.": "ലയിപ്പിക്കുന്ന എല്ലാ ഇനങ്ങളും ഒരേ തരത്തിലുള്ളതായിരിക്കണം.",
   "Creators": "സ്രഷ്ടാക്കൾ",
   "Items merged.": "ഇനങ്ങൾ ലയിപ്പിച്ചു.",
-  "Other versions will be moved to the trash.": "മറ്റ് പതിപ്പുകൾ ചവറ്റുകുട്ടയിലേക്ക് നീക്കും.",
+  "Other versions will be moved to the trash.": "മറ്റ് പതിപ്പുകൾ ട്രാഷിലേക്ക് നീക്കും.",
   "Could not load the item fields.": "ഇനത്തിന്റെ ഫീൽഡുകൾ ലോഡ് ചെയ്യാനായില്ല.",
   ' from {address}': ' · വിലാസം: {address}',
   '(empty)': '(ശൂന്യം)',

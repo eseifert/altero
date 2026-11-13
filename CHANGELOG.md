@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Keep other-browser sign-out scope accurate and align item and merge notices with their catalogs’ controls.
 - Label registration expiry explicitly so applicants do not mistake it for a submission deadline.
 - Complete the permanent-deletion warning pass with explicit Trash bypass wording in Hausa, Swahili and Yoruba.
 - Clarify that permanent deletion bypasses Trash in Indonesian, Khmer, Tagalog, Thai and Vietnamese.

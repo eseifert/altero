@@ -53,7 +53,7 @@ export default {
   "Merged items must all be of the same item type.": "Birleştirilen eserlerin hepsi aynı eser türünden olmalıdırlar.",
   "Creators": "Oluşturanlar",
   "Items merged.": "Eserler birleştirildi.",
-  "Other versions will be moved to the trash.": "Diğer sürümler çöp kutusuna taşınacak.",
+  "Other versions will be moved to the trash.": "Diğer sürümler Çöp Sepeti’ne taşınacak.",
   "Could not load the item fields.": "Eserin alanları yüklenemedi.",
   ' from {address}': ' ({address} adresinden)',
   '(empty)': '(boş)',

@@ -53,7 +53,7 @@ export default {
   "Merged items must all be of the same item type.": "Sammenslåtte elementer må alle være samme elementtype.",
   "Creators": "Opphavspersoner",
   "Items merged.": "Elementene er slått sammen.",
-  "Other versions will be moved to the trash.": "Andre versjoner flyttes til papirkurven.",
+  "Other versions will be moved to the trash.": "Andre versjoner flyttes til søppelkorga.",
   "Could not load the item fields.": "Kunne ikke laste inn elementets felt.",
   ' from {address}': ' fra {address}',
   '(empty)': '(tom)',

@@ -362,7 +362,7 @@ export default {
   'Files kept on a WebDAV server are not stored at zotero.org, so a migration cannot bring them across. Keep syncing files through WebDAV, or upload them from a Zotero client that still holds them.':
     'WebDAV сервер дээр хадгалсан файлууд zotero.org-д хадгалагддаггүй тул шилжүүлэлтээр тэдгээрийг авчрах боломжгүй. Файлуудаа WebDAV-аар үргэлжлүүлэн синхрончлох эсвэл тэдгээрийг одоо ч хадгалж буй Zotero клиентээс байршуулна уу.',
   'Finished.': 'Дууслаа.',
-  'First or last item': 'Эхний эсвэл сүүлийн бичлэг',
+  'First or last item': "Эхний эсвэл сүүлийн зүйл",
   'Folders cannot be added. Add the files inside them.':
     'Хавтас нэмэх боломжгүй. Доторх файлуудыг нь нэмнэ үү.',
   'Follow this device ({name})': 'Энэ төхөөрөмжийг дагах ({name})',
@@ -491,7 +491,7 @@ export default {
   'Never opened': 'Хэзээ ч нээгээгүй',
   'Never shown again once saved.': 'Хадгалсны дараа дахин хэзээ ч харуулахгүй.',
   'Never used': 'Хэзээ ч ашиглаагүй',
-  'New Item': 'Шинэ бичлэг',
+  'New Item': "Шинэ зүйл",
   'New Item Note': 'Зүйлийн шинэ тэмдэглэл',
   'New Note': 'Шинэ тэмдэглэл',
   'New Standalone Note': 'Шинэ бие даасан тэмдэглэл',
@@ -587,7 +587,7 @@ export default {
   'People joining or leaving': 'Нэгдсэн эсвэл гарсан хүмүүс',
   'People with an account here': 'Энд бүртгэлтэй хүмүүс',
   'Please sign in first.': 'Эхлээд нэвтэрнэ үү.',
-  'Previous or next item': 'Өмнөх эсвэл дараагийн бичлэг',
+  'Previous or next item': "Өмнөх эсвэл дараагийн зүйл",
   'Private': 'Хаалттай',
   'Profile': 'Профайл',
   'Provider entity ID': 'Үйлчилгээ үзүүлэгчийн entity ID',
@@ -700,7 +700,7 @@ export default {
   'Show in My Publications': 'Миний нийтлэлүүдэд харуулах',
   'Show keyboard shortcuts': 'Гарын товчлолыг харуулах',
   'Show more': 'Цааш харуулах',
-  'Show the item’s details': 'Бичлэгийн дэлгэрэнгүйг харуулах',
+  'Show the item’s details': "Зүйлийн дэлгэрэнгүйг харуулах",
   'Shown in your notifications. Add an email address to receive them as mail too.':
     'Таны мэдэгдлүүдэд харагдана. Тэдгээрийг имэйлээр ч хүлээн авахын тулд имэйл хаяг нэмнэ үү.',
   'Sidebar width': 'Хажуугийн самбарын өргөн',
@@ -756,7 +756,7 @@ export default {
   'Take them out of “{name}”': '“{name}” цуглуулгаас гаргах',
   'Taking you back to the application…': 'Програм руу буцаж байна…',
   'Tell me about': 'Надад мэдэгдэх зүйлс',
-  'Ten items up or down': 'Арван бичлэгээр дээш эсвэл доош',
+  'Ten items up or down': "Арван зүйлээр дээш эсвэл доош",
   'Text Color': 'Текстийн өнгө',
   'That confirmation link is not valid or has expired.':
     'Энэ баталгаажуулах холбоос хүчингүй эсвэл хугацаа нь дууссан байна.',
