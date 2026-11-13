@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Translate registration and approval messages into Breton and Swahili.
 - Translate registration and approval messages into Khmer and Thai.
 - Translate registration and approval into Indonesian, Tagalog and Vietnamese.
 - Translate registration and approval messages into Malayalam and Tamil.

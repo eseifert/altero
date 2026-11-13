@@ -29,8 +29,9 @@ must not promise that an account exists or that an email will always arrive.
 | Malayalam, Tamil | All 36 registration messages translated; regional terms and established address retained |
 | Indonesian, Tagalog, Vietnamese | All 36 registration messages translated; regional terms and established address retained |
 | Khmer, Thai | All 36 registration messages translated; regional terms and established address retained |
+| Breton, Swahili | All 36 registration messages translated; regional terms and established address retained |
 
-The remaining 5 non-English catalogs still need these messages. Both English
+The remaining 3 non-English catalogs still need these messages. Both English
 variants already contain them. Earlier German and Spanish review passes predate
 this new registration copy.
 
