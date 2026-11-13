@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Add a pinned zizmor CI check to prevent GitHub Actions security regressions.
 - Disable dependency-cache restoration in the privileged documentation publishing job.
 - Pass workflow outputs through quoted environment variables instead of interpolating them into shell code.
 - Stop persisting checkout credentials in test and container-build jobs; retain them only for the documentation publisher.

@@ -75,7 +75,13 @@ uv run ruff format --check .
 uv run ty check
 npm --prefix web test
 npm --prefix web run typecheck
+uvx zizmor==1.32.0 --offline .github/workflows
 ```
+
+CI runs [zizmor](https://docs.zizmor.sh/) on every workflow. Pin Actions to
+verified commit hashes, grant only required token permissions, and keep shell
+inputs in quoted environment variables. The documentation publisher retains
+checkout credentials for its push to `gh-pages`; other jobs discard them.
 
 For bug fixes, prove the regression test fails without the fix. Test pure
 rules without a database, service behavior at the service layer, and HTTP

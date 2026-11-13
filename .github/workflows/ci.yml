@@ -20,6 +20,23 @@ env:
   UV_PYTHON: "3.14"
 
 jobs:
+  workflow-security:
+    name: GitHub Actions security
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: false
+
+      - name: Audit workflows
+        # Offline auditing needs no API token and fails the job on findings.
+        run: uvx zizmor==1.32.0 --offline --format github .github/workflows
+
   lint:
     name: Format, lint and types
     runs-on: ubuntu-latest
