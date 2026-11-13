@@ -46,7 +46,8 @@ jobs:
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
       - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
-          enable-cache: true
+          # This job publishes with a write token; do not restore shared build caches.
+          enable-cache: false
 
       - name: Install
         run: uv sync --locked --group docs

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Disable dependency-cache restoration in the privileged documentation publishing job.
 - Pass workflow outputs through quoted environment variables instead of interpolating them into shell code.
 - Stop persisting checkout credentials in test and container-build jobs; retain them only for the documentation publisher.
 - Pin GitHub Actions to verified commit hashes so mutable upstream tags cannot change workflow code.
