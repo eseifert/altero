@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Translate registration and approval into Danish, Finnish, Icelandic, Norwegian variants and Swedish.
 - Translate registration and approval into Catalan, Galician, Italian, Portuguese variants and Spanish.
 - Translate registration and approval messages into Afrikaans, Dutch, French and German; resume the catalog review record.
 - Keep regional locale selection and note editing working in browsers without `Object.hasOwn`.
