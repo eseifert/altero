@@ -104,10 +104,12 @@ jobs:
       # One empty file per architecture, named after the digest, so the merge
       # job can collect both from a directory without knowing which runners ran.
       - name: Record the digest
+        env:
+          DIGEST: ${{ steps.build.outputs.digest }}
         run: |
-          digest='${{ steps.build.outputs.digest }}'
-          mkdir -p "${{ runner.temp }}/digests"
-          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+          [[ "$DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+          mkdir -p "$RUNNER_TEMP/digests"
+          touch "$RUNNER_TEMP/digests/${DIGEST#sha256:}"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -158,7 +160,7 @@ jobs:
         run: |
           docker buildx imagetools create \
             $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf '${{ env.IMAGE }}@sha256:%s ' *)
+            $(for digest in *; do printf '%s@sha256:%s\n' "$IMAGE" "$digest"; done)
 
       - name: Show what was published
         run: |

@@ -109,22 +109,28 @@ jobs:
       # refuses to build a branch containing symbolic links. The copies cost
       # nothing in the repository, since identical files are one git object.
       - name: Publish
-        run: >
-          uv run mike deploy
-          --config-file zensical.toml
-          --alias-type=copy
-          --update-aliases
-          --push
-          ${{ steps.version.outputs.version }}
-          ${{ steps.version.outputs.alias }}
+        env:
+          DOCS_VERSION: ${{ steps.version.outputs.version }}
+          DOCS_ALIAS: ${{ steps.version.outputs.alias }}
+        run: |
+          aliases=()
+          if [[ -n "$DOCS_ALIAS" ]]; then aliases+=("$DOCS_ALIAS"); fi
+          uv run mike deploy \
+            --config-file zensical.toml \
+            --alias-type=copy \
+            --update-aliases \
+            --push \
+            -- "$DOCS_VERSION" "${aliases[@]}"
 
       # Whoever takes `latest` is what the site opens on. A prerelease or a dev
       # build that did not claim the alias leaves the released documentation in
       # place, which is the point of having the alias at all.
       - name: Point the site at it
         if: steps.version.outputs.alias != ''
+        env:
+          DOCS_ALIAS: ${{ steps.version.outputs.alias }}
         run: >
           uv run mike set-default
           --config-file zensical.toml
           --push
-          ${{ steps.version.outputs.alias }}
+          -- "$DOCS_ALIAS"
