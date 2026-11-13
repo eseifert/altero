@@ -35,8 +35,11 @@ async function review(page: Page, email: string, decision: 'Approve' | 'Reject')
   await page.goto('/app/admin/registrations')
   const row = page.locator('li').filter({ has: page.getByText(email, { exact: true }) })
   await row.getByRole('button', { name: 'Review', exact: true }).click()
-  const proof = row.getByLabel('Confirm your password', { exact: true })
-  if (await proof.count()) await proof.fill(PASSWORD)
+  // This fixture administrator has a password and no recent proof. The field
+  // appears only after the real proof request completes; count() cannot wait.
+  if (decision === 'Approve') {
+    await row.getByLabel('Confirm your password', { exact: true }).fill(PASSWORD)
+  }
   await row.getByRole('button', { name: decision, exact: true }).click()
   await expect(row).toHaveCount(0)
 }
@@ -56,6 +59,13 @@ test('mailbox proof, restart, review and enrollment lead to an ordinary account'
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Awaiting administrator approval' })).toBeVisible()
   const admin = await browser.newContext({ baseURL: BASE })
+  // Keep the real proof response, but make its arrival reliably asynchronous.
+  // The review helper must wait for the password field rather than sample it.
+  await admin.route('**/web/account/proof', async (route) => {
+    const response = await route.fetch()
+    await new Promise((done) => setTimeout(done, 300))
+    await route.fulfill({ response })
+  })
   try { await review(await admin.newPage(), applicant.email, 'Approve') } finally { await admin.close() }
   await page.getByRole('button', { name: 'Check status', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Choose your password' })).toBeVisible()

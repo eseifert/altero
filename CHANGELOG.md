@@ -28,6 +28,7 @@ catalogs; the wider translation review remains deferred.
 - Limit application and mail traffic across workers/restarts, bound pending requests and retain review decisions.
 - Add configurable password length and an offline common-password list; preserve existing passwords for sign-in.
 - Verify registration with real SMTP refusal, replay, concurrent decisions, restarts and lost replies.
+- Fix a registration browser-test race while administrator proof loads; reported by [@eseifert] ([CI#43332386557]).
 - Document PostgreSQL security updates, version checks and conditional search-index and backup repairs.
 - Clarify library-deletion warnings and keep item, merge and Trash terms consistent in reviewed translations.
 - Separate i18n behavior tests from catalog validation; keep missing translations visible as warnings.
@@ -507,3 +508,5 @@ The first release meant to be used by somebody other than its author.
 [Issue#68]: https://github.com/eseifert/altero/issues/68
 
 [Issue#66]: https://github.com/eseifert/altero/issues/66
+
+[CI#43332386557]: https://github.com/eseifert/altero/actions/runs/43332386557

@@ -142,7 +142,9 @@ never an external relay, and preserves disposable databases and messages under
 `/tmp/altero-registration-browser-*`. It checks desktop/phone registration,
 approval, rejection, proof replay, restart recovery, SMTP refusal/retry and a
 lost enrollment reply. Registration diagnostics have their own ignored
-`web/registration-results/` directory.
+`web/registration-results/` directory. Approval coverage includes a delayed real
+identity-proof response; helpers must await its form rather than sampling
+controls before the response arrives.
 
 ## Commits
 
