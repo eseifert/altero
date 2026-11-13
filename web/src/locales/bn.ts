@@ -347,11 +347,11 @@ export default {
   'Everything else': 'অন্য সবকিছু',
   'Everything here is filed in a collection.': 'এখানের সবকিছু কোনো না কোনো সংগ্রহে রাখা আছে।',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'এর ভেতরের সবকিছু এর সাথে মুছে যায়: আইটেম, সংগ্রহ, ট্যাগ ও সংযুক্তি। লাইব্রেরির জন্য কোনো ট্র্যাশ নেই।',
+    "এর ভেতরের সবকিছু মুছে ফেলা হয়: আইটেম, সংগ্রহ, ট্যাগ ও সংযুক্তি। কোনো কিছুই ট্র্যাশে সরানো হয় না।",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'এখানে আপনার লাইব্রেরির সবকিছু প্রথমে মুছে ফেলা হয়, ফাইলসহ, এবং এর জন্য কোনো ট্র্যাশ নেই।',
+    "এই সার্ভারে আপনার লাইব্রেরির সবকিছু প্রথমে মুছে ফেলা হয়, ফাইলসহ। কোনো কিছুই ট্র্যাশে সরানো হয় না।",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    '{name}-এর সবকিছু প্রথমে মুছে ফেলা হয়, ফাইলসহ, এবং এর জন্য কোনো ট্র্যাশ নেই।',
+    "{name}-এর সবকিছু প্রথমে মুছে ফেলা হয়, ফাইলসহ। কোনো কিছুই ট্র্যাশে সরানো হয় না।",
   'Everything the permissions above cover': 'ওপরের অনুমতিগুলোর আওতায় থাকা সবকিছু',
   'Exit Full Screen': 'পূর্ণ স্ক্রিন থেকে প্রস্থান করুন',
   'Expand': 'প্রসারিত করুন',

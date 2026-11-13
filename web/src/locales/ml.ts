@@ -344,11 +344,11 @@ export default {
   'Everything else': 'മറ്റെല്ലാം',
   'Everything here is filed in a collection.': 'ഇവിടെയുള്ളതെല്ലാം ഏതെങ്കിലും ശേഖരത്തിലുണ്ട്.',
   'Everything in it is deleted: items, collections, tags and attachments. Nothing is moved to the trash.':
-    'അതിലുള്ളതെല്ലാം അതോടൊപ്പം പോകും: ഇനങ്ങൾ, ശേഖരങ്ങൾ, ടാഗുകൾ, അറ്റാച്ച്മെന്റുകൾ. ഒരു ലൈബ്രറിക്ക് ട്രാഷ് ഇല്ല.',
+    "അതിലുള്ളതെല്ലാം ഇല്ലാതാക്കും: ഇനങ്ങൾ, ശേഖരങ്ങൾ, ടാഗുകൾ, അറ്റാച്ച്മെന്റുകൾ. ഒന്നും ട്രാഷിലേക്ക് നീക്കില്ല.",
   'Everything in your library on this server is deleted first, files included. Nothing is moved to the trash.':
-    'ഇവിടെയുള്ള നിങ്ങളുടെ ലൈബ്രറിയിലെ എല്ലാം, ഫയലുകൾ ഉൾപ്പെടെ, ആദ്യം ഇല്ലാതാക്കും; ഇതിന് ട്രാഷ് ഇല്ല.',
+    "ഈ സെർവറിലെ നിങ്ങളുടെ ലൈബ്രറിയിലുള്ളതെല്ലാം, ഫയലുകൾ ഉൾപ്പെടെ, ആദ്യം ഇല്ലാതാക്കും. ഒന്നും ട്രാഷിലേക്ക് നീക്കില്ല.",
   'Everything in {name} is deleted first, files included. Nothing is moved to the trash.':
-    '{name} എന്നതിലെ എല്ലാം, ഫയലുകൾ ഉൾപ്പെടെ, ആദ്യം ഇല്ലാതാക്കും; ഇതിന് ട്രാഷ് ഇല്ല.',
+    "{name} എന്നതിലുള്ളതെല്ലാം, ഫയലുകൾ ഉൾപ്പെടെ, ആദ്യം ഇല്ലാതാക്കും. ഒന്നും ട്രാഷിലേക്ക് നീക്കില്ല.",
   'Everything the permissions above cover': 'മുകളിലെ അനുമതികൾ ഉൾക്കൊള്ളുന്ന എല്ലാം',
   Expand: 'വികസിപ്പിക്കുക',
   'Exit Full Screen': 'പൂർണ്ണ സ്ക്രീനിൽ നിന്ന് പുറത്തുകടക്കുക',
