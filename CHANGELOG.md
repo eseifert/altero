@@ -11,26 +11,8 @@ gained a capability worth naming.
 - Keep the established form of address consistent in both Chinese catalogs, including permission and consent screens.
 - Keep other-browser sign-out scope accurate and align item and merge notices with their catalogs’ controls.
 - Label registration expiry explicitly so applicants do not mistake it for a submission deadline.
-- Complete the permanent-deletion warning pass with explicit Trash bypass wording in Hausa, Swahili and Yoruba.
-- Clarify that permanent deletion bypasses Trash in Indonesian, Khmer, Tagalog, Thai and Vietnamese.
-- Clarify permanent-deletion warnings in Georgian, Greek, Korean, Mongolian and Serbian.
-- Clarify that permanent deletion bypasses Trash in Bengali, Hindi, Malayalam and Tamil.
-- State that permanent deletion bypasses Trash in Arabic, Hebrew, Persian, Shahmukhi Punjabi and Urdu.
-- Clarify permanent-deletion warnings in Breton, Catalan, Estonian, Finnish, Hungarian and Lithuanian.
-- Translate registration and approval messages into Georgian, Hausa and Yoruba.
-- Translate registration and approval messages into Breton and Swahili.
-- Translate registration and approval messages into Khmer and Thai.
-- Translate registration and approval into Indonesian, Tagalog and Vietnamese.
-- Translate registration and approval messages into Malayalam and Tamil.
-- Translate registration and approval messages into Bengali and Hindi.
-- Translate registration and approval into Arabic, Hebrew, Persian, Shahmukhi Punjabi and Urdu.
-- Translate registration and approval into Japanese, Korean and both Chinese variants.
-- Translate registration and approval into Basque, Estonian, Greek, Hungarian, Latvian and Lithuanian.
-- Translate registration and approval into Bulgarian, Mongolian, Romanian, Russian, Turkish and Ukrainian.
-- Translate registration and approval into Croatian, Czech, Polish, Serbian, Slovak and Slovenian.
-- Translate registration and approval into Danish, Finnish, Icelandic, Norwegian variants and Swedish.
-- Translate registration and approval into Catalan, Galician, Italian, Portuguese variants and Spanish.
-- Translate registration and approval messages into Afrikaans, Dutch, French and German; resume the catalog review record.
+- Complete the library-deletion warning review; clarify permanent deletion and Trash bypass in the remaining 28 catalogs.
+- Translate all 36 registration and approval messages in the 57 non-English catalogs.
 - Keep regional locale selection and note editing working in browsers without `Object.hasOwn`.
 - Let Tab leave theme and new-item menus, dismiss them on outside focus, and open theme choices with arrow keys.
 - Animate collapsible sections with native intrinsic sizing where supported; retain measured heights and reduced-motion behavior.

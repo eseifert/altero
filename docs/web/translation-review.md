@@ -1,6 +1,7 @@
 # Translation review
 
-The source and context review resumed on November 13, 2026. It covers the 36
+The resumed source and context review is complete as of November 13, 2026.
+Its scope covers the 36
 registration messages added for rc.1, outstanding permanent-deletion warnings,
 and consistency of account, permission and library terminology across the 59
 catalogs. Preserve each language's established form of address and regional terms.
@@ -38,7 +39,7 @@ this new registration copy.
 
 ## Existing wording
 
-The earlier focused pass covered 31 catalogs. The remaining 28 are being checked
+The earlier focused pass covered 31 catalogs. The remaining 28 were checked
 against the deletion and restore workflows: nothing is moved to Trash, even though
 the library normally has a Trash. The completed follow-up batches are below.
 
@@ -88,6 +89,18 @@ It previously described a fallback to the incoming request host that the server
 no longer permits. The source and all 59 translations now require
 `ALTERO_PUBLIC_URL` before setup/use and say callback addresses use that URL only.
 
+The account-suspension and deletion descriptions, collection-removal notices,
+OAuth permission ceilings and API-key persistence notices were also compared
+with their English sources across all 59 catalogs. They preserve the distinction
+between retaining content and deleting it, between personal and group access,
+and between signing out of a browser and revoking a credential.
+
+An inventory of values identical to English found keyboard labels, acronyms,
+established loanwords and shared words such as “Version”, rather than remaining
+untranslated sentences. These were reviewed as candidates and retained where
+appropriate. This targeted consistency pass is not a sentence-by-sentence native
+review of every message; that remains separate contributor work.
+
 ## Validation
 
 Run the standalone catalog check described in the
@@ -99,3 +112,10 @@ or duplicate each workflow for every catalog.
 The translated Arabic applicant flow has been exercised on desktop and phone
 Chromium with a real local SMTP sink: mailbox confirmation, pending review,
 cancellation, absent account access, RTL layout and accessibility checks pass.
+
+Final checks passed with Node 24: all 59 catalogs have 824 canonical keys with
+zero validation errors or warnings; all 1,458 frontend tests, TypeScript checks,
+the production build and the strict documentation build pass. Desktop and phone
+Chromium checks cover locale/script fallback, RTL direction fallback and account
+language persistence (six cases), plus the complete registration suite (ten
+cases), including SMTP refusal/recovery, approval, rejection and lost replies.
