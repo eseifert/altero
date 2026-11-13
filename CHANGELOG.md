@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Complete the permanent-deletion warning pass with explicit Trash bypass wording in Hausa, Swahili and Yoruba.
 - Clarify that permanent deletion bypasses Trash in Indonesian, Khmer, Tagalog, Thai and Vietnamese.
 - Clarify permanent-deletion warnings in Georgian, Greek, Korean, Mongolian and Serbian.
 - Clarify that permanent deletion bypasses Trash in Bengali, Hindi, Malayalam and Tamil.
