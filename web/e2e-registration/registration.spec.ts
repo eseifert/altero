@@ -8,22 +8,24 @@ import { BASE, PASSWORD, restart, state } from './setup'
 async function apply(page: Page, username = 'applicant-' + randomUUID().slice(0, 8)) {
   const email = `${username}@example.org`
   await page.goto('/app/register')
-  await expect(page.getByRole('heading', { name: 'Request an account', exact: true })).toBeVisible()
+  await expect(page.locator('form.auth-form').getByRole('heading')).toBeVisible()
   await expect(page.locator('input[type=password]')).toHaveCount(0)
   await page.locator('input[autocomplete=username]').fill(username)
   await page.locator('input[type=email]').fill(email)
-  await page.getByRole('button', { name: 'Request an account', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Check your email' })).toBeVisible()
+  await page.locator('form.auth-form button[type=submit]').click()
+  await expect(page.locator('section.auth-form > p[role=status]')).toBeVisible()
   const letters = () => readFileSync(join(state().directory, 'mail.jsonl'), 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line) as string)
   await expect.poll(() => letters().some((mail) => mail.includes(email))).toBe(true)
   const letter = letters().find((mail) => mail.includes(email))!
   const link = letter.match(/http:\/\/127\.0\.0\.1:8767\/app\/registration#token=[\w-]+/)?.[0]
   expect(link).toBeTruthy()
   await page.goto(link!)
-  await expect(page.getByRole('button', { name: 'Confirm your email address', exact: true })).toBeVisible()
+  const confirm = page.locator('section.auth-form > button')
+  await expect(confirm).toBeVisible()
   await expect.poll(() => page.url().includes('#token')).toBe(false)
-  await page.getByRole('button', { name: 'Confirm your email address', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Awaiting administrator approval' })).toBeVisible()
+  await confirm.click()
+  await expect(page.locator('.registration-actions')).toBeVisible()
+  expect((await (await page.request.get('/web/registration')).json()).status).toBe('review_pending')
   return { username, email, link: link! }
 }
 async function review(page: Page, email: string, decision: 'Approve' | 'Reject') {
@@ -118,8 +120,10 @@ test.describe('right-to-left applicant layout', () => {
   test('cancellation preserves a readable status without granting account access', async ({ page }, info) => {
     await apply(page)
     await expect(page.locator('html')).toHaveAttribute('dir', 'rtl')
-    await page.getByRole('button', { name: 'Cancel request', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Your request was cancelled' })).toBeVisible()
+    await page.locator('.registration-actions button').nth(1).click()
+    await expect(page.locator('.registration-actions')).toBeEmpty()
+    expect((await (await page.request.get('/web/registration')).json()).status).toBe('cancelled')
+    await expect(page.locator('.auth-form').getByRole('heading')).toBeVisible()
     expect((await page.request.get('/web/auth/session')).status()).toBe(401)
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     await expect(new AxeBuilder({ page }).analyze()).resolves.toMatchObject({ violations: [] })

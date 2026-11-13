@@ -24,8 +24,9 @@ must not promise that an account exists or that an email will always arrive.
 | Bulgarian, Mongolian, Romanian, Russian, Turkish, Ukrainian | All 36 registration messages translated; regional terms and established address retained |
 | Basque, Estonian, Greek, Hungarian, Latvian, Lithuanian | All 36 registration messages translated; regional terms and established address retained |
 | Chinese (Simplified/Traditional), Japanese, Korean | All 36 registration messages translated; regional terms and established address retained |
+| Arabic, Hebrew, Persian, Punjabi (Shahmukhi), Urdu | All 36 registration messages translated; regional terms and established address retained |
 
-The remaining 19 non-English catalogs still need these messages. Both English
+The remaining 14 non-English catalogs still need these messages. Both English
 variants already contain them. Earlier German and Spanish review passes predate
 this new registration copy.
 
@@ -44,3 +45,7 @@ Run the standalone catalog check described in the
 Use existing behavior and browser checks for locale selection, registration,
 direction and layout. Do not add tests that assert particular translated words
 or duplicate each workflow for every catalog.
+
+The translated Arabic applicant flow has been exercised on desktop and phone
+Chromium with a real local SMTP sink: mailbox confirmation, pending review,
+cancellation, absent account access, RTL layout and accessibility checks pass.
