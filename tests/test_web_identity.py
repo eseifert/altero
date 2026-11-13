@@ -286,6 +286,7 @@ class TestConfiguringOne:
         plain = await admin.create_user(session, username="grace")
         await webauth.set_password(session, plain, PASSWORD)
         token, _ = await websessions.create(session, plain)
+        client.cookies.delete("altero_session")
         client.cookies.set("altero_session", token)
 
         assert (await client.get("/web/admin/providers")).status_code == 403
@@ -424,6 +425,35 @@ class TestSigningIn:
 
 
 class TestTheCallbackRefusesWhatItShould:
+    @pytest.mark.parametrize("other_cookie", [False, True])
+    async def test_a_response_cannot_sign_in_a_different_browser(
+        self, client: httpx2.AsyncClient, directory: Directory, other_cookie: bool
+    ) -> None:
+        await register(client)
+        await add_provider(client)
+        client.cookies.clear()
+        started = await client.get("/web/auth/sso/campus/start")
+        parameters = parse_qs(urlparse(started.headers["location"]).query)
+        directory.nonce = parameters["nonce"][0]
+        original = httpx2.Cookies(client.cookies)
+        client.cookies.clear()
+        if other_cookie:
+            await client.get("/web/auth/sso/campus/start")
+        response = await client.get(
+            "/web/auth/sso/campus/callback",
+            params={"state": parameters["state"][0], "code": "attacker-code"},
+        )
+        assert "error=expired" in response.headers["location"]
+        assert (await client.get("/web/auth/session")).status_code == 401
+        assert directory.exchanges == []
+        # An unrelated browser cannot spend the original browser's request.
+        client.cookies = original
+        completed = await client.get(
+            "/web/auth/sso/campus/callback",
+            params={"state": parameters["state"][0], "code": "original-code"},
+        )
+        assert completed.headers["location"].endswith("/app/library")
+
     async def test_a_state_that_was_never_issued(
         self, client: httpx2.AsyncClient, directory: Directory
     ) -> None:

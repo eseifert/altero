@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Bind OIDC and SAML responses to the initiating browser to prevent sign-in CSRF and cross-browser account linking.
 - Add a pinned zizmor CI check to prevent GitHub Actions security regressions.
 - Disable dependency-cache restoration in the privileged documentation publishing job.
 - Pass workflow outputs through quoted environment variables instead of interpolating them into shell code.

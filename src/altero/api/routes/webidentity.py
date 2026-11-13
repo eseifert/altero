@@ -17,9 +17,8 @@ navigations rather than fetches:
 
 ``/auth/sso/{slug}/callback``
     The browser coming back. It arrives as a top-level ``GET``, so
-    ``SameSite=Lax`` cookies *are* sent -- but nothing here reads them for
-    authority. The state parameter resolving to a row this server wrote is what
-    makes the request genuine, and the row is spent on use.
+    ``SameSite=Lax`` cookies are sent. A separate HttpOnly cookie binds the
+    state to the initiating browser; the matching database row is spent on use.
 """
 
 from typing import Annotated
@@ -32,6 +31,7 @@ from sqlalchemy import select
 from starlette.requests import Request
 from starlette.responses import JSONResponse, RedirectResponse, Response
 
+from altero.api import ssostate
 from altero.api.deps import SessionDep
 from altero.api.local_auth import SsoOnlyDep
 from altero.api.routes.web import (
@@ -186,10 +186,8 @@ async def start_sign_in(
 ) -> Response:
     """Send the browser to the directory.
 
-    A redirect rather than JSON, so the interface can use a plain link and the
-    browser's own navigation carries it. No CSRF token: there is nothing to
-    forge, since completing this grants exactly what signing in grants and the
-    person doing it has to authenticate at the directory either way.
+    A redirect rather than JSON, so the interface can use a plain link. A
+    separate browser secret binds the callback even before a session exists.
     """
     if purpose not in ("login", "link", "reauth"):
         raise InvalidInputError("Unknown purpose")
@@ -224,6 +222,7 @@ async def start_sign_in(
             return RedirectResponse(
                 _app_url(request, "/sign-in", error="provider-unreachable"), 303
             )
+        state, browser_secret = ssostate.create(request)
         pending = await authrequests.create(
             session,
             provider,
@@ -232,9 +231,9 @@ async def start_sign_in(
             user_id=user.id if user else None,
             # An xsd:ID rather than a URL-safe token: the value goes into the
             # AuthnRequest's ID attribute, which may not begin with a digit.
-            state=saml.generate_request_id(),
+            state=state,
         )
-        return RedirectResponse(
+        response = RedirectResponse(
             saml.authn_request_url(
                 provider,
                 acs_url=acs_url(request, provider.slug),
@@ -245,20 +244,23 @@ async def start_sign_in(
             ),
             status_code=303,
         )
+        return ssostate.set_cookie(response, request, browser_secret)
 
     try:
         await _ready(request, session, provider)
     except InvalidInputError:
         return RedirectResponse(_app_url(request, "/sign-in", error="provider-unreachable"), 303)
 
+    state, browser_secret = ssostate.create(request)
     pending = await authrequests.create(
         session,
         provider,
         next_path=next if next.startswith("/") else "/library",
         purpose=purpose,
         user_id=user.id if user else None,
+        state=state,
     )
-    return RedirectResponse(
+    response = RedirectResponse(
         oidc.authorization_url(
             provider,
             redirect_uri=redirect_uri(request, provider.slug),
@@ -271,6 +273,7 @@ async def start_sign_in(
         ),
         status_code=303,
     )
+    return ssostate.set_cookie(response, request, browser_secret)
 
 
 @router.get("/auth/sso/{slug}/callback")
@@ -293,6 +296,8 @@ async def complete_sign_in(
         return RedirectResponse(_app_url(request, "/sign-in", error="refused"), 303)
 
     _public_url(request)
+    if not ssostate.matches(request, state):
+        return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
     pending = await authrequests.consume(session, state)
     if pending is None or pending.verified_saml is not None:
         return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
@@ -342,8 +347,8 @@ async def consume_assertion(
     session, not the CSRF token. There is nothing to read and nothing to
     compare. What makes the request genuine instead is the signature on the
     assertion plus its ``InResponseTo`` matching a request row this server
-    wrote, and this is the route that *sets* the cookies rather than one that
-    reads them.
+    wrote. A top-level GET then checks the browser binding before signing in
+    or changing the existing account.
 
     It is also why altero is SP-initiated only: without a request row to match,
     there is nothing left holding this up.
@@ -386,41 +391,32 @@ async def consume_assertion(
     except ForbiddenError, InvalidInputError:
         return RedirectResponse(_app_url(request, "/sign-in", error="refused"), 303)
 
-    if pending.purpose in ("link", "reauth"):
-        # A cross-site POST cannot present the browser's SameSite=Lax session.
-        # Verify and spend the assertion here, then ask that browser to present
-        # its existing cookie on a top-level GET before changing its account.
-        continuation = await authrequests.defer_saml(session, pending, verified.assertion)
-        base = acs_url(request, slug).removesuffix("/acs")
-        return RedirectResponse(
-            f"{base}/complete?{urlencode({'state': continuation.state})}",
-            status_code=303,
-            headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
-        )
-
-    try:
-        outcome = await federation.sign_in(
-            session, provider, verified.assertion, notify=request.app.state.mailer.send
-        )
-    except ForbiddenError:
-        return RedirectResponse(_app_url(request, "/sign-in", error="not-permitted"), 303)
-
-    token, _ = await websessions.create(
-        session, outcome.user, sso=True, user_agent=request.headers.get("user-agent", "")
+    # A cross-site POST cannot present the SameSite=Lax browser binding.
+    # Every purpose must finish on a top-level GET in the initiating browser.
+    continuation = await authrequests.defer_saml(session, pending, verified.assertion)
+    base = acs_url(request, slug).removesuffix("/acs")
+    return RedirectResponse(
+        f"{base}/complete?{urlencode({'state': continuation.state})}",
+        status_code=303,
+        headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"},
     )
-    response = RedirectResponse(_app_url(request, pending.next_path), status_code=303)
-    _set_session_cookies(response, request, token)
-    return response
 
 
 @router.get("/auth/saml/{slug}/complete")
 async def complete_saml_handoff(
     request: Request, session: SessionDep, slug: str, state: str = ""
 ) -> Response:
-    """Finish a verified SAML link or proof with the browser's existing cookie."""
+    """Finish a verified SAML response in the browser that started it."""
     _public_url(request)
+    saved = await session.get(AuthRequest, state)
+    if (
+        saved is None
+        or not saved.verified_saml
+        or not ssostate.matches(request, saved.verified_saml.get("request_state", ""))
+    ):
+        return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
     pending = await authrequests.consume(session, state)
-    if pending is None or not pending.verified_saml or pending.purpose not in ("link", "reauth"):
+    if pending is None or not pending.verified_saml:
         return RedirectResponse(_app_url(request, "/sign-in", error="expired"), 303)
     provider = await session.get(IdentityProvider, pending.provider_id)
     if provider is None or provider.kind != "saml" or provider.slug != slug or not provider.enabled:
@@ -428,10 +424,24 @@ async def complete_saml_handoff(
     assertion = oidc.Assertion(
         subject=pending.verified_saml["subject"],
         display_name=pending.verified_saml["display_name"],
-        username="",
-        email="",
+        username=pending.verified_saml["username"],
+        email=pending.verified_saml["email"],
+        claims=pending.verified_saml["claims"],
     )
-    response = await _finish_for_signed_in(request, session, provider, pending, assertion)
+    if pending.purpose in ("link", "reauth"):
+        response = await _finish_for_signed_in(request, session, provider, pending, assertion)
+    else:
+        try:
+            outcome = await federation.sign_in(
+                session, provider, assertion, notify=request.app.state.mailer.send
+            )
+        except ForbiddenError:
+            return RedirectResponse(_app_url(request, "/sign-in", error="not-permitted"), 303)
+        token, _ = await websessions.create(
+            session, outcome.user, sso=True, user_agent=request.headers.get("user-agent", "")
+        )
+        response = RedirectResponse(_app_url(request, pending.next_path), status_code=303)
+        _set_session_cookies(response, request, token)
     response.headers["Cache-Control"] = "no-store"
     response.headers["Referrer-Policy"] = "no-referrer"
     return response
@@ -489,6 +499,7 @@ async def _finish_for_signed_in(
     record = await websessions.lookup(session, request.cookies.get("altero_session"))
     if (
         record is None
+        or not websessions.is_authenticated(record)
         or record.user_id != user.id
         or (request.app.state.settings.sso_only and not record.sso_authenticated)
     ):

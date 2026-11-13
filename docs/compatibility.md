@@ -816,15 +816,19 @@ single use; a signature alone does not establish these.
 Supported sign-in starts at altero and uses signed, unencrypted assertions.
 Unsolicited assertions, encryption and SAML Single Logout are unsupported.
 
-### Finishing SAML account linking with the browser session
+### Binding sign-in to the initiating browser
+
+OIDC and SAML requests are bound to a separate HttpOnly browser cookie, even
+before sign-in. A valid response opened in another browser grants nothing;
+request state, PKCE and single use alone do not prevent that transfer.
 
 A cross-site assertion POST lacks the existing browser session cookie. For
-account linking and identity confirmation, altero verifies the assertion then
-redirects through a short-lived GET handoff that can recover that session.
+every SAML response, altero verifies the assertion then redirects through a
+short-lived GET handoff that can check the browser cookie.
 
-The same signed-in account must finish it within two minutes. Handles are
-single-use, stored in the database for worker independence, and grant no access
-without the matching session. Ordinary sign-in can create its session directly.
+The initiating browser must finish it within two minutes. Account linking and
+identity confirmation also require the same fully signed-in account. Handles
+are single-use and stored in the database for worker independence.
 No browser cookie acquires Zotero API access.
 
 ## Deliberate differences from zotero.org

@@ -75,8 +75,7 @@ async def test_saml_sign_in_and_force_authentication_work_in_sso_only_mode(
         )
         response = await client.post("/web/auth/saml/campus/acs", data={"SAMLResponse": assertion})
         assert response.status_code == 303
-        if purpose == "reauth":
-            response = await client.get(response.headers["location"])
-            assert response.status_code == 303
+        response = await client.get(response.headers["location"])
+        assert response.status_code == 303
         assert (await client.get("/web/auth/session")).status_code == 200
     assert (await client.get("/web/account/proof")).json()["fresh"] is True

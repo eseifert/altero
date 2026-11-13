@@ -43,6 +43,8 @@ async def test_a_real_callback_cannot_be_replayed_after_logout(
     async with new_browser() as visitor:
         callback = await answer(visitor, keycloak, kind)
         first = await visitor.send(callback)
+        if kind == "saml":
+            first = await visitor.get(first.headers["location"])
         assert first.headers["location"] == f"{ALTERO_URL}/app/library"
         assert (await visitor.get("/web/auth/session")).status_code == 200
         logout = await visitor.post("/web/auth/logout", headers=csrf_headers(visitor))
@@ -109,6 +111,8 @@ async def test_real_assertions_respect_the_five_minute_skew_window(
             monkeypatch.setattr(oidc, "validate_claims", check_at_bound)
         response = await visitor.send(callback)
         if accepted:
+            if kind == "saml":
+                response = await visitor.get(response.headers["location"])
             assert response.headers["location"] == f"{ALTERO_URL}/app/library"
             assert (await visitor.get("/web/auth/session")).status_code == 200
         else:

@@ -284,9 +284,10 @@ Register the screen's **Callback address** as the assertion consumer service
 `<public_url>/web/auth/saml/campus/acs`. The service provider entity ID is
 `public_url` without a trailing slash.
 
-When linking an account or confirming identity, complete the return to altero
-in the same signed-in browser within two minutes. An expired handoff requires
-starting again. See the [SAML session handoff](compatibility.md#finishing-saml-account-linking-with-the-browser-session)
+Complete every SAML return in the browser that started it within two minutes.
+Linking an account or confirming identity also requires its existing sign-in.
+An expired handoff requires starting again. See the
+[browser binding](compatibility.md#binding-sign-in-to-the-initiating-browser)
 for protocol details.
 
 The SAML implementation is deliberately limited to:

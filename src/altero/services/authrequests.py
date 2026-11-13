@@ -100,11 +100,12 @@ async def consume(session: AsyncSession, state: str) -> AuthRequest | None:
 async def defer_saml(
     session: AsyncSession, pending: AuthRequest, assertion: oidc.Assertion
 ) -> AuthRequest:
-    """Carry a verified link/reauth assertion to a cookie-authenticated GET.
+    """Carry a verified assertion to a browser-bound GET.
 
     The original request and assertion have already been spent. This separate
     random handle is single-use through ``consume`` and grants nothing without
-    an authenticated session belonging to the account that started the trip.
+    the initiating browser's state binding. Links and proofs also require its
+    authenticated session.
     """
     continuation = AuthRequest(
         state=secrets.token_urlsafe(32),
@@ -112,7 +113,14 @@ async def defer_saml(
         purpose=pending.purpose,
         user_id=pending.user_id,
         next_path=pending.next_path,
-        verified_saml={"subject": assertion.subject, "display_name": assertion.display_name},
+        verified_saml={
+            "subject": assertion.subject,
+            "display_name": assertion.display_name,
+            "username": assertion.username,
+            "email": assertion.email,
+            "claims": assertion.claims,
+            "request_state": pending.state,
+        },
         expires=min(pending.expires, _now() + timedelta(minutes=2)),
     )
     session.add(continuation)

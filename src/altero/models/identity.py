@@ -19,6 +19,7 @@ no further, and signing in is not something that may break behind two workers.
 """
 
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import (
     JSON,
@@ -206,9 +207,9 @@ class AuthRequest(Base):
     #: a real case.
     purpose: Mapped[str] = mapped_column(String(8), default="login")
     #: Only a verified SAML assertion may create this short-lived continuation.
-    #: Linking and reauthentication finish on a GET, where SameSite=Lax sends
-    #: the existing session cookie that the cross-site assertion POST lacks.
-    #: Retain only the subject and display name, not groups or other claims.
-    verified_saml: Mapped[dict[str, str] | None] = mapped_column(JSON, nullable=True)
+    #: Every purpose finishes on a GET, where SameSite=Lax sends the browser
+    #: binding and any existing session. Claims are kept for provisioning and
+    #: required-claim checks, with the original state for the browser binding.
+    verified_saml: Mapped[dict[str, Any] | None] = mapped_column(JSON, nullable=True)
     created: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     expires: Mapped[datetime] = mapped_column(DateTime, index=True)

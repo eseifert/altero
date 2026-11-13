@@ -28,7 +28,7 @@ async def prepare(
         idpEntityId=IDP,
         certificates=CERTIFICATE,
         ssoUrl=f"{IDP}/saml",
-        createAccounts=False,
+        createAccounts=purpose == "login",
     )
     assert provider.status_code == 201
     if purpose == "reauth":
@@ -69,6 +69,21 @@ async def prepare(
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["referrer-policy"] == "no-referrer"
     return location
+
+
+async def test_a_saml_login_requires_the_starting_browser(
+    client: httpx2.AsyncClient, session: AsyncSession
+) -> None:
+    location = await prepare(client, session, purpose="login")
+    original = httpx2.Cookies(client.cookies)
+    client.cookies.clear()
+    refused = await client.get(location)
+    assert "error=expired" in refused.headers["location"]
+    assert (await client.get("/web/auth/session")).status_code == 401
+    client.cookies = original
+    completed = await client.get(location)
+    assert completed.headers["location"] == f"{BASE}/app/settings/security"
+    assert (await client.get("/web/auth/session")).json()["user"]["username"] == "grace-subject-id"
 
 
 @pytest.mark.parametrize("purpose", ["link", "reauth"])

@@ -204,7 +204,12 @@ async def test_a_real_response_cannot_be_replayed_after_logout(
     await configure(browser, simplesamlphp)
     browser.cookies.clear()
     callback = await answer(browser, simplesamlphp)
-    assert (await browser.send(callback)).headers["location"].endswith("/app/library")
+    handoff = await browser.send(callback)
+    assert (
+        (await browser.get(handoff.headers["location"]))
+        .headers["location"]
+        .endswith("/app/library")
+    )
     assert (
         await browser.post("/web/auth/logout", headers=csrf_headers(browser))
     ).status_code == 204
