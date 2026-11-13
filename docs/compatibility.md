@@ -672,6 +672,9 @@ A recorded desktop defect can save the note while losing the parent change. Keep
 
 The migration reads a personal library from api.zotero.org and turns it into the same archive `altero library export` writes, then restores that archive. It makes no writes to zotero.org.
 
+Attachment downloads may redirect to another origin. Those requests carry no
+API key, including any subsequent redirects back to the API.
+
 **It needs an API key.** zotero.org offers no password sign-in for software, and OAuth would require every altero instance to register with Zotero. The key is used for the import and then forgotten.
 
 **Three things zotero.org's API does not provide**, and what altero uses instead:

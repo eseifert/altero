@@ -651,6 +651,47 @@ class TestRestoringWhatWasRead:
             )
 
 
+class TestRedirectCredentials:
+    @pytest.mark.parametrize("stream", [False, True])
+    @pytest.mark.parametrize(
+        "target",
+        [
+            "https://files.example/paper",
+            "http://api.zotero.org/paper",
+            "https://api.zotero.org:8443/paper",
+        ],
+    )
+    async def test_a_redirect_to_another_origin_does_not_receive_the_key(
+        self, tmp_path: Path, stream: bool, target: str
+    ) -> None:
+        seen: list[httpx2.Request] = []
+
+        def handle(request: httpx2.Request) -> httpx2.Response:
+            seen.append(request)
+            if len(seen) == 1:
+                return httpx2.Response(302, headers={"Location": "/file-location"})
+            if len(seen) == 2:
+                return httpx2.Response(302, headers={"Location": target})
+            if len(seen) == 3:
+                return httpx2.Response(302, headers={"Location": "https://api.zotero.org/final"})
+            return httpx2.Response(200, content=b"paper")
+
+        async with httpx2.AsyncClient(transport=httpx2.MockTransport(handle)) as client:
+            source = ZoteroApi(key=SOURCE_KEY, client=client)
+            if stream:
+                await source.save_file("/users/1", "AAAA2345", tmp_path / "paper")
+                assert (tmp_path / "paper").read_bytes() == b"paper"
+            else:
+                assert (await source.get("/keys/current")).content == b"paper"
+
+        assert [request.headers.get("Zotero-API-Key") for request in seen] == [
+            SOURCE_KEY,
+            SOURCE_KEY,
+            None,
+            None,
+        ]
+
+
 class TestBeingAGoodGuest:
     """What zotero.org does and the fixture above does not."""
 

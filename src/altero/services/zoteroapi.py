@@ -151,7 +151,7 @@ class ZoteroApi:
 
             try:
                 request = self.client.build_request("GET", url, params=params, headers=self.headers)
-                response = await self.client.send(request, stream=stream, follow_redirects=True)
+                response = await self._follow_redirects(request, stream=stream)
             except httpx2.HTTPError as thrown:
                 if attempt == MAX_ATTEMPTS:
                     raise ZoteroApiError(f"Could not reach {url}: {thrown}") from thrown
@@ -189,6 +189,30 @@ class ZoteroApi:
             return response
 
         raise ZoteroApiError(f"Gave up on {url}")  # pragma: no cover - the loop always returns
+
+    async def _follow_redirects(self, request: httpx2.Request, *, stream: bool) -> httpx2.Response:
+        """Follow file locations without giving another origin the API key.
+
+        The HTTP client strips Authorization on redirects but knows nothing
+        about Zotero-API-Key. Once removed, it stays absent for the remainder
+        of the chain, including redirects back to the API origin.
+        """
+        for _ in range(self.client.max_redirects + 1):
+            response = await self.client.send(request, stream=True, follow_redirects=False)
+            following = response.next_request
+            if following is None:
+                if not stream:
+                    try:
+                        await response.aread()
+                    finally:
+                        await response.aclose()
+                return response
+            await response.aclose()
+            if following.url.origin != request.url.origin:
+                following.headers.pop("Zotero-API-Key", None)
+                following.headers.pop("Authorization", None)
+            request = following
+        raise httpx2.TooManyRedirects("Exceeded maximum allowed redirects", request=request)
 
     async def json(self, path: str, **params: Any) -> Any:
         response = await self.get(path, **params)

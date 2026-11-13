@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Stop forwarding migration API keys to other origins when following attachment redirects.
 - Correct the SSO setup notice in every catalog: callbacks require the configured public URL.
 - Keep the established form of address consistent in both Chinese catalogs, including permission and consent screens.
 - Keep other-browser sign-out scope accurate and align item and merge notices with their catalogs’ controls.
