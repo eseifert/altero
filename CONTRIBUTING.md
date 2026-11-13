@@ -293,6 +293,10 @@ for wording and the appropriate number of plural forms. Browser checks cover
 locale persistence, direction and layout; do not repeat workflows per catalog
 or assert translated prose.
 
+The [translation review record](docs/web/translation-review.md) tracks completed
+source/context passes and outstanding wording work separately from native-speaker
+approval.
+
 ### How a version gets published
 
 The docs workflow publishes master as `dev`, stable tags under their major/minor

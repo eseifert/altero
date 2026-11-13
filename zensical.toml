@@ -54,6 +54,7 @@ nav = [
     "testing-two-clients.md",
     "design.md",
     "web/implementation.md",
+    "web/translation-review.md",
     "release-history.md",
     { "Development guide" = "https://github.com/eseifert/altero/blob/master/CONTRIBUTING.md" },
   ] },
