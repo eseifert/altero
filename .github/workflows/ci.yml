@@ -167,6 +167,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Check PostgreSQL version and image
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: python3 tools/check_postgres.py "$POSTGRES_CONTAINER"
+
       # Pinned to an exact release: setup-uv publishes floating major tags only
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.
       - uses: astral-sh/setup-uv@v9.0.0
@@ -224,6 +229,11 @@ jobs:
         with:
           # Tagged applications/migrations are the upgrade starting points.
           fetch-depth: 0
+
+      - name: Check PostgreSQL version and image
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: python3 tools/check_postgres.py "$POSTGRES_CONTAINER"
 
       # Pinned to an exact release: setup-uv publishes floating major tags only
       # up to v7, so `@v9` does not resolve even though v9.0.0 is current.

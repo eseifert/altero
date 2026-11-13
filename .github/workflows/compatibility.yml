@@ -234,6 +234,11 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      - name: Check PostgreSQL version and image
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        run: python3 tools/check_postgres.py "$POSTGRES_CONTAINER"
+
       - uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true

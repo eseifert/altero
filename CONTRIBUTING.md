@@ -104,6 +104,12 @@ Keep prerelease PostgreSQL checks separate from the stable CI baseline. See the
 for the November 2026 fixes and conditional index/backup repair steps. Historical
 test reports retain the database version actually used.
 
+Every PostgreSQL-backed CI job runs `tools/check_postgres.py` against its service
+container before installing dependencies. It queries the running server, requires
+PostgreSQL 18.7 or newer within major 18, and logs the immutable image ID and
+registry digests. Keep the moving `postgres:18-alpine` tag so later patches are
+picked up; raise the check's minimum when adopting a newer security baseline.
+
 > [!WARNING]
 > These fixtures drop and recreate tables. Never point them at a database holding a real library.
 
