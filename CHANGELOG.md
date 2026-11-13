@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Update test tooling's minimatch to fix CVE-2026-118764, a glob-pattern amplification denial of service.
 - Give CI jobs read-only repository permissions instead of inheriting the repository's token defaults.
 - Update test tooling's glob to fix CVE-2026-118773, which bypassed traversal cancellation.
 - Restrict browser library migration to zotero.org to prevent requests to arbitrary servers and private networks.
