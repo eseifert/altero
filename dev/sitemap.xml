@@ -4,13 +4,55 @@
         <loc>https://altero.run/dev/</loc>
       </url>
       <url>
-        <loc>https://altero.run/dev/motivation/</loc>
+        <loc>https://altero.run/dev/administration/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/client-compatibility/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/clients/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/compatibility/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/configuration/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/deployment/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/design/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/email/</loc>
       </url>
       <url>
         <loc>https://altero.run/dev/getting-started/</loc>
       </url>
       <url>
-        <loc>https://altero.run/dev/clients/</loc>
+        <loc>https://altero.run/dev/motivation/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/oauth/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/oidc-conformance/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/release-history/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/schema/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/status/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/testing-podman/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/testing-two-clients/</loc>
       </url>
       <url>
         <loc>https://altero.run/dev/web-interface/</loc>
@@ -19,60 +61,21 @@
         <loc>https://altero.run/dev/web/account/</loc>
       </url>
       <url>
+        <loc>https://altero.run/dev/web/data-transfer/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/web/groups/</loc>
+      </url>
+      <url>
+        <loc>https://altero.run/dev/web/implementation/</loc>
+      </url>
+      <url>
         <loc>https://altero.run/dev/web/library/</loc>
       </url>
       <url>
         <loc>https://altero.run/dev/web/sharing/</loc>
       </url>
       <url>
-        <loc>https://altero.run/dev/web/groups/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/web/data-transfer/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/deployment/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/testing-podman/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/configuration/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/administration/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/oauth/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/email/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/status/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/compatibility/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/schema/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/client-compatibility/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/oidc-conformance/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/testing-two-clients/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/design/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/web/implementation/</loc>
-      </url>
-      <url>
-        <loc>https://altero.run/dev/release-history/</loc>
+        <loc>https://altero.run/dev/web/translation-review/</loc>
       </url>
 </urlset>
