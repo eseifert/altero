@@ -30,9 +30,10 @@ must not promise that an account exists or that an email will always arrive.
 | Indonesian, Tagalog, Vietnamese | All 36 registration messages translated; regional terms and established address retained |
 | Khmer, Thai | All 36 registration messages translated; regional terms and established address retained |
 | Breton, Swahili | All 36 registration messages translated; regional terms and established address retained |
+| Georgian, Hausa, Yoruba | All 36 registration messages translated; regional terms and established address retained |
 
-The remaining 3 non-English catalogs still need these messages. Both English
-variants already contain them. Earlier German and Spanish review passes predate
+All 57 non-English catalogs now contain these messages. Both English variants
+already contain them. Earlier German and Spanish review passes predate
 this new registration copy.
 
 ## Existing wording
