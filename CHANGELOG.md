@@ -8,6 +8,7 @@ gained a capability worth naming.
 ## [Unreleased]
 
 - Keep regional locale selection and note editing working in browsers without `Object.hasOwn`.
+- Let Tab leave theme and new-item menus, dismiss them on outside focus, and open theme choices with arrow keys.
 
 ## [1.0.0-rc.1] — 2026-11-13
 

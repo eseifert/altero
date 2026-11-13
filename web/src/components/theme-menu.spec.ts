@@ -148,6 +148,47 @@ describe('ThemeMenu', () => {
     expect(document.activeElement).toBe(options[2].element)
   })
 
+  it('keeps menu options out of the sequential tab order', async () => {
+    const wrapper = open()
+    await wrapper.get('.theme-menu__trigger').trigger('click')
+    expect(wrapper.findAll('[role="menuitemradio"]').map(item =>
+      (item.element as HTMLButtonElement).tabIndex,
+    )).toEqual([-1, -1, -1])
+  })
+
+  it.each([false, true])('closes on Tab (shift=%s) without preventing native navigation', async (shiftKey) => {
+    const wrapper = open()
+    await wrapper.get('.theme-menu__trigger').trigger('click')
+    const option = wrapper.findAll('[role="menuitemradio"]')[1]
+    ;(option.element as HTMLButtonElement).focus()
+    const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true })
+    option.element.dispatchEvent(event)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[role="menu"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(wrapper.get('.theme-menu__trigger').element)
+    expect(event.defaultPrevented).toBe(false)
+  })
+
+  it('closes when focus moves outside without reclaiming it', async () => {
+    const wrapper = open()
+    await wrapper.get('.theme-menu__trigger').trigger('click')
+    const other = document.createElement('button')
+    document.body.append(other)
+    other.focus()
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[role="menu"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(other)
+  })
+
+  it.each([['ArrowDown', 0], ['ArrowUp', 2]] as const)('opens with %s at the matching edge', async (key, index) => {
+    const wrapper = open()
+    await wrapper.get('.theme-menu__trigger').trigger('keydown', { key })
+    await wrapper.vm.$nextTick()
+    const options = wrapper.findAll('[role="menuitemradio"]')
+    expect(options).toHaveLength(3)
+    expect(document.activeElement).toBe(options[index].element)
+  })
+
   it('gives focus back to the trigger when it closes', async () => {
     const wrapper = open()
     await wrapper.get('.theme-menu__trigger').trigger('click')

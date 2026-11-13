@@ -62,6 +62,11 @@ Use logical start/end properties for right-to-left layout. Mixed-language
 content determines its own direction. Verify mouse, touch and splitter-key
 behavior in both directions.
 
+Popup command menus keep their items outside the sequential tab order. Arrow
+keys move inside; Tab and Shift+Tab close the menu and continue from its trigger.
+Escape restores the trigger, while moving focus outside dismisses the menu
+without taking focus back. The theme trigger also opens with Up/Down arrows.
+
 Tags share `TagPill.vue`, `styles/tag-pills.css` and ordering in `items/tags.ts`.
 The component owns rename drafts and errors; callers provide library filtering
 or item-only removal. Pending additions and removals project over current tags

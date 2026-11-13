@@ -40,14 +40,17 @@ function collect(element: unknown, index: number): void {
 }
 
 async function toggle(): Promise<void> {
-  open.value = !open.value
-  if (!open.value) return
+  if (open.value) close()
+  else await show()
+}
+
+async function show(index = OPTIONS.findIndex(option => option.value === theme.preference)): Promise<void> {
+  open.value = true
 
   // Opening moves focus into the menu, at whichever option is in force, so it
   // can be driven from the keyboard without tabbing through the list first.
   await nextTick()
-  const index = OPTIONS.findIndex((option) => option.value === theme.preference)
-  items.value[Math.max(index, 0)]?.focus()
+  if (open.value) items.value[Math.max(index, 0)]?.focus()
 }
 
 function close({ refocus = true } = {}): void {
@@ -80,6 +83,9 @@ function onKeydown(event: KeyboardEvent, index: number): void {
   } else if (event.key === 'End') {
     event.preventDefault()
     items.value[OPTIONS.length - 1]?.focus()
+  } else if (event.key === 'Tab') {
+    // Let native Tab navigation continue from the trigger, in either direction.
+    close()
   }
 }
 
@@ -93,21 +99,28 @@ function onDocumentKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') close()
 }
 
+function onDocumentFocusIn(event: FocusEvent): void {
+  if (!root.value?.contains(event.target as Node)) close({ refocus: false })
+}
+
 watch(open, (isOpen) => {
   // Listened for only while the menu is open: a handler per mounted menu,
   // running on every key of every keystroke, is a cost for nothing.
   if (isOpen) {
     document.addEventListener('pointerdown', onDocumentPointerDown)
     document.addEventListener('keydown', onDocumentKeydown)
+    document.addEventListener('focusin', onDocumentFocusIn)
   } else {
     document.removeEventListener('pointerdown', onDocumentPointerDown)
     document.removeEventListener('keydown', onDocumentKeydown)
+    document.removeEventListener('focusin', onDocumentFocusIn)
   }
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('pointerdown', onDocumentPointerDown)
   document.removeEventListener('keydown', onDocumentKeydown)
+  document.removeEventListener('focusin', onDocumentFocusIn)
 })
 </script>
 
@@ -121,6 +134,8 @@ onBeforeUnmount(() => {
       aria-haspopup="menu"
       :aria-expanded="open"
       @click="toggle"
+      @keydown.down.prevent="show(0)"
+      @keydown.up.prevent="show(OPTIONS.length - 1)"
     >
       <AppIcon :name="`theme-${current.value}`" :size="24" />
     </button>
@@ -132,6 +147,7 @@ onBeforeUnmount(() => {
           type="button"
           class="theme-menu__option"
           role="menuitemradio"
+          tabindex="-1"
           :aria-checked="theme.preference === option.value"
           @click="choose(option.value)"
           @keydown="onKeydown($event, index)"

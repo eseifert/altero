@@ -74,16 +74,23 @@ function keydown(event: KeyboardEvent): void {
     close()
     root.value?.querySelector<HTMLButtonElement>('[aria-haspopup]')?.focus()
   } else if (event.key === 'Tab') {
+    root.value?.querySelector<HTMLButtonElement>('[aria-haspopup]')?.focus()
     close()
   }
 }
 
-function outside(event: PointerEvent): void {
+function outside(event: Event): void {
   if (!root.value?.contains(event.target as Node)) close()
 }
 
-onMounted(() => document.addEventListener('pointerdown', outside))
-onBeforeUnmount(() => document.removeEventListener('pointerdown', outside))
+onMounted(() => {
+  document.addEventListener('pointerdown', outside)
+  document.addEventListener('focusin', outside)
+})
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', outside)
+  document.removeEventListener('focusin', outside)
+})
 </script>
 
 <template>
@@ -102,13 +109,13 @@ onBeforeUnmount(() => document.removeEventListener('pointerdown', outside))
     </button>
     <ul v-if="open" ref="list" class="menu new-item__menu" role="menu" :aria-label="t('New Item')" @keydown="keydown">
       <li v-for="name in menu.primary" :key="`primary-${name}`" role="none">
-        <button class="menu__item" role="menuitem" type="button" @click="choose(name)">
+        <button class="menu__item" role="menuitem" tabindex="-1" type="button" @click="choose(name)">
           {{ itemTypeLabel(name) }}
         </button>
       </li>
       <li role="separator" class="new-item__separator"></li>
       <li v-for="name in menu.all" :key="name" role="none">
-        <button class="menu__item" role="menuitem" type="button" @click="choose(name)">
+        <button class="menu__item" role="menuitem" tabindex="-1" type="button" @click="choose(name)">
           {{ itemTypeLabel(name) }}
         </button>
       </li>

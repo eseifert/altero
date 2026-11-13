@@ -98,6 +98,26 @@ describe('titleField', () => {
 })
 
 describe('NewItemMenu', () => {
+  it('keeps commands out of the sequential tab order', async () => {
+    const wrapper = mount(NewItemMenu, { attachTo: document.body })
+    await wrapper.get('[aria-haspopup]').trigger('click')
+    expect(wrapper.findAll('[role="menuitem"]').every(item =>
+      (item.element as HTMLButtonElement).tabIndex === -1,
+    )).toBe(true)
+  })
+
+  it.each([false, true])('leaves from the trigger on Tab (shift=%s)', async (shiftKey) => {
+    const wrapper = mount(NewItemMenu, { attachTo: document.body })
+    const trigger = wrapper.get('[aria-haspopup]')
+    await trigger.trigger('click')
+    const event = new KeyboardEvent('keydown', { key: 'Tab', shiftKey, bubbles: true, cancelable: true })
+    wrapper.get('[role="menuitem"]').element.dispatchEvent(event)
+    await wrapper.vm.$nextTick()
+    expect(wrapper.find('[role="menu"]').exists()).toBe(false)
+    expect(document.activeElement).toBe(trigger.element)
+    expect(event.defaultPrevented).toBe(false)
+  })
+
   it('lists the primary types, a separator, then every type', async () => {
     const wrapper = mount(NewItemMenu, { attachTo: document.body })
 
