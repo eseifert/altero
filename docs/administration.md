@@ -329,6 +329,17 @@ automatically. The default claim names are `preferred_username`, `name` and
 `email`. Keep ID tokens unencrypted. Discovery and token endpoints must be
 reachable by the altero server, as well as the sign-in page by the browser.
 
+For a trusted OIDC provider, enable **Trust email_verified from this provider**
+in **Administration → Identity providers** to avoid a second email confirmation.
+Enable it only if the provider actually verifies addresses and prevents users
+from claiming an unverified address. It is off by default, including after an
+upgrade. Only the JSON boolean `true` is accepted; strings such as `"true"` are
+not. Verification must refer to the same address as the account (ignoring case).
+New accounts and existing accounts on their next sign-in can be confirmed.
+Later missing or false claims never clear verification. Existing account
+addresses are never replaced by SSO; a changed address still uses the usual
+email-change flow. SAML is unaffected.
+
 Choose whether the provider may create accounts. With creation off, an existing
 user first connects the provider from **Settings → Sign-in and security**.
 Matching an email address never links accounts automatically. **Required claim**

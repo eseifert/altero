@@ -39,6 +39,7 @@ def asserts(
     *,
     username: str = "ada",
     email: str = "ada@example.org",
+    email_verified: bool = False,
     **claims: object,
 ) -> Assertion:
     return Assertion(
@@ -46,6 +47,7 @@ def asserts(
         username=username,
         display_name="Ada Lovelace",
         email=email,
+        email_verified=email_verified,
         claims={"sub": subject, **claims},
     )
 
@@ -385,3 +387,56 @@ class TestTheIdentityGoesWithTheAccount:
 
         remaining = await session.scalars(select(FederatedIdentity))
         assert list(remaining) == []
+
+
+class TestTrustedEmailVerification:
+    @pytest.mark.parametrize(("trusted", "verified"), [(False, True), (True, False), (True, True)])
+    async def test_provisioning_requires_opt_in_and_verified_claim(
+        self, session: AsyncSession, trusted: bool, verified: bool
+    ) -> None:
+        provider = await make_provider(session, create_accounts=True, trust_email_verified=trusted)
+        outcome = await federation.sign_in(session, provider, asserts(email_verified=verified))
+        assert (outcome.user.email_verified is not None) is (trusted and verified)
+
+    async def test_existing_account_is_confirmed_on_next_sign_in(
+        self, session: AsyncSession
+    ) -> None:
+        provider = await make_provider(session, create_accounts=True)
+        user = (await federation.sign_in(session, provider, asserts())).user
+        assert user.email_verified is None
+        provider.trust_email_verified = True
+        await session.commit()
+        await federation.sign_in(
+            session, provider, asserts(email="ADA@EXAMPLE.ORG", email_verified=True)
+        )
+        assert user.email_verified is not None
+        stamp = user.email_verified
+        await federation.sign_in(session, provider, asserts(email_verified=False))
+        assert user.email_verified == stamp
+
+    @pytest.mark.parametrize("address", ["other@example.org", ""])
+    async def test_different_or_missing_address_does_not_confirm_or_replace(
+        self, session: AsyncSession, address: str
+    ) -> None:
+        provider = await make_provider(session, create_accounts=True, trust_email_verified=True)
+        user = (await federation.sign_in(session, provider, asserts())).user
+        await federation.sign_in(session, provider, asserts(email=address, email_verified=True))
+        assert user.email == "ada@example.org"
+        assert user.email_verified is None
+
+    async def test_an_address_held_by_another_account_is_not_confirmed(
+        self, session: AsyncSession
+    ) -> None:
+        existing = await local_account(session)
+        provider = await make_provider(session, create_accounts=True, trust_email_verified=True)
+        outcome = await federation.sign_in(session, provider, asserts(email_verified=True))
+        assert outcome.user.id != existing.id
+        assert outcome.user.email is None
+        assert outcome.user.email_verified is None
+
+    async def test_saml_does_not_inherit_oidc_trust(self, session: AsyncSession) -> None:
+        provider = await make_provider(
+            session, kind="saml", create_accounts=True, trust_email_verified=True
+        )
+        user = (await federation.sign_in(session, provider, asserts(email_verified=True))).user
+        assert user.email_verified is None

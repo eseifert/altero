@@ -333,6 +333,7 @@ export default {
   'Edit the title': 'Edit the title',
   'Email address': 'Email address',
   'Email address (optional)': 'Email address (optional)',
+  'Trust email_verified from this provider': 'Trust email_verified from this provider',
   'Email claim': 'Email claim',
   'Empty the trash': 'Empty the bin',
   'End': 'End',

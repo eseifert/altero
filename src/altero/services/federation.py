@@ -193,6 +193,7 @@ async def sign_in(
             raise ForbiddenError(
                 "This account has been suspended. Ask whoever runs this server about it."
             )
+        _confirm_email(user, provider, assertion)
         identity.last_seen = _now()
         identity.asserted_name = assertion.display_name
         await session.commit()
@@ -217,10 +218,8 @@ async def _provision(
     id assignment, same personal library, and the first account on an instance
     administers it whichever way it arrived.
 
-    The address is copied but **not** marked confirmed. A directory asserting
-    an address is not this server having proved it, and treating it as proved
-    would let a provider aim somebody's security notices and password-reset
-    links wherever it liked.
+    The address is confirmed only when the operator explicitly trusts this
+    OIDC provider to verify it. Existing accounts keep their contact address.
     """
     username = await _unique_username(session, assertion.username)
     user = await admin.create_user(
@@ -236,6 +235,7 @@ async def _provision(
         # the contact address, which its owner can set later.
         if taken is None:
             user.email = assertion.email
+            _confirm_email(user, provider, assertion)
             await session.commit()
 
     session.add(
@@ -250,6 +250,20 @@ async def _provision(
     await session.commit()
     logger.info("Created account %s from provider %s", username, provider.slug)
     return user
+
+
+def _confirm_email(user: User, provider: IdentityProvider, assertion: Assertion) -> None:
+    """Trust verification only for the address this account actually holds."""
+    if (
+        provider.kind == "oidc"
+        and provider.trust_email_verified
+        and assertion.email_verified
+        and assertion.email
+        and user.email
+        and user.email.lower() == assertion.email.lower()
+        and user.email_verified is None
+    ):
+        user.email_verified = _now()
 
 
 async def _deprovision(

@@ -775,3 +775,59 @@ class TestTheV3ApiIsStillUntouched:
         response = await follow(client, directory, session)
 
         assert response.status_code == 303
+
+
+@pytest.mark.parametrize("source", ["token", "userinfo"])
+async def test_trusted_oidc_email_is_confirmed_on_sign_in(
+    client: httpx2.AsyncClient, directory: Directory, session: AsyncSession, source: str
+) -> None:
+    await register(client)
+    response = await add_provider(client, trustEmailVerified=True)
+    assert response.status_code == 201
+    if source == "token":
+        directory.claims["email_verified"] = True
+    else:
+        directory.userinfo_claims = {"email": directory.claims["email"], "email_verified": True}
+    await client.post("/web/auth/logout", headers=csrf_headers(client))
+    response = await follow(client, directory, session)
+    assert response.status_code == 303
+    user = await session.scalar(select(User).where(User.username == "grace"))
+    assert user is not None
+    assert user.email_verified is not None
+    assert (await client.get("/web/auth/session")).json()["user"]["emailVerified"] is True
+
+
+@pytest.mark.parametrize("token_email", ["grace@sso.example.org", None])
+async def test_verification_cannot_be_combined_with_another_sources_email(
+    client: httpx2.AsyncClient, directory: Directory, session: AsyncSession, token_email: str | None
+) -> None:
+    await register(client)
+    await add_provider(client, trustEmailVerified=True)
+    if token_email:
+        directory.userinfo_claims = {"email": "other@example.org", "email_verified": True}
+    else:
+        directory.claims.pop("email")
+        directory.claims["email_verified"] = True
+        directory.userinfo_claims = {"email": "other@example.org"}
+    client.cookies.clear()
+    await follow(client, directory, session)
+    user = await session.scalar(select(User).where(User.username == "grace"))
+    assert user is not None
+    assert user.email_verified is None
+
+
+async def test_email_verification_trust_is_off_by_default_and_can_be_changed(
+    client: httpx2.AsyncClient, directory: Directory
+) -> None:
+    await register(client)
+    created = await add_provider(client)
+    assert created.json()["provider"]["trustEmailVerified"] is False
+    updated = await client.patch(
+        "/web/admin/providers/campus",
+        json={"trustEmailVerified": True, "currentPassword": PASSWORD},
+        headers=csrf_headers(client),
+    )
+    assert updated.status_code == 200
+    assert updated.json()["provider"]["trustEmailVerified"] is True
+    providers = (await client.get("/web/admin/providers")).json()["providers"]
+    assert providers[0]["trustEmailVerified"] is True

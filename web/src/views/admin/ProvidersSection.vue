@@ -47,6 +47,7 @@ interface Provider {
   usernameClaim: string
   nameClaim: string
   emailClaim: string
+  trustEmailVerified: boolean
   createAccounts: boolean
   requiredClaim: string
   requiredValue: string
@@ -97,6 +98,7 @@ function add(kind: 'oidc' | 'saml'): void {
     usernameClaim: 'preferred_username',
     nameClaim: 'name',
     emailClaim: 'email',
+    trustEmailVerified: false,
     createAccounts: false,
   }
   secret.value = ''
@@ -132,6 +134,7 @@ const save = () =>
       usernameClaim: draft.usernameClaim ?? '',
       nameClaim: draft.nameClaim ?? '',
       emailClaim: draft.emailClaim ?? '',
+      trustEmailVerified: draft.trustEmailVerified ?? false,
       createAccounts: draft.createAccounts ?? false,
       requiredClaim: draft.requiredClaim ?? '',
       requiredValue: draft.requiredValue ?? '',
@@ -260,6 +263,11 @@ const remove = (provider: Provider) =>
     <AppTextField v-model="editing.usernameClaim as string" :label="t('Username claim')" />
     <AppTextField v-model="editing.nameClaim as string" :label="t('Display name claim')" />
     <AppTextField v-model="editing.emailClaim as string" :label="t('Email claim')" />
+
+    <label v-if="editing.kind === 'oidc'" class="settings__check">
+      <input v-model="editing.trustEmailVerified" type="checkbox" name="trustEmailVerified" />
+      {{ t('Trust email_verified from this provider') }}
+    </label>
 
     <label class="settings__check">
       <input v-model="editing.createAccounts" type="checkbox" />

@@ -78,6 +78,7 @@ class ProviderInput(BaseModel):
     username_claim: str | None = Field(default=None, alias="usernameClaim")
     name_claim: str | None = Field(default=None, alias="nameClaim")
     email_claim: str | None = Field(default=None, alias="emailClaim")
+    trust_email_verified: bool | None = Field(default=None, alias="trustEmailVerified")
     create_accounts: bool | None = Field(default=None, alias="createAccounts")
     required_claim: str | None = Field(default=None, alias="requiredClaim")
     required_value: str | None = Field(default=None, alias="requiredValue")
@@ -479,7 +480,21 @@ async def _assert(
         # mix-up, and the specification says to refuse it.
         if extra.get("sub") and extra["sub"] != claims.get("sub"):
             raise ForbiddenError("The identity provider contradicted itself")
-        claims = {**extra, **claims} if extra else claims
+        # Never marry one source's verification flag to a different address.
+        # ID-token claims still win; UserInfo can fill a missing flag only
+        # when it explicitly names the same address.
+        email = provider.email_claim
+        if email in claims:
+            verified = claims.get("email_verified")
+            if "email_verified" not in claims and (
+                isinstance(extra.get(email), str)
+                and isinstance(claims[email], str)
+                and extra[email].lower() == claims[email].lower()
+            ):
+                verified = extra.get("email_verified")
+        else:
+            verified = extra.get("email_verified")
+        claims = {**extra, **claims, "email_verified": verified}
 
     return oidc.assertion_from(claims, provider)
 

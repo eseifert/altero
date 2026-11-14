@@ -88,6 +88,7 @@ class Assertion:
     display_name: str
     email: str
     claims: dict[str, Any] = field(default_factory=dict)
+    email_verified: bool = False
 
 
 def _now() -> datetime:
@@ -242,6 +243,7 @@ def assertion_from(claims: dict[str, Any], provider: IdentityProvider) -> Assert
         display_name=_text(claims, provider.name_claim) or username,
         email=_text(claims, provider.email_claim).lower(),
         claims=claims,
+        email_verified=claims.get("email_verified") is True,
     )
 
 

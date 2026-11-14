@@ -29,6 +29,7 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    false,
     func,
     true,
 )
@@ -97,6 +98,11 @@ class IdentityProvider(Base):
     #: everybody in the directory may have a library here, which is a policy
     #: rather than a detail.
     create_accounts: Mapped[bool] = mapped_column(Boolean, default=False)
+
+    #: OIDC only: explicitly trust this directory's boolean email_verified claim.
+    trust_email_verified: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=false()
+    )
 
     # --- Lifecycle ----------------------------------------------------------
     #: A claim that must be present, and the value it must carry, for a

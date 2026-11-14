@@ -300,3 +300,9 @@ class TestDiscoveryFreshness:
         stale = datetime.now(UTC).replace(tzinfo=None) - oidc.DISCOVERY_MAX_AGE - timedelta(hours=1)
 
         assert oidc.needs_discovery(provider(discovered=stale))
+
+
+@pytest.mark.parametrize("value", [True, False, None, "true", "false", 1, 0, [], {}])
+def test_email_verified_requires_a_json_boolean(value: object) -> None:
+    assertion = oidc.assertion_from(claims(email_verified=value), provider())
+    assert assertion.email_verified is (value is True)

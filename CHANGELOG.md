@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Let trusted OIDC providers confirm matching email addresses. Reported by [@arminbahl] in [Issue#70].
+
 - Refresh Python, web and compatibility-parser dependencies; retain compatible SQLAlchemy, BibTeX writer and TypeScript release lines.
 - Bind OIDC and SAML responses to the initiating browser to prevent sign-in CSRF and cross-browser account linking.
 - Add a pinned zizmor CI check to prevent GitHub Actions security regressions.
@@ -535,3 +537,5 @@ The first release meant to be used by somebody other than its author.
 [Issue#66]: https://github.com/eseifert/altero/issues/66
 
 [CI#43332386557]: https://github.com/eseifert/altero/actions/runs/43332386557
+
+[Issue#70]: https://github.com/eseifert/altero/issues/70
