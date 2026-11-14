@@ -318,6 +318,7 @@ export default {
   'Email': '이메일',
   'Email address': '이메일 주소',
   'Email address (optional)': '이메일 주소 (선택 사항)',
+  "Trust email_verified from this provider": "이 제공자의 email_verified 신뢰",
   'Email claim': '이메일 클레임',
   'Empty the trash': '휴지통 비우기',
   'End': 'End',

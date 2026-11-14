@@ -324,6 +324,7 @@ export default {
   'Email': 'E-post',
   'Email address': 'E-posti aadress',
   'Email address (optional)': 'E-posti aadress (valikuline)',
+  "Trust email_verified from this provider": "Usalda selle teenusepakkuja email_verified väärtust",
   'Email claim': 'E-posti väide',
   'Empty the trash': 'Tühjenda prügikast',
   'End': 'End',

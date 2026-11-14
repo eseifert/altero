@@ -328,6 +328,7 @@ export default {
   'Email': 'E-mail',
   'Email address': 'E-mailová adresa',
   'Email address (optional)': 'E-mailová adresa (nepovinné)',
+  "Trust email_verified from this provider": "Důvěřovat email_verified od tohoto poskytovatele",
   'Email claim': 'Deklarace e-mailu',
   'Empty the trash': 'Vysypat koš',
   'End': 'End',

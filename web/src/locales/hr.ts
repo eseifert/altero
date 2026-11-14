@@ -325,6 +325,7 @@ export default {
   'Email': 'E-pošta',
   'Email address': 'Adresa e-pošte',
   'Email address (optional)': 'Adresa e-pošte (neobavezno)',
+  "Trust email_verified from this provider": "Vjeruj vrijednosti email_verified ovog pružatelja",
   'Email claim': 'Tvrdnja s adresom e-pošte',
   'Empty the trash': 'Isprazni otpad',
   'End': 'End',

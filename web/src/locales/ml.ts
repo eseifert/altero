@@ -326,6 +326,7 @@ export default {
   'Edit the title': 'ശീർഷകം തിരുത്തുക',
   'Email address': 'ഇമെയിൽ വിലാസം',
   'Email address (optional)': 'ഇമെയിൽ വിലാസം (ഐച്ഛികം)',
+  "Trust email_verified from this provider": "ഈ ദാതാവിൽ നിന്നുള്ള email_verified വിശ്വസിക്കുക",
   'Email claim': 'ഇമെയിൽ ക്ലെയിം',
   'Empty the trash': 'ട്രാഷ് ശൂന്യമാക്കുക',
   'End': 'End',

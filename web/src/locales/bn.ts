@@ -329,6 +329,7 @@ export default {
   'Email': 'ইমেইল',
   'Email address': 'ইমেইল ঠিকানা',
   'Email address (optional)': 'ইমেইল ঠিকানা (ঐচ্ছিক)',
+  "Trust email_verified from this provider": "এই প্রদানকারীর email_verified বিশ্বাস করুন",
   'Email claim': 'ইমেইল ক্লেইম',
   'Empty the trash': 'ট্র্যাশ খালি করুন',
   'End': 'End',

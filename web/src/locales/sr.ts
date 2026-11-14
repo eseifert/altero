@@ -324,6 +324,7 @@ export default {
   'Email': 'Е-пошта',
   'Email address': 'Адреса е-поште',
   'Email address (optional)': 'Адреса е-поште (необавезно)',
+  "Trust email_verified from this provider": "Веруј вредности email_verified овог добављача",
   'Email claim': 'Тврдња за адресу е-поште',
   'Empty the trash': 'Испразни Смеће',
   'End': 'End',

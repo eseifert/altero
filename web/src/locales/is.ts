@@ -326,6 +326,7 @@ export default {
   'Email': 'Tölvupóstur',
   'Email address': 'Netfang',
   'Email address (optional)': 'Netfang (valfrjálst)',
+  "Trust email_verified from this provider": "Treysta email_verified frá þessari þjónustu",
   'Email claim': 'Krafa fyrir netfang',
   'Empty the trash': 'Tæma ruslið',
   'End': 'End',

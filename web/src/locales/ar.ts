@@ -278,6 +278,7 @@ export default {
   "Email": "البريد الإلكتروني",
   "Email address": "عنوان البريد الإلكتروني",
   "Email address (optional)": "عنوان البريد الإلكتروني (اختياري)",
+  "Trust email_verified from this provider": "الوثوق بقيمة email_verified من هذا المزوّد",
   "Email claim": "مطالبة البريد الإلكتروني",
   "Empty the trash": "إفراغ سلة المحذوفات",
   "End": "End",

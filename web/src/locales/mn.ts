@@ -326,6 +326,7 @@ export default {
   'Email': 'Имэйл',
   'Email address': 'Имэйл хаяг',
   'Email address (optional)': 'Имэйл хаяг (заавал биш)',
+  "Trust email_verified from this provider": "Энэ үйлчилгээ үзүүлэгчийн email_verified утгад итгэх",
   'Email claim': 'Имэйлийн claim',
   'Empty the trash': 'Хогийн савыг хоослох',
   'End': 'End',

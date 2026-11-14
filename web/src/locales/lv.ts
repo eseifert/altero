@@ -323,6 +323,7 @@ export default {
   'Edit the title': 'Rediģēt nosaukumu',
   'Email address': 'E-pasta adrese',
   'Email address (optional)': 'E-pasta adrese (nav obligāta)',
+  "Trust email_verified from this provider": "Uzticēties šī pakalpojumu sniedzēja email_verified vērtībai",
   'Email claim': 'E-pasta prasība',
   'Empty the trash': 'Iztukšot miskasti',
   'End': 'End',

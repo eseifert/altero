@@ -326,6 +326,7 @@ export default {
   'Email': 'E-posta',
   'Email address': 'E-posta adresi',
   'Email address (optional)': 'E-posta adresi (isteğe bağlı)',
+  "Trust email_verified from this provider": "Bu sağlayıcının email_verified değerine güven",
   'Email claim': 'E-posta talebi',
   'Empty the trash': 'Çöp Sepetini boşalt',
   'End': 'End',

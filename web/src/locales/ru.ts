@@ -327,6 +327,7 @@ export default {
   'Email': 'Почта',
   'Email address': 'Адрес электронной почты',
   'Email address (optional)': 'Адрес электронной почты (необязательно)',
+  "Trust email_verified from this provider": "Доверять email_verified от этого провайдера",
   'Email claim': 'Атрибут адреса почты',
   'Empty the trash': 'Очистить корзину',
   'End': 'End',

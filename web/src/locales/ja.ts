@@ -309,6 +309,7 @@ export default {
   'Email': 'メールアドレス',
   'Email address': 'メールアドレス',
   'Email address (optional)': 'メールアドレス（任意）',
+  "Trust email_verified from this provider": "このプロバイダーの email_verified を信頼する",
   'Email claim': 'メールアドレスのクレーム',
   'Empty the trash': 'ごみ箱を空にする',
   'End': 'End',

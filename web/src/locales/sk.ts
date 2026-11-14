@@ -327,6 +327,7 @@ export default {
   'Email': 'E-mail',
   'Email address': 'E-mailová adresa',
   'Email address (optional)': 'E-mailová adresa (nepovinné)',
+  "Trust email_verified from this provider": "Dôverovať email_verified od tohto poskytovateľa",
   'Email claim': 'Atribút e-mailu',
   'Empty the trash': 'Vysypať kôš',
   'End': 'End',

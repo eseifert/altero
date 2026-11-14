@@ -322,6 +322,7 @@ export default {
   'Edit the title': 'แก้ไขชื่อเรื่อง',
   'Email address': 'ที่อยู่อีเมล',
   'Email address (optional)': 'ที่อยู่อีเมล (ไม่บังคับ)',
+  "Trust email_verified from this provider": "เชื่อถือ email_verified จากผู้ให้บริการนี้",
   'Email claim': 'เคลมอีเมล',
   'Empty the trash': 'ล้างถังขยะ',
   'End': 'End',

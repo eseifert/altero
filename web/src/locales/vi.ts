@@ -324,6 +324,7 @@ export default {
   'Email': 'Email',
   'Email address': 'Địa chỉ email',
   'Email address (optional)': 'Địa chỉ email (không bắt buộc)',
+  "Trust email_verified from this provider": "Tin cậy email_verified từ nhà cung cấp này",
   'Email claim': 'Claim email',
   'Empty the trash': 'Dọn thùng rác',
   'End': 'End',

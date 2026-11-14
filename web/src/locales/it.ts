@@ -322,6 +322,7 @@ export default {
   'Email': 'Email',
   'Email address': 'Indirizzo email',
   'Email address (optional)': 'Indirizzo email (facoltativo)',
+  "Trust email_verified from this provider": "Considera attendibile email_verified di questo provider",
   'Email claim': 'Claim dell’email',
   'Empty the trash': 'Svuota il cestino',
   'End': 'Fine',

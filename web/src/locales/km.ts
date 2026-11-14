@@ -324,6 +324,7 @@ export default {
   'Edit the title': 'កែសម្រួលចំណងជើង',
   'Email address': 'អាសយដ្ឋានអ៊ីមែល',
   'Email address (optional)': 'អាសយដ្ឋានអ៊ីមែល (ជម្រើស)',
+  "Trust email_verified from this provider": "ទុកចិត្ត email_verified ពីអ្នកផ្តល់សេវានេះ",
   'Email claim': 'ការអះអាង (claim) អ៊ីមែល',
   'Empty the trash': 'សម្អាតធុងសំរាម',
   'End': 'End',

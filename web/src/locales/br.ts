@@ -328,6 +328,7 @@ export default {
   'Email': 'Postel',
   'Email address': "Chomlec'h postel",
   'Email address (optional)': "Chomlec'h postel (diret)",
+  "Trust email_verified from this provider": "Fiziañ e email_verified digant ar pourchaser-mañ",
   'Email claim': 'Doareenn ar postel',
   'Empty the trash': 'Goullonderiñ ar pod-lastez',
   'End': 'End',

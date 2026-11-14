@@ -319,6 +319,7 @@ export default {
   'Email': 'ელფოსტა',
   'Email address': 'ელფოსტის მისამართი',
   'Email address (optional)': 'ელფოსტის მისამართი (არასავალდებულო)',
+  "Trust email_verified from this provider": "ამ მომწოდებლის email_verified მნიშვნელობის ნდობა",
   'Email claim': 'ელფოსტის ატრიბუტი',
   'Empty the trash': 'სანაგვის დაცლა',
   'End': 'End',

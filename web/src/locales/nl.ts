@@ -323,6 +323,7 @@ export default {
   'Email': 'E-mail',
   'Email address': 'E-mailadres',
   'Email address (optional)': 'E-mailadres (optioneel)',
+  "Trust email_verified from this provider": "email_verified van deze provider vertrouwen",
   'Email claim': 'E-mailclaim',
   'Empty the trash': 'Prullenbak legen',
   'End': 'End',

@@ -320,6 +320,7 @@ export default {
   'Email': 'ईमेल',
   'Email address': 'ईमेल पता',
   'Email address (optional)': 'ईमेल पता (वैकल्पिक)',
+  "Trust email_verified from this provider": "इस प्रदाता के email_verified पर भरोसा करें",
   'Email claim': 'ईमेल क्लेम',
   'Empty the trash': 'ट्रैश खाली करें',
   'End': 'End',

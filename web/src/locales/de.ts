@@ -314,6 +314,7 @@ export default {
   'Email': 'E-Mail',
   'Email address': 'E-Mail-Adresse',
   'Email address (optional)': 'E-Mail-Adresse (optional)',
+  "Trust email_verified from this provider": "email_verified von diesem Anbieter vertrauen",
   'Email claim': 'Claim für die E-Mail-Adresse',
   'Empty the trash': 'Papierkorb leeren',
   'End': 'Ende',

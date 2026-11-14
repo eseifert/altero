@@ -330,6 +330,7 @@ export default {
   'Email': 'Email',
   'Email address': 'Address ng email',
   'Email address (optional)': 'Address ng email (opsyonal)',
+  "Trust email_verified from this provider": "Pagkatiwalaan ang email_verified mula sa provider na ito",
   'Email claim': 'Claim para sa email',
   'Empty the trash': 'Alisan ng laman ang basurahan',
   'End': 'End',

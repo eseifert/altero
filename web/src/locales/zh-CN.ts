@@ -312,6 +312,7 @@ export default {
   'Email': '电子邮件',
   'Email address': '电子邮件地址',
   'Email address (optional)': '电子邮件地址（可选）',
+  "Trust email_verified from this provider": "信任此提供方的 email_verified",
   'Email claim': '电子邮件声明',
   'Empty the trash': '清空回收站',
   'End': 'End',

@@ -325,6 +325,7 @@ export default {
   'Email': 'E-pos',
   'Email address': 'E-posadres',
   'Email address (optional)': 'E-posadres (opsioneel)',
+  'Trust email_verified from this provider': 'Vertrou email_verified van hierdie verskaffer',
   'Email claim': 'E-posaanspraak',
   'Empty the trash': 'Maak die asblik leeg',
   'End': 'End',

@@ -278,6 +278,7 @@ export default {
   "Email": "ایمیل",
   "Email address": "نشانی ایمیل",
   "Email address (optional)": "نشانی ایمیل (اختیاری)",
+  "Trust email_verified from this provider": "اعتماد به email_verified این ارائه‌دهنده",
   "Email claim": "ادعای ایمیل",
   "Empty the trash": "خالی کردن سطل بازیافت",
   "End": "End",

@@ -278,6 +278,7 @@ export default {
   "Email": "ای میل",
   "Email address": "ای میل پتا",
   "Email address (optional)": "ای میل پتا (اختیاری)",
+  "Trust email_verified from this provider": "ایس فراہم کنندہ دے email_verified اُتے بھروسا کرو",
   "Email claim": "ای میل دا دعویٰ",
   "Empty the trash": "کوڑے دان خالی کرو",
   "End": "End",

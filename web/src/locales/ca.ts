@@ -327,6 +327,7 @@ export default {
   'Email': 'Correu electrònic',
   'Email address': 'Adreça electrònica',
   'Email address (optional)': 'Adreça electrònica (opcional)',
+  "Trust email_verified from this provider": "Confia en email_verified d’aquest proveïdor",
   'Email claim': 'Atribut de l’adreça electrònica',
   'Empty the trash': 'Buida la paperera',
   'End': 'Fi',

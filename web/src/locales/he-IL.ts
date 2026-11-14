@@ -278,6 +278,7 @@ export default {
   "Email": "דוא״ל",
   "Email address": "כתובת דוא״ל",
   "Email address (optional)": "כתובת דוא״ל (רשות)",
+  "Trust email_verified from this provider": "לתת אמון ב־email_verified מספק זה",
   "Email claim": "טענת דוא״ל",
   "Empty the trash": "ריקון האשפה",
   "End": "End",

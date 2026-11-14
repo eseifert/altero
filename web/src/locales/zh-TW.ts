@@ -318,6 +318,7 @@ export default {
   'Edit the title': '編輯標題',
   'Email address': '電子郵件位址',
   'Email address (optional)': '電子郵件位址（選填）',
+  "Trust email_verified from this provider": "信任此提供者的 email_verified",
   'Email claim': '電子郵件宣告',
   'Empty the trash': '清空垃圾筒',
   'End': 'End',

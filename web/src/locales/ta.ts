@@ -329,6 +329,7 @@ export default {
   'Email': 'மின்னஞ்சல்',
   'Email address': 'மின்னஞ்சல் முகவரி',
   'Email address (optional)': 'மின்னஞ்சல் முகவரி (விருப்பத்தேர்வு)',
+  "Trust email_verified from this provider": "இந்த வழங்குநரின் email_verified மதிப்பை நம்பு",
   'Email claim': 'மின்னஞ்சல் கோரல்',
   'Empty the trash': 'குப்பையைக் காலியாக்கு',
   'End': 'End',

@@ -324,6 +324,7 @@ export default {
   'Email': 'Posta elektronikoa',
   'Email address': 'Helbide elektronikoa',
   'Email address (optional)': 'Helbide elektronikoa (aukerakoa)',
+  "Trust email_verified from this provider": "Fidatu hornitzaile honen email_verified balioaz",
   'Email claim': 'Helbide elektronikoaren atributua',
   'Empty the trash': 'Hustu zaborra',
   'End': 'End',

@@ -311,6 +311,7 @@ export default {
   'Email': 'E-mail',
   'Email address': 'Endereço de e-mail',
   'Email address (optional)': 'Endereço de e-mail (opcional)',
+  "Trust email_verified from this provider": "Confiar em email_verified deste fornecedor",
   'Email claim': 'Atributo do e-mail',
   'Empty the trash': 'Esvaziar o lixo',
   'End': 'End',

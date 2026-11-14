@@ -279,6 +279,7 @@ export default {
   "Email": "Barua pepe",
   "Email address": "Anwani ya barua pepe",
   "Email address (optional)": "Anwani ya barua pepe (si lazima)",
+  "Trust email_verified from this provider": "Amini email_verified kutoka kwa mtoa huduma huyu",
   "Email claim": "Sifa ya barua pepe",
   "Empty the trash": "Ondoa takataka zote",
   "End": "End",

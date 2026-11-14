@@ -279,6 +279,7 @@ export default {
   "Email": "Imel",
   "Email address": "Adireshin imel",
   "Email address (optional)": "Adireshin imel (na zaɓi)",
+  "Trust email_verified from this provider": "Aminta da email_verified daga wannan mai ba da sabis",
   "Email claim": "Bayanin imel",
   "Empty the trash": "Zubar da kwandon shara",
   "End": "End",

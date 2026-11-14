@@ -284,6 +284,7 @@ export default {
   'Email': 'E-mail',
   'Email address': 'E-mail-cím',
   'Email address (optional)': 'E-mail-cím (nem kötelező)',
+  "Trust email_verified from this provider": "Megbízás a szolgáltató email_verified értékében",
   'Email claim': 'E-mail-cím jogcíme',
   'Empty the trash': 'Kuka ürítése',
   'End': 'End',

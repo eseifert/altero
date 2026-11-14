@@ -326,6 +326,7 @@ export default {
   'Email': 'Poczta',
   'Email address': 'Adres poczty elektronicznej',
   'Email address (optional)': 'Adres poczty elektronicznej (opcjonalnie)',
+  "Trust email_verified from this provider": "Ufaj email_verified od tego dostawcy",
   'Email claim': 'Atrybut z adresem poczty',
   'Empty the trash': 'Opróżnij kosz',
   'End': 'End',

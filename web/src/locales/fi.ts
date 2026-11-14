@@ -323,6 +323,7 @@ export default {
   'Email': 'Sähköposti',
   'Email address': 'Sähköpostiosoite',
   'Email address (optional)': 'Sähköpostiosoite (valinnainen)',
+  "Trust email_verified from this provider": "Luota tämän tarjoajan email_verified-tietoon",
   'Email claim': 'Sähköpostin väite',
   'Empty the trash': 'Tyhjennä roskakori',
   'End': 'End',

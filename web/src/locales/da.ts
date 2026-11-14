@@ -320,6 +320,7 @@ export default {
   'Email': 'E-mail',
   'Email address': 'E-mailadresse',
   'Email address (optional)': 'E-mailadresse (valgfri)',
+  "Trust email_verified from this provider": "Stol på email_verified fra denne udbyder",
   'Email claim': 'E-mail-claim',
   'Empty the trash': 'Tøm papirkurven',
   'End': 'End',

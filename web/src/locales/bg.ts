@@ -325,6 +325,7 @@ export default {
   'Email': 'Имейл',
   'Email address': 'Имейл адрес',
   'Email address (optional)': 'Имейл адрес (по избор)',
+  "Trust email_verified from this provider": "Доверяване на email_verified от този доставчик",
   'Email claim': 'Твърдение за имейл',
   'Empty the trash': 'Изпразване на кошчето за боклук',
   'End': 'End',

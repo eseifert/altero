@@ -318,6 +318,7 @@ export default {
   'Email': 'Email',
   'Email address': 'Διεύθυνση email',
   'Email address (optional)': 'Διεύθυνση email (προαιρετικά)',
+  "Trust email_verified from this provider": "Εμπιστοσύνη στο email_verified αυτού του παρόχου",
   'Email claim': 'Δήλωση email',
   'Empty the trash': 'Άδειασμα του Κάδου απορριμμάτων',
   'End': 'End',

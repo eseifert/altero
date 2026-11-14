@@ -324,6 +324,7 @@ export default {
   'Email': 'E-post',
   'Email address': 'E-postadress',
   'Email address (optional)': 'E-postadress (valfritt)',
+  "Trust email_verified from this provider": "Lita på email_verified från denna leverantör",
   'Email claim': 'Anspråk för e-post',
   'Empty the trash': 'Töm papperskorgen',
   'End': 'End',

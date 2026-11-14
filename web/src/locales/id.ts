@@ -329,6 +329,7 @@ export default {
   'Email': 'Email',
   'Email address': 'Alamat email',
   'Email address (optional)': 'Alamat email (opsional)',
+  "Trust email_verified from this provider": "Percayai email_verified dari penyedia ini",
   'Email claim': 'Klaim email',
   'Empty the trash': 'Kosongkan Keranjang Sampah',
   'End': 'End',

@@ -280,6 +280,7 @@ export default {
   "Email": "Ímeèlì",
   "Email address": "Àdírẹ́sì ímeèlì",
   "Email address (optional)": "Àdírẹ́sì ímeèlì (kì í ṣe dandan)",
+  "Trust email_verified from this provider": "Gbẹ́kẹ̀ lé email_verified láti ọ̀dọ̀ olùpèsè yìí",
   "Email claim": "Ẹ̀rí ímeèlì",
   "Empty the trash": "Pa gbogbo ìdọ̀tí rẹ́",
   "End": "End",

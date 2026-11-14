@@ -327,6 +327,7 @@ export default {
   'Edit the title': 'Editează titlul',
   'Email address': 'Adresă de e-mail',
   'Email address (optional)': 'Adresă de e-mail (opțional)',
+  "Trust email_verified from this provider": "Acordă încredere valorii email_verified de la acest furnizor",
   'Email claim': 'Revendicarea pentru e-mail',
   'Empty the trash': 'Golește coșul de gunoi',
   'End': 'End',

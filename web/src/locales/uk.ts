@@ -328,6 +328,7 @@ export default {
   'Email': 'Пошта',
   'Email address': 'Адреса електронної пошти',
   'Email address (optional)': 'Адреса електронної пошти (необов’язково)',
+  "Trust email_verified from this provider": "Довіряти email_verified від цього постачальника",
   'Email claim': 'Атрибут адреси пошти',
   'Empty the trash': 'Очистити Кошик',
   'End': 'End',

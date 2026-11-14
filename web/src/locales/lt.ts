@@ -316,6 +316,7 @@ export default {
   'Email': 'El. paštas',
   'Email address': 'El. pašto adresas',
   'Email address (optional)': 'El. pašto adresas (nebūtina)',
+  "Trust email_verified from this provider": "Pasitikėti šio teikėjo email_verified reikšme",
   'Email claim': 'El. pašto teiginys',
   'Empty the trash': 'Išvalyti šiukšlinę',
   'End': 'End',

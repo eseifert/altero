@@ -312,6 +312,7 @@ export default {
   'Email': 'E-mail',
   'Email address': 'Adresse e-mail',
   'Email address (optional)': 'Adresse e-mail (facultative)',
+  "Trust email_verified from this provider": "Faire confiance à email_verified de ce fournisseur",
   'Email claim': 'Attribut de l’adresse e-mail',
   'Empty the trash': 'Vider la corbeille',
   'End': 'Fin',
