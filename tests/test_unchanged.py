@@ -42,6 +42,70 @@ async def send(
     return await client.post(path, headers=JSON, json=payload)
 
 
+class TestHigherObjectVersions:
+    @pytest.mark.parametrize(
+        ("kind", "payload", "field"),
+        [
+            ("items", {"itemType": "book", "title": "Original"}, "title"),
+            (
+                "items",
+                {"itemType": "attachment", "linkMode": "imported_file", "title": "Original"},
+                "title",
+            ),
+            ("collections", {"name": "Original"}, "name"),
+            (
+                "searches",
+                {
+                    "name": "Original",
+                    "conditions": [{"condition": "title", "operator": "contains", "value": "T"}],
+                },
+                "name",
+            ),
+        ],
+    )
+    @pytest.mark.parametrize("ahead", [0, 100])
+    async def test_an_unchanged_object_can_be_uploaded_with_the_clients_higher_version(
+        self,
+        client: httpx2.AsyncClient,
+        library: Library,
+        kind: str,
+        payload: dict[str, Any],
+        field: str,
+        ahead: int,
+    ) -> None:
+        # dataserver model/API.inc.php checks stored > supplied. Desktop
+        # syncEngine.js::_uploadObjects caches an unchanged object without a
+        # previous cache entry at the response's libraryVersion (issue #72).
+        path = f"/users/1/{kind}"
+        created = await send(client, path, [payload])
+        stored = created.json()["successful"]["0"]["data"]
+        await send(client, "/users/1/items", [{"itemType": "book", "title": "Unrelated"}])
+        again = await send(client, path, [stored])
+        assert again.json()["unchanged"] == {"0": stored["key"]}
+        client_version = int(again.headers["Last-Modified-Version"]) + ahead
+        assert client_version > stored["version"]
+
+        repeated = await send(client, path, [{**stored, "version": client_version}])
+        assert repeated.json()["failed"] == {}
+        assert repeated.json()["unchanged"] == {"0": stored["key"]}
+        assert repeated.headers["Last-Modified-Version"] == again.headers["Last-Modified-Version"]
+
+        updated = await send(
+            client, path, [{"key": stored["key"], "version": client_version, field: "Changed"}]
+        )
+        assert updated.json()["failed"] == {}
+        saved = updated.json()["successful"]["0"]
+        assert saved["data"][field] == "Changed"
+        assert saved["version"] == int(again.headers["Last-Modified-Version"]) + 1
+
+        stale = await send(client, path, [{**stored, field: "Stale"}])
+        assert stale.json()["failed"]["0"]["code"] == 412
+        assert stale.headers["Last-Modified-Version"] == updated.headers["Last-Modified-Version"]
+        fetched = await client.get(f"{path}/{stored['key']}", headers=AUTH)
+        assert fetched.json()["data"][field] == "Changed"
+        assert fetched.json()["version"] == saved["version"]
+
+
 class TestItems:
     async def test_an_item_sent_back_verbatim_is_unchanged(
         self, client: httpx2.AsyncClient, library: Library

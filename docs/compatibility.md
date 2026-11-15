@@ -503,6 +503,13 @@ Regular-item sync responses include empty `creators`, `tags`, `collections` and 
 
 An object identical to the stored one is reported as `unchanged` and keeps its version, as on zotero.org. Saving it again would advance the library version and make every other client download an object that never changed.
 
+Object writes accept a supplied version equal to or higher than the stored
+version, as on zotero.org; an older version still fails with 412. After an
+`unchanged` upload, the desktop can cache the response's library version for an
+object whose own version is lower. Requiring equality would block its next
+upload. Changed objects receive the next server library version, regardless of
+the supplied version.
+
 Everything a client can set counts as a change: type, fields, creators and their order, relations, parent, trash flag, `dateAdded`, `dateModified`, tags and collections. The server's own values — the version and `serverDateModified` — do not. Leaving `dateModified` out is no change by itself: the server stamps it only when something else changed. A batch in which nothing changed leaves the library version as it was.
 
 Settings follow the same rule: a setting is changed only if its value differs, so `3` and `3.0` differ but `3` and `3` do not. A request that changes no setting answers 204 with the library version unchanged; in a batch, only the settings that changed get the new version.

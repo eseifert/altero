@@ -135,6 +135,20 @@ class TestWriting:
 
         assert response.status_code == 412
 
+    async def test_a_higher_version_is_accepted_without_adopting_the_client_counter(
+        self, client: httpx2.AsyncClient, library: Library
+    ) -> None:
+        await client.put("/users/1/settings/thing", headers=JSON, json={"value": 1})
+
+        response = await client.put(
+            "/users/1/settings/thing", headers=JSON, json={"value": 2, "version": 100}
+        )
+
+        assert response.status_code == 204
+        assert response.headers["Last-Modified-Version"] == "12"
+        stored = await client.get("/users/1/settings/thing", headers=AUTH)
+        assert stored.json() == {"value": 2, "version": 12}
+
     async def test_writing_requires_write_permission(
         self, client: httpx2.AsyncClient, session: AsyncSession
     ) -> None:

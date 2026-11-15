@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Accept higher object versions after unchanged desktop uploads; reported by [@ai-ag2026] ([Issue#72]).
 - Let trusted OIDC providers confirm matching email addresses. Reported by [@arminbahl] in [Issue#70].
 
 - Refresh Python, web and compatibility-parser dependencies; retain compatible SQLAlchemy, BibTeX writer and TypeScript release lines.
@@ -539,3 +540,6 @@ The first release meant to be used by somebody other than its author.
 [CI#43332386557]: https://github.com/eseifert/altero/actions/runs/43332386557
 
 [Issue#70]: https://github.com/eseifert/altero/issues/70
+
+[@ai-ag2026]: https://github.com/ai-ag2026
+[Issue#72]: https://github.com/eseifert/altero/issues/72

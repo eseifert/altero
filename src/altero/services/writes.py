@@ -218,11 +218,14 @@ def check_object_version(
     *,
     required: bool = True,
 ) -> None:
-    """Fail unless ``supplied`` matches the object's stored version.
+    """Fail when ``supplied`` is older than the object's stored version.
 
     A key-based write must state which version it is replacing, either through
     the header or the object's own ``version`` property; ``0`` means "create
     this, it should not exist yet".
+
+    The dataserver accepts higher versions: after an unchanged upload, Desktop
+    can cache the response's library version instead of the object's version.
     """
     if supplied is None:
         if required:
@@ -235,7 +238,7 @@ def check_object_version(
     if current == 0 and isinstance(supplied, int) and supplied > 0:
         raise NotFoundError(f"Object doesn't exist (expected version {supplied}; use 0 instead)")
 
-    if supplied != current:
+    if not isinstance(supplied, int) or supplied < current:
         raise PreconditionFailedError(
             f"Item has been modified since specified version (expected {supplied}, found {current})"
         )
