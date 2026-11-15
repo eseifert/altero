@@ -3841,6 +3841,12 @@ streaming service. See <a href="../clients/">client setup</a>.</p>
 <p><strong><code>parentItem: false</code> makes a child top-level.</strong> The desktop sends it when a note or attachment is moved out to the library. As on zotero.org, a patch that files a child in a collection without mentioning <code>parentItem</code> does the same, since a child cannot be in a collection.</p>
 <h3 id="objects-that-were-sent-again-without-changing">Objects that were sent again without changing<a class="headerlink" href="#objects-that-were-sent-again-without-changing" title="Permanent link">&para;</a></h3>
 <p>An object identical to the stored one is reported as <code>unchanged</code> and keeps its version, as on zotero.org. Saving it again would advance the library version and make every other client download an object that never changed.</p>
+<p>Object writes accept a supplied version equal to or higher than the stored
+version, as on zotero.org; an older version still fails with 412. After an
+<code>unchanged</code> upload, the desktop can cache the response's library version for an
+object whose own version is lower. Requiring equality would block its next
+upload. Changed objects receive the next server library version, regardless of
+the supplied version.</p>
 <p>Everything a client can set counts as a change: type, fields, creators and their order, relations, parent, trash flag, <code>dateAdded</code>, <code>dateModified</code>, tags and collections. The server's own values — the version and <code>serverDateModified</code> — do not. Leaving <code>dateModified</code> out is no change by itself: the server stamps it only when something else changed. A batch in which nothing changed leaves the library version as it was.</p>
 <p>Settings follow the same rule: a setting is changed only if its value differs, so <code>3</code> and <code>3.0</code> differ but <code>3</code> and <code>3</code> do not. A request that changes no setting answers 204 with the library version unchanged; in a batch, only the settings that changed get the new version.</p>
 <p>The current dataserver advances the library version for each object in a batch, even an unchanged one. altero advances it once per request that changes something. Object versions and the reported results still agree; only the library's version number can differ between the two servers.</p>
