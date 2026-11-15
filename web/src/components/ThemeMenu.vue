@@ -69,8 +69,8 @@ async function show(index = OPTIONS.findIndex(option => option.value === theme.p
       // light-dismiss group. TypeScript's DOM declarations predate this option.
       const menu = list.value as HTMLElement & { showPopover(options: { source: HTMLElement }): void }
       menu.showPopover({ source: trigger.value })
-      // Native opening focuses from the toggle event, after promotion.
-      return
+      // showPopover promotes synchronously; its queued toggle event can arrive
+      // after the user has already started navigating with the keyboard.
     }
   }
   focusOnOpen()
@@ -85,7 +85,6 @@ function onToggle(event: Event): void {
   // A queued event for a replaced menu must not close its successor.
   if (event.currentTarget !== list.value) return
   if ((event as ToggleEvent).newState === 'closed') open.value = false
-  else if (open.value) focusOnOpen()
 }
 
 function close({ refocus = true } = {}): void {

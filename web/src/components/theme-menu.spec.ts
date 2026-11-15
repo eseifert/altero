@@ -161,6 +161,20 @@ describe('ThemeMenu', () => {
     expect(document.activeElement).toBe(options[2].element)
   })
 
+  it('does not reset keyboard navigation when the queued opening toggle arrives', async () => {
+    const wrapper = open()
+    try {
+      await wrapper.get('.theme-menu__trigger').trigger('keydown', { key: 'ArrowDown' })
+      const options = wrapper.findAll('[role="menuitemradio"]')
+      await options[0].trigger('keydown', { key: 'ArrowDown' })
+      expect(document.activeElement).toBe(options[1].element)
+      const event = new Event('toggle')
+      Object.defineProperty(event, 'newState', { value: 'open' })
+      wrapper.get('[role="menu"]').element.dispatchEvent(event)
+      expect(document.activeElement).toBe(options[1].element)
+    } finally { wrapper.unmount() }
+  })
+
   it('keeps menu options out of the sequential tab order', async () => {
     const wrapper = open()
     await wrapper.get('.theme-menu__trigger').trigger('click')

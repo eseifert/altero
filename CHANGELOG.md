@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Preserve theme-menu keyboard navigation when its opening event arrives late; reported by [@eseifert] ([CI#43721863040]).
 - Accept higher object versions after unchanged desktop uploads; reported by [@ai-ag2026] ([Issue#72]).
 - Let trusted OIDC providers confirm matching email addresses. Reported by [@arminbahl] in [Issue#70].
 
@@ -543,3 +544,4 @@ The first release meant to be used by somebody other than its author.
 
 [@ai-ag2026]: https://github.com/ai-ag2026
 [Issue#72]: https://github.com/eseifert/altero/issues/72
+[CI#43721863040]: https://github.com/eseifert/altero/actions/runs/43721863040
