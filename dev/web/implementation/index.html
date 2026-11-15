@@ -1944,7 +1944,9 @@ behavior in both directions.</p>
 keys move inside; Tab and Shift+Tab close the menu and continue from its trigger.
 Escape restores the trigger, while moving focus outside dismisses the menu
 without taking focus back. The theme trigger also opens with Up/Down arrows.</p>
-<p>The theme menu uses an auto popover in the top layer when popovers with a
+<p>The theme menu focuses its opening target immediately after showing the popover;
+the queued toggle event must not reset subsequent keyboard navigation.
+The theme menu uses an auto popover in the top layer when popovers with a
 source, CSS anchors, logical placement and flip fallbacks are all supported.
 Its source associates it with its trigger without inline styles or shared anchor
 names. Native dismissal updates the interface state; keyboard opening enters the
