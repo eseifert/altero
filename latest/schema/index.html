@@ -2049,8 +2049,12 @@ library-scoped relation table.</p>
 <p><strong>Sort keys are columns on the item.</strong> The dataserver keeps <code>itemSortFields</code>
 (<code>sortTitle</code> truncated to 79 characters, plus <code>creatorSummary</code>) in a side table
 and joins <code>itemData</code> for date sorting. altero keeps <code>sort_title</code>, <code>sort_creator</code>
-and <code>sort_date</code> on <code>items</code>, untruncated, so every sort is a single-table index
-scan.</p>
+and <code>sort_date</code> on <code>items</code>. Titles and free-form dates use <code>text</code> so long
+values can be imported and written without truncation. Note sort titles retain
+their existing 500-character excerpt. SQLite indexes all three sort columns;
+PostgreSQL indexes only the bounded creator column and sorts titles and dates
+after filtering the library, avoiding its B-tree entry-size limit. Large
+PostgreSQL libraries may therefore take longer to sort by title or date.</p>
 <p><strong>No sharding.</strong> <code>shards</code>, <code>shardHosts</code> and <code>shardLibraries</code> have no
 counterpart: the dataserver spreads libraries across MySQL servers, and altero
 uses one database.</p>
