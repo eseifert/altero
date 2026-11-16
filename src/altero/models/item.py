@@ -20,12 +20,12 @@ class Item(Base, Timestamped):
         # every untrashed item in the instance to count one item's children.
         Index("ix_items_library_deleted_parent", "library_id", "deleted", "parent_id"),
         Index("ix_items_server_date_modified", "server_date_modified"),
-        # Each sort behind its library rather than across every library: the
-        # same speed for one library's listing, and no chance of the planner
-        # walking the whole instance's titles to find a small library's page.
-        Index("ix_items_library_sort_title", "library_id", "sort_title"),
+        # PostgreSQL's B-tree entry limit cannot accommodate arbitrary titles
+        # or free-form dates. Keep those indexes on SQLite only; PostgreSQL
+        # filters by library before sorting the complete stored values.
+        Index("ix_items_library_sort_title", "library_id", "sort_title").ddl_if(dialect="sqlite"),
         Index("ix_items_library_sort_creator", "library_id", "sort_creator"),
-        Index("ix_items_library_sort_date", "library_id", "sort_date"),
+        Index("ix_items_library_sort_date", "library_id", "sort_date").ddl_if(dialect="sqlite"),
         # Only group libraries record who changed an item; this is what lets
         # deleting an account find the rows to null without scanning them all.
         Index(
@@ -68,9 +68,9 @@ class Item(Base, Timestamped):
     # Sort keys derived from the item's data whenever it is written. Each item
     # type names its title, creator and date differently, so sorting straight
     # off `item_fields` would need a per-type join; these keep it to a column.
-    sort_title: Mapped[str] = mapped_column(String(500), default="")
+    sort_title: Mapped[str] = mapped_column(Text, default="")
     sort_creator: Mapped[str] = mapped_column(String(255), default="")
-    sort_date: Mapped[str] = mapped_column(String(32), default="")
+    sort_date: Mapped[str] = mapped_column(Text, default="")
 
     #: The digest of the bytes an upload registered for this attachment, which
     #: is what a download serves. Not its ``md5`` field: that is metadata any
