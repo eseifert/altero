@@ -1616,6 +1616,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#release-candidate-2-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Release candidate 2 validation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#release-candidate-1-validation" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1783,6 +1794,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#release-candidate-2-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Release candidate 2 validation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#release-candidate-1-validation" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1907,6 +1929,10 @@ These notes retain requirements that may matter when upgrading an older instance
 <td>Existing accounts remain admitted. Approval-based registration is opt-in and requires SMTP/public URL; new-password policy applies without changing existing passwords. See <a href="../configuration/#accounts">Accounts</a>.</td>
 </tr>
 <tr>
+<td>rc.2</td>
+<td>Database migrations preserve long item sort values and add an opt-in OIDC email-verification setting. Browser migration now accepts only zotero.org. See <a href="../administration/#provider-recipes">Provider settings</a>.</td>
+</tr>
+<tr>
 <td>OIDC issuer saved under beta.7</td>
 <td>If its trailing slash was removed, re-save the exact issuer from provider discovery after upgrading. Existing values cannot be repaired automatically.</td>
 </tr>
@@ -1988,6 +2014,41 @@ over live HTTP; restoring its bytes made the intact snapshot pass again.
 This local run does not establish a hosted CI result, historic dependency-lock
 compatibility, downgrade safety or a full desktop acceptance run.</p>
 <h2 id="recorded-release-checks">Recorded release checks<a class="headerlink" href="#recorded-release-checks" title="Permanent link">&para;</a></h2>
+<h3 id="release-candidate-2-validation">Release candidate 2 validation<a class="headerlink" href="#release-candidate-2-validation" title="Permanent link">&para;</a></h3>
+<p>Local preparation on 2026-11-16–17 targets <code>1.0.0-rc.2</code>, using Python 3.14.10,
+Node 24.22.1, SQLAlchemy 2.0.57 and PostgreSQL 18.7:</p>
+<ul>
+<li>The full backend suite passes 3,991 cases with PostgreSQL, Keycloak and
+  SimpleSAMLphp enabled, without skips.</li>
+<li>All 1,459 frontend unit tests, template types, Ruff, Ty, the dependency lock
+  and strict docs pass. Catalog validation checks 59 catalogs with zero errors
+  or warnings; this does not establish native-speaker approval.</li>
+<li>The complete Chromium desktop/phone matrix passes all 294 cases without
+  retries, skips or flaky results. Ten separate registration cases pass with
+  a genuine local SMTP sink, including refusal/retry, proof replay, restart,
+  approval, enrollment and lost committed replies.</li>
+<li>All 333 pinned desktop source-replay checks and the network-consumer review
+  gate pass. Source verification covers 31 original client functions and the
+  independently pinned dataserver reference.</li>
+<li>Two actual Zotero 10.0.7 profiles pass the baseline and schema corpus on each
+  database: 30 phases covering parent/child objects, all schema item types,
+  attachment bytes, offline edits, trash and deletion.</li>
+<li>All sixteen populated beta.1–beta.8 upgrade cells pass on SQLite and fresh
+  PostgreSQL databases. Separate rc.1-to-rc.2 checks pass on both databases,
+  preserving files, permissions and library state, subsequent writes and
+  repeat startup.</li>
+<li>The wheel and source archive pass the release inventory checks and carry
+  matching browser assets and the licensed offline password list. Empty-database
+  migrations and <code>alembic check</code> pass on both databases. Real HTTP from the
+  isolated wheel verifies its import path, version, browser assets/font,
+  authenticated reads/writes and attachment bytes. Additional HTTP probes accept
+  higher client object versions, reject stale ones and retain long titles/dates
+  with their sort order on both databases.</li>
+</ul>
+<p>The full desktop conflict and recovery matrix remains the recorded beta.7 run
+below; this candidate's baseline checks do not replace it. Broader non-Linux,
+Podman and arm64 runtime coverage is not claimed. Hosted CI must pass for the
+preparation commit before tagging; publication remains separate.</p>
 <h3 id="release-candidate-1-validation">Release candidate 1 validation<a class="headerlink" href="#release-candidate-1-validation" title="Permanent link">&para;</a></h3>
 <p>Local preparation on 2026-11-12–13 used Python 3.14.10, Node 24.22.1,
 SQLAlchemy 2.0.57 and PostgreSQL 18.4:</p>
