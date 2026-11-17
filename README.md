@@ -2,9 +2,9 @@
 
 **Your Zotero library. Your server.**
 
-**Release candidate: 1.0.0-rc.1.** Feature work is frozen for 1.0.0;
+**Release candidate.** Feature work is frozen for 1.0.0;
 remaining changes are fixes, documentation and translations. See the
-[release notes](CHANGELOG.md) and [validation record](docs/release-history.md#release-candidate-1-validation).
+[release notes](CHANGELOG.md) and [validation record](docs/release-history.md#release-candidate-2-validation).
 
 [![CI](https://github.com/eseifert/altero/actions/workflows/ci.yml/badge.svg)](https://github.com/eseifert/altero/actions/workflows/ci.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-006a6a)](LICENSE)
@@ -25,7 +25,7 @@ collections and accounts alongside it.
 - Run one application, one database and one attachment directory.
 
 > [!WARNING]
-> This is the first release candidate for 1.0.0, ready for final testing before
+> This release candidate is ready for final testing before
 > the stable release. Keep current backups of your libraries. Back up the server
 > database and attachment storage together before upgrading.
 

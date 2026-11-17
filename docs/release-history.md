@@ -19,6 +19,7 @@ These notes retain requirements that may matter when upgrading an older instance
 | beta.8 with SMTP | Set `ALTERO_PUBLIC_URL` before starting; SMTP without a public URL is refused. Account links no longer use request host headers. |
 | beta.8 child-item repair | Child notes and attachments incorrectly filed in collections are repaired and receive new versions. Sync every desktop afterwards. Parents and attachment bytes remain intact. |
 | rc.1 registration | Existing accounts remain admitted. Approval-based registration is opt-in and requires SMTP/public URL; new-password policy applies without changing existing passwords. See [Accounts](configuration.md#accounts). |
+| rc.2 | Database migrations preserve long item sort values and add an opt-in OIDC email-verification setting. Browser migration now accepts only zotero.org. See [Provider settings](administration.md#provider-recipes). |
 | OIDC issuer saved under beta.7 | If its trailing slash was removed, re-save the exact issuer from provider discovery after upgrading. Existing values cannot be repaired automatically. |
 
 An old password-reset message with an incorrect host is not revoked by upgrading.
@@ -50,6 +51,43 @@ compatibility, downgrade safety or a full desktop acceptance run.
 
 
 ## Recorded release checks
+
+### Release candidate 2 validation
+
+Local preparation on 2026-11-16–17 targets `1.0.0-rc.2`, using Python 3.14.10,
+Node 24.22.1, SQLAlchemy 2.0.57 and PostgreSQL 18.7:
+
+- The full backend suite passes 3,991 cases with PostgreSQL, Keycloak and
+  SimpleSAMLphp enabled, without skips.
+- All 1,459 frontend unit tests, template types, Ruff, Ty, the dependency lock
+  and strict docs pass. Catalog validation checks 59 catalogs with zero errors
+  or warnings; this does not establish native-speaker approval.
+- The complete Chromium desktop/phone matrix passes all 294 cases without
+  retries, skips or flaky results. Ten separate registration cases pass with
+  a genuine local SMTP sink, including refusal/retry, proof replay, restart,
+  approval, enrollment and lost committed replies.
+- All 333 pinned desktop source-replay checks and the network-consumer review
+  gate pass. Source verification covers 31 original client functions and the
+  independently pinned dataserver reference.
+- Two actual Zotero 10.0.7 profiles pass the baseline and schema corpus on each
+  database: 30 phases covering parent/child objects, all schema item types,
+  attachment bytes, offline edits, trash and deletion.
+- All sixteen populated beta.1–beta.8 upgrade cells pass on SQLite and fresh
+  PostgreSQL databases. Separate rc.1-to-rc.2 checks pass on both databases,
+  preserving files, permissions and library state, subsequent writes and
+  repeat startup.
+- The wheel and source archive pass the release inventory checks and carry
+  matching browser assets and the licensed offline password list. Empty-database
+  migrations and `alembic check` pass on both databases. Real HTTP from the
+  isolated wheel verifies its import path, version, browser assets/font,
+  authenticated reads/writes and attachment bytes. Additional HTTP probes accept
+  higher client object versions, reject stale ones and retain long titles/dates
+  with their sort order on both databases.
+
+The full desktop conflict and recovery matrix remains the recorded beta.7 run
+below; this candidate's baseline checks do not replace it. Broader non-Linux,
+Podman and arm64 runtime coverage is not claimed. Hosted CI must pass for the
+preparation commit before tagging; publication remains separate.
 
 ### Release candidate 1 validation
 

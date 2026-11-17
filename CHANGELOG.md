@@ -7,11 +7,23 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+## [1.0.0-rc.2] — 2026-11-17
+
+The second release candidate fixes reported desktop sync and PostgreSQL import
+failures, hardens single sign-on and browser migration, and completes registration
+translations. Feature work remains frozen for 1.0.0.
+
+Back up the database and attachment storage together before applying the
+[upgrade instructions][upgrade]. This release runs database migrations for the
+OIDC email-verification option and long item sort values. Trusting an OIDC
+provider's email verification is opt-in; see
+[provider settings](docs/administration.md#provider-recipes).
+Browser migration accepts only zotero.org as its source.
+
 - Fix PostgreSQL imports and writes of long titles and dates without truncation; reported by [@stratust] ([Issue#73]).
 - Preserve theme-menu keyboard navigation when its opening event arrives late; reported by [@eseifert] ([CI#43721863040]).
 - Accept higher object versions after unchanged desktop uploads; reported by [@ai-ag2026] ([Issue#72]).
 - Let trusted OIDC providers confirm matching email addresses. Reported by [@arminbahl] in [Issue#70].
-
 - Refresh Python, web and compatibility-parser dependencies; retain compatible SQLAlchemy, BibTeX writer and TypeScript release lines.
 - Bind OIDC and SAML responses to the initiating browser to prevent sign-in CSRF and cross-browser account linking.
 - Add a pinned zizmor CI check to prevent GitHub Actions security regressions.
@@ -480,6 +492,7 @@ The first release meant to be used by somebody other than its author.
 [config]: docs/configuration.md
 [@orshih6]: https://github.com/orshih6
 [GHSA-75xw-v7vm-5v6r]: https://github.com/eseifert/altero/security/advisories/GHSA-75xw-v7vm-5v6r
+[1.0.0-rc.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-rc.1
 [1.0.0-beta.8]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.8
 [CI#42428262993]: https://github.com/eseifert/altero/actions/runs/42428262993

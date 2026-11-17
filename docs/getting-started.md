@@ -4,7 +4,7 @@ This guide runs altero locally and connects a test Zotero Desktop profile.
 For an existing server, go straight to [Connecting a Zotero client](clients.md).
 
 > [!WARNING]
-> This is the first release candidate for 1.0.0, ready for final testing before
+> This release candidate is ready for final testing before
 > the stable release. Keep current backups of your libraries. Back up the server
 > database and attachment storage together before upgrading.
 

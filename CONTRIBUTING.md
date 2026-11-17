@@ -321,8 +321,8 @@ The [workflow](.github/workflows/docs.yml) defines the publication rules.
 
 ## Preparing a release
 
-The prepared candidate is **1.0.0-rc.1** (`1.0.0rc1` in Python). It remains
-a prerelease with the Beta classifier; the maintainer signs the release tag.
+Release candidates remain prereleases with the Beta classifier. Read the version
+from project metadata; the maintainer signs the release tag.
 
 1. Set matching versions in `src/altero/__init__.py`, `web/package.json` and both root entries of `web/package-lock.json`. Use Python's PEP 440 spelling and the corresponding SemVer spelling. Update the release-stage classifier in `pyproject.toml`; its version is dynamic and `uv.lock` has no project version.
 2. Move unreleased changes into a dated changelog section, leaving an empty **Unreleased** heading. Add the release link. Keep changelog list items consecutive. Update guides for changed behavior without adding a current-release announcement to each one.
