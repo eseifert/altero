@@ -395,6 +395,8 @@ An empty array is accepted in place of an empty object, as zotero.org allows.
 
 Not copied: zotero.org accepts only certain relation types and requires Zotero addresses as values. altero accepts any. That is the permissive direction, so no client breaks, but a library moved from altero to zotero.org could carry a relation zotero.org refuses.
 
+A relation type longer than 64 characters or a value longer than 255 fails its object with `400`, because altero cannot store it.
+
 ### Backoff and Retry-After
 
 The desktop ignores both headers unless they are **whole seconds**, and `0` is as useless as a fraction. Without `Retry-After`, a 429 still works, but the client has to guess how long to wait.

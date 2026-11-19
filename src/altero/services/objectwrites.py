@@ -68,6 +68,13 @@ def _check_condition_lengths(condition: str, operator: str) -> None:
         )
 
 
+#: The widths of the relation columns. Upstream accepts only its own predicates
+#: and Zotero URIs, which fit; this server accepts any, so it has to refuse what
+#: would not fit rather than let the database fail the batch.
+MAX_RELATION_PREDICATE_LENGTH = 64
+MAX_RELATION_OBJECT_LENGTH = 255
+
+
 def parse_relations(payload: dict[str, Any]) -> list[tuple[str, str]]:
     """Return a ``relations`` map as predicate-object pairs.
 
@@ -84,7 +91,17 @@ def parse_relations(payload: dict[str, Any]) -> list[tuple[str, str]]:
 
     pairs: list[tuple[str, str]] = []
     for predicate, objects in relations.items():
+        if len(str(predicate)) > MAX_RELATION_PREDICATE_LENGTH:
+            raise InvalidInputError(
+                f"Relation predicate '{str(predicate)[:_QUOTED_LENGTH]}\u2026' is longer than "
+                f"{MAX_RELATION_PREDICATE_LENGTH} characters"
+            )
         for obj in objects if isinstance(objects, list) else [objects]:
+            if len(str(obj)) > MAX_RELATION_OBJECT_LENGTH:
+                raise InvalidInputError(
+                    f"Relation value '{str(obj)[:_QUOTED_LENGTH]}\u2026' is longer than "
+                    f"{MAX_RELATION_OBJECT_LENGTH} characters"
+                )
             pairs.append((str(predicate), str(obj)))
     return pairs
 

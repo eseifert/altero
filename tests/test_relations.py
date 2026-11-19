@@ -243,3 +243,48 @@ class TestCollectionRelations:
         )
 
         assert response.json()["failed"]["0"]["code"] == 400
+
+
+class TestRelationsTooLongToStore:
+    """PostgreSQL refused the whole batch over one relation wider than its column.
+
+    Upstream accepts only predicates and URIs that fit; this server accepts any,
+    so it refuses what would not fit as invalid, for that object alone.
+    """
+
+    @pytest.mark.parametrize(
+        ("path", "base"),
+        [
+            ("/users/1/items", {"itemType": "book"}),
+            ("/users/1/collections", {"name": "Shelf"}),
+        ],
+    )
+    @pytest.mark.parametrize(
+        ("relations", "message"),
+        [
+            ({"p" * 65: OTHER}, f"Relation predicate '{'p' * 50}\N{HORIZONTAL ELLIPSIS}'"),
+            (
+                {"owl:sameAs": [OTHER, "u" * 256]},
+                f"Relation value '{'u' * 50}\N{HORIZONTAL ELLIPSIS}'",
+            ),
+        ],
+    )
+    async def test_only_that_object_fails(
+        self,
+        client: httpx2.AsyncClient,
+        library: Library,
+        path: str,
+        base: dict[str, str],
+        relations: dict[str, Any],
+        message: str,
+    ) -> None:
+        fine = base | {"relations": {"p" * 64: "u" * 255}}
+        response = await client.post(
+            path, headers=JSON, json=[fine, base | {"relations": relations}]
+        )
+
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert set(body["successful"]) == {"0"}
+        assert body["failed"]["1"]["code"] == 400
+        assert body["failed"]["1"]["message"].startswith(message)
