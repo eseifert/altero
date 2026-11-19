@@ -24,6 +24,13 @@ Regular items include `creators: []` when empty. Omitting it from a sync
 response makes an existing desktop retain its previous creators. Notes,
 attachments and annotations have no creator list.
 
+### Long creator names
+
+A first, last or single-field creator name longer than 255 characters fails
+only its item, with `413` and the start of the name in `data`, as on
+zotero.org. The desktop then shows which creator to shorten and keeps syncing
+the rest of the library.
+
 ### Racing ZIP archives of different sizes
 
 When the client uploads a web snapshot, `md5` describes the file inside the archive and `zipMD5` the archive itself. Two clients zipping the same snapshot produce archives of different sizes with the same `md5`.

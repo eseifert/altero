@@ -72,6 +72,19 @@ class InvalidInputError(AlteroError):
     """The request data is malformed or violates the schema."""
 
 
+class ValueTooLongError(InvalidInputError):
+    """A value is longer than the server stores.
+
+    Upstream reports it as 413 rather than 400, with ``data`` naming the field
+    and the start of the value; the desktop shows it beside the offending
+    object so that someone can shorten it.
+    """
+
+    def __init__(self, message: str, **data: str) -> None:
+        super().__init__(message)
+        self.data = data
+
+
 class RegistrationLimitError(AlteroError):
     """A durable registration or mailbox budget has been spent."""
 

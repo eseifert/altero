@@ -29,6 +29,7 @@ from altero.errors import (
     PreconditionRequiredError,
     RegistrationLimitError,
     RequestTooLargeError,
+    ValueTooLongError,
 )
 
 logger = logging.getLogger("altero.api")
@@ -46,6 +47,8 @@ BUSY_RETRY_AFTER = 5
 
 #: Status code used for each domain error. Subclasses fall back to 500.
 STATUS_CODES: dict[type[AlteroError], int] = {
+    # Before its base class, which the first match would otherwise take.
+    ValueTooLongError: 413,
     InvalidInputError: 400,
     ForbiddenError: 403,
     NotFoundError: 404,

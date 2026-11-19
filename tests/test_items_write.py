@@ -313,6 +313,40 @@ class TestCreateFailures:
             "creator object must contain 'firstName'/'lastName' or 'name'"
         )
 
+    @pytest.mark.parametrize("part", ["name", "firstName", "lastName"])
+    async def test_a_creator_name_too_long_fails_that_object_only(
+        self, client: httpx2.AsyncClient, library: Library, part: str
+    ) -> None:
+        """Issue #75: one long name made PostgreSQL fail the whole batch.
+
+        Upstream refuses names over 255 characters with 413 and quotes the
+        first 50 in ``data``, which the desktop shows beside the item.
+        """
+        names = ", ".join(f"Écrivain{index}, A." for index in range(30))
+        assert len(names) > 255
+        creator = {"creatorType": "author", part: names}
+        if part != "name":
+            creator |= {"firstName": "A", "lastName": "B", part: names}
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[
+                {"itemType": "book", "title": "Fine"},
+                {"itemType": "book", "creators": [creator]},
+                {"itemType": "book", "creators": [{"creatorType": "author", "name": "x" * 255}]},
+            ],
+        )
+
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert set(body["successful"]) == {"0", "2"}
+        failure = body["failed"]["1"]
+        assert failure["code"] == 413
+        assert failure["data"] == {"field": "creator", "value": names[:50]}
+        assert failure["message"].startswith(
+            f"The creator name \N{LEFT SINGLE QUOTATION MARK}{names[:50]}\N{HORIZONTAL ELLIPSIS}"
+        )
+
     async def test_a_nameless_creator_on_an_existing_item_is_rejected(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:

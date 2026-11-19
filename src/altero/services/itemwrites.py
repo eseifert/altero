@@ -24,6 +24,7 @@ from altero.errors import (
     InvalidParentError,
     MissingObjectError,
     NotFoundError,
+    ValueTooLongError,
 )
 from altero.itemschema import get_schema
 from altero.keys import coerce_key, is_valid_key
@@ -158,6 +159,33 @@ def _parse_timestamp(value: Any, name: str) -> datetime | None:
 #: What PHP's ``trim`` strips, which is what upstream asks a name to be more than.
 _PHP_WHITESPACE = " \t\n\r\0\x0b"
 
+#: Longest a creator's first, last or single-field name may be: the width of
+#: upstream's ``creators`` columns, and of the ones here.
+MAX_CREATOR_NAME_LENGTH = 255
+
+#: How much of a refused name upstream quotes back, for the desktop to show.
+_QUOTED_NAME_LENGTH = 50
+
+
+def _check_creator_name_lengths(creator: dict[str, str]) -> None:
+    """Refuse a creator with a name too long to store, as upstream does.
+
+    A list of authors pasted into one name is the usual cause. The desktop
+    names the creator from ``data`` and offers to show the item.
+    """
+    # Upstream checks the first name first; it keeps a single-field name in
+    # its last-name column.
+    for part in ("firstName", "lastName", "name"):
+        value = creator.get(part, "")
+        if len(value) > MAX_CREATOR_NAME_LENGTH:
+            quoted = value[:_QUOTED_NAME_LENGTH]
+            raise ValueTooLongError(
+                f"The creator name \u2018{quoted}\u2026\u2019 is too long to sync. "
+                "Shorten the name and sync again.",
+                field="creator",
+                value=quoted,
+            )
+
 
 def _validate_creators(item_type: str, creators: Any, *, creating: bool) -> list[dict[str, str]]:
     """Check the ``creators`` array and return it normalised.
@@ -193,15 +221,15 @@ def _validate_creators(item_type: str, creators: Any, *, creating: bool) -> list
             raise InvalidInputError("creator object must contain 'firstName'/'lastName' or 'name'")
 
         if "name" in creator:
-            normalised.append({"creatorType": creator_type, "name": str(creator["name"])})
+            entry = {"creatorType": creator_type, "name": str(creator["name"])}
         else:
-            normalised.append(
-                {
-                    "creatorType": creator_type,
-                    "firstName": str(creator.get("firstName", "")),
-                    "lastName": str(creator.get("lastName", "")),
-                }
-            )
+            entry = {
+                "creatorType": creator_type,
+                "firstName": str(creator.get("firstName", "")),
+                "lastName": str(creator.get("lastName", "")),
+            }
+        _check_creator_name_lengths(entry)
+        normalised.append(entry)
     return normalised
 
 

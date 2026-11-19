@@ -7,6 +7,8 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Refuse creator names over 255 characters per item, as zotero.org does, instead of failing PostgreSQL syncs; reported by [@calummoses] ([Issue#75]).
+
 ## [1.0.0-rc.2] — 2026-11-17
 
 The second release candidate fixes reported desktop sync and PostgreSQL import
@@ -561,3 +563,5 @@ The first release meant to be used by somebody other than its author.
 [@stratust]: https://github.com/stratust
 [Issue#73]: https://github.com/eseifert/altero/issues/73
 [CI#43721863040]: https://github.com/eseifert/altero/actions/runs/43721863040
+[@calummoses]: https://github.com/calummoses
+[Issue#75]: https://github.com/eseifert/altero/issues/75
