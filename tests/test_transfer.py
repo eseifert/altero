@@ -254,6 +254,57 @@ async def target(tmp_path: Path) -> AsyncIterator[tuple[AsyncSession, Path]]:
     await database.dispose()
 
 
+class TestValuesTooWideForTheTarget:
+    """SQLite stores over-long values, and PostgreSQL then failed to restore them.
+
+    The refusal names the value instead, and leaves the target as it was.
+    """
+
+    @pytest.mark.parametrize(
+        ("plant", "where"),
+        [
+            ("tag", "tags.name"),
+            ("search", "searches.name"),
+        ],
+    )
+    async def test_the_restore_is_refused_and_nothing_is_kept(
+        self,
+        session: AsyncSession,
+        tmp_path: Path,
+        target: tuple[AsyncSession, Path],
+        plant: str,
+        where: str,
+    ) -> None:
+        long = "Ä" * 256
+        await make_user(session)
+        library = await get_library(session, LibraryType.USER, 1)
+        item = await make_item(session, library, key="BOOK2345")
+        if plant == "tag":
+            await tag_item(session, library, item, long)
+        else:
+            await make_search(session, library, name=long)
+        archive = await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=tmp_path / "source",
+            destination=tmp_path / "long.zip",
+        )
+        target_session, target_storage = target
+        await make_user(target_session)
+        kept = await get_library(target_session, LibraryType.USER, 1)
+        await make_item(target_session, kept, key="KEPT2345")
+
+        with pytest.raises(InvalidInputError, match=rf"{where} value \u2018{'Ä' * 50}"):
+            await transfer.import_library(
+                target_session, archive=archive, storage_root=target_storage, replace=True
+            )
+        await target_session.rollback()
+
+        keys = await target_session.scalars(select(Item.key))
+        assert list(keys) == ["KEPT2345"]
+
+
 class TestRoundTrip:
     async def test_old_archives_do_not_restore_child_collection_memberships(
         self,

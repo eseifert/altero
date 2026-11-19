@@ -23,7 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import bindparam, delete, insert, select, update
+from sqlalchemy import String, bindparam, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero import __version__
@@ -650,6 +650,11 @@ async def import_library(
                 )
                 for c in record["conditions"]
             ]
+            _check_fits(SavedSearch, [{"key": search.key, "name": search.name}])
+            _check_fits(
+                SearchCondition,
+                [{"condition": c.condition, "operator": c.operator} for c in search.conditions],
+            )
             session.add(search)
 
         tag_records = documents["tags.json"]
@@ -734,6 +739,7 @@ async def import_library(
         # target: a group's name also lives on its `Group` row, which no archive
         # carries, so adopting one would leave the two disagreeing.
         if into is None:
+            _check_fits(Library, [{"name": manifest.get("name", library.name)}])
             library.name = manifest.get("name", library.name)
 
     await session.commit()
@@ -765,8 +771,33 @@ def _registered(record: dict[str, Any], carried: dict[str, tuple[str, bool]]) ->
 _BATCH = 1000
 
 
+def _check_fits(model: type[Any], rows: list[dict[str, Any]]) -> None:
+    """Refuse a value wider than the column it is restored into.
+
+    SQLite stores such a value regardless, so an archive made from a SQLite
+    instance can carry one that PostgreSQL rejects with an error naming
+    neither object nor field. Refusing first names both; the restore is one
+    transaction, so nothing of it is kept.
+    """
+    limits = {
+        column.key: column.type.length
+        for column in model.__table__.columns
+        if isinstance(column.type, String) and column.type.length
+    }
+    for row in rows:
+        for name, limit in limits.items():
+            value = row.get(name)
+            if isinstance(value, str) and len(value) > limit:
+                raise InvalidInputError(
+                    f"The archive's {model.__tablename__}.{name} value "
+                    f"\u2018{value[:50]}\u2026\u2019 is longer than the {limit} characters "
+                    "this server stores. Shorten it in the original library and export again."
+                )
+
+
 async def _insert_all(session: AsyncSession, model: type[Any], rows: list[dict[str, Any]]) -> None:
     """Insert ``rows`` into ``model``'s table a batch at a time."""
+    _check_fits(model, rows)
     for start in range(0, len(rows), _BATCH):
         await session.execute(insert(model), rows[start : start + _BATCH])
 
@@ -775,6 +806,7 @@ async def _insert_returning_ids(
     session: AsyncSession, model: type[Any], rows: list[dict[str, Any]]
 ) -> dict[str, int]:
     """Insert ``rows`` and return the id each was given, by its key."""
+    _check_fits(model, rows)
     ids: dict[str, int] = {}
     for start in range(0, len(rows), _BATCH):
         inserted = await session.execute(

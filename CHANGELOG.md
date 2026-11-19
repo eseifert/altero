@@ -12,6 +12,7 @@ gained a capability worth naming.
 - Refuse relation types over 64 characters and relation values over 255 per object instead of failing PostgreSQL syncs.
 - Fix PostgreSQL group-library uploads of items titled over 500 characters, which failed while recording group activity.
 - Refuse file uploads declaring over-long filenames, content types or charsets with 400 instead of failing on PostgreSQL.
+- Refuse archive restores whose values are too long for PostgreSQL by naming the value, instead of failing with a database error.
 
 ## [1.0.0-rc.2] — 2026-11-17
 

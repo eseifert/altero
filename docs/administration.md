@@ -558,6 +558,11 @@ Restoring also locks the target library before checking or replacing its content
 
 Importing into a non-empty target is refused unless `--replace` is used.
 
+An archive from a SQLite instance can hold names longer than PostgreSQL columns
+allow, such as tags over 255 characters. Importing it into PostgreSQL is refused
+with the offending value, and the target library stays unchanged. Shorten the
+value in the source library, export again and retry.
+
 The browser exposes equivalent import/export operations under **Settings → Import and export**.
 
 ### Move a personal library from zotero.org
