@@ -15,6 +15,7 @@ from sqlalchemy import (
     event,
     func,
     make_url,
+    true,
 )
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
@@ -23,8 +24,9 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from sqlalchemy.sql.elements import SQLCoreOperations
+from sqlalchemy.sql.elements import Grouping, SQLCoreOperations
 
+from altero.errors import InvalidInputError
 from altero.settings import Settings
 
 logger = logging.getLogger("altero.db")
@@ -93,6 +95,57 @@ def _unicode_lower(value: object) -> object:
     return value.lower() if isinstance(value, str) else value
 
 
+#: The longest ``LIKE`` or ``GLOB`` pattern SQLite takes, in bytes: a ceiling
+#: compiled into it, which a connection may lower but not raise. PostgreSQL has
+#: none, and neither has upstream's MySQL.
+SQLITE_PATTERN_LIMIT = 50_000
+
+
+def _literal_match(
+    column: SQLCoreOperations[str], pattern: str, *, wildcards: str, fold: bool
+) -> ColumnElement[bool]:
+    """Match a pattern too long for SQLite's ``LIKE`` without one.
+
+    Every pattern this server builds is a literal with a wildcard at either
+    end, or neither, which ``instr`` and ``substr`` answer the same way. One
+    with wildcards inside is refused rather than matched differently.
+    """
+    leading = pattern.startswith("%")
+    trailing = len(pattern) > 1 and pattern.endswith("%")
+    literal = pattern[int(leading) : len(pattern) - int(trailing)]
+    if any(character in literal for character in wildcards):
+        raise InvalidInputError("The search is too long")
+
+    subject: Any = column
+    if fold:
+        subject = getattr(func, UNICODE_LOWER)(column)
+        literal = literal.lower()
+    if leading and trailing:
+        return func.instr(subject, literal) > 0
+    if trailing:
+        return func.substr(subject, 1, len(literal)) == literal
+    if leading:
+        return func.substr(subject, -len(literal)) == literal
+    return subject == literal
+
+
+def all_of(clauses: Sequence[ColumnElement[bool]]) -> ColumnElement[bool]:
+    """``AND`` the clauses, nested as a balanced tree rather than in a chain.
+
+    SQLite refuses a statement nested a thousand deep, and a chain nests a
+    level per clause; in halves it nests a level per doubling. Spelled as an
+    operator because ``and_`` flattens nested conjunctions back into a chain,
+    parentheses and all.
+    """
+    if not clauses:
+        return true()
+    if len(clauses) == 1:
+        return clauses[0]
+    middle = len(clauses) // 2
+    left = Grouping(all_of(clauses[:middle]))
+    return left.op("AND", is_comparison=True)(Grouping(all_of(clauses[middle:])))
+
+
 def ilike(column: SQLCoreOperations[str], pattern: str, *, dialect: str) -> ColumnElement[bool]:
     """``column ILIKE pattern``, ignoring case in every alphabet on every backend.
 
@@ -105,6 +158,8 @@ def ilike(column: SQLCoreOperations[str], pattern: str, *, dialect: str) -> Colu
     """
     if dialect != "sqlite":
         return column.ilike(pattern)
+    if len(pattern.encode()) > SQLITE_PATTERN_LIMIT:
+        return _literal_match(column, pattern, wildcards="%_", fold=True)
     if pattern.isascii():
         return column.like(pattern)
     return getattr(func, UNICODE_LOWER)(column).like(_unicode_lower(pattern))
@@ -142,6 +197,8 @@ def like(column: SQLCoreOperations[str], pattern: str, *, dialect: str) -> Colum
     """
     if dialect != "sqlite":
         return column.like(pattern)
+    if len(pattern.encode()) > SQLITE_PATTERN_LIMIT:
+        return _literal_match(column, pattern, wildcards="%_\\", fold=False)
     return column.op("GLOB", is_comparison=True)(_glob(pattern))
 
 

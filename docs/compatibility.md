@@ -83,6 +83,10 @@ child to its parent. Neither a trashed match nor a trashed parent is returned.
 Tag-name search is case-sensitive: `/tags?q=fic` does not find *Fiction*.
 It also accepts `%` and `_` wildcards, escaped with a backslash when literal.
 
+On SQLite, a search term longer than 50,000 bytes is matched as literal text.
+If it also contains a wildcard, the request fails with `400`; SQLite cannot
+evaluate such a pattern.
+
 ### Tag counts and the trash
 
 Library-wide `/tags` counts include trashed items, even with

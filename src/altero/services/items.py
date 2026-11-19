@@ -6,11 +6,11 @@ from datetime import UTC, datetime, timedelta
 from enum import StrEnum, auto
 from typing import Any
 
-from sqlalchemy import ColumnElement, Select, and_, distinct, func, or_, select, true
+from sqlalchemy import ColumnElement, Select, and_, distinct, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, aliased, lazyload
 
-from altero.db import CHUNK, chunked, id_list, ilike
+from altero.db import CHUNK, all_of, chunked, id_list, ilike
 from altero.errors import InvalidInputError, NotFoundError
 from altero.itemschema import get_schema
 from altero.models import (
@@ -359,7 +359,8 @@ def _quick_search(query: ListQuery, library_id: int, *, dialect: str) -> ColumnE
     :func:`altero.db.ilike`.
     """
     clauses: list[ColumnElement[bool]] = []
-    for part in parse_search_string(query.q or ""):
+    # A word asked for twice is asked for once.
+    for part in dict.fromkeys(parse_search_string(query.q or "")):
         pattern = f"%{part}%"
         alternatives: list[ColumnElement[bool]] = [
             ilike(column, pattern, dialect=dialect) for column in _QUICK_SEARCH_COLUMNS
@@ -388,7 +389,7 @@ def _quick_search(query: ListQuery, library_id: int, *, dialect: str) -> ColumnE
 
     # Every part can drop out -- `q=0` is upstream's case -- and a search with
     # nothing left to ask for restricts nothing.
-    return and_(*clauses) if clauses else true()
+    return all_of(clauses)
 
 
 def _full_text_matches(part: str, library_id: int, *, dialect: str) -> ColumnElement[bool]:

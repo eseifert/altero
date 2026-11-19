@@ -18,6 +18,7 @@ gained a capability worth naming.
 - Answer `since` and `start` values past any version or listing as upstream does, instead of failing with a database error.
 - Refuse `settings?since` values that are not numbers with 400, and library versions PostgreSQL cannot store.
 - Combine many `tag` and `itemType` terms into one filter, fixing SQLite 500s and minutes of PostgreSQL query planning.
+- Answer quick searches of over 50,000 bytes or a thousand words on SQLite instead of failing with a 500.
 
 ## [1.0.0-rc.2] — 2026-11-17
 
