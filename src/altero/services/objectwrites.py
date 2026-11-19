@@ -19,7 +19,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
 
 from altero.db import chunked
-from altero.errors import InvalidInputError, MissingObjectError, NotFoundError
+from altero.errors import InvalidInputError, MissingObjectError, NotFoundError, ValueTooLongError
 from altero.keys import coerce_key, is_valid_key
 from altero.models import (
     Collection,
@@ -39,6 +39,33 @@ from altero.services.auth import Access
 from altero.services.collections import get_collection
 from altero.services.deletions import forget_deletion, record_deletion
 from altero.services.writes import check_object_version
+
+#: Longest a collection name may be: the width of upstream's column and this one.
+MAX_COLLECTION_NAME_LENGTH = 255
+
+#: How much of a refused value upstream quotes back.
+_QUOTED_LENGTH = 50
+
+
+#: Longest a saved search's name may be: upstream refuses longer as too long.
+MAX_SEARCH_NAME_LENGTH = 255
+
+#: Longest a search condition and operator may be, as upstream counts them:
+#: in bytes, with any ``/mode`` suffix still on the condition.
+MAX_CONDITION_LENGTH = 50
+MAX_OPERATOR_LENGTH = 25
+
+
+def _check_condition_lengths(condition: str, operator: str) -> None:
+    """Refuse a condition or operator upstream refuses, with its 400."""
+    if len(condition.encode()) > MAX_CONDITION_LENGTH:
+        raise InvalidInputError(
+            f"Search condition cannot be longer than {MAX_CONDITION_LENGTH} characters"
+        )
+    if len(operator.encode()) > MAX_OPERATOR_LENGTH:
+        raise InvalidInputError(
+            f"Search operator cannot be longer than {MAX_OPERATOR_LENGTH} characters"
+        )
 
 
 def parse_relations(payload: dict[str, Any]) -> list[tuple[str, str]]:
@@ -168,6 +195,11 @@ async def save_collection(
         name = payload.get("name")
         if not isinstance(name, str) or not name:
             raise InvalidInputError("'name' property not provided")
+        if len(name) > MAX_COLLECTION_NAME_LENGTH:
+            # Upstream's `data.value` keeps the ellipsis of the message it is
+            # read out of; the desktop quotes it beside the collection.
+            quoted = f"{name[:_QUOTED_LENGTH]}\u2026"
+            raise ValueTooLongError(f"Collection name '{quoted}' too long", value=quoted)
         collection.name = name
 
     collection.version = version
@@ -303,6 +335,10 @@ async def save_search(
         name = payload.get("name")
         if not isinstance(name, str) or not name:
             raise InvalidInputError("'name' property not provided")
+        if len(name) > MAX_SEARCH_NAME_LENGTH:
+            raise ValueTooLongError(
+                f"Search name cannot be longer than {MAX_SEARCH_NAME_LENGTH} characters"
+            )
 
     if keeps(payload, "conditions", partial=partial):
         desired = tuple(
@@ -318,13 +354,13 @@ async def save_search(
         for condition in raw_conditions:
             if not isinstance(condition, dict) or not condition.get("condition"):
                 raise InvalidInputError("Invalid search condition")
-            conditions.append(
-                (
-                    str(condition["condition"]),
-                    str(condition.get("operator", "")),
-                    str(condition.get("value", "")),
-                )
+            entry = (
+                str(condition["condition"]),
+                str(condition.get("operator", "")),
+                str(condition.get("value", "")),
             )
+            _check_condition_lengths(*entry[:2])
+            conditions.append(entry)
         desired = tuple(
             (index, condition, operator, value)
             for index, (condition, operator, value) in enumerate(conditions)

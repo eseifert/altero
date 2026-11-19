@@ -347,6 +347,33 @@ class TestCreateFailures:
             f"The creator name \N{LEFT SINGLE QUOTATION MARK}{names[:50]}\N{HORIZONTAL ELLIPSIS}"
         )
 
+    async def test_a_tag_too_long_fails_that_object_only(
+        self, client: httpx2.AsyncClient, library: Library
+    ) -> None:
+        """PostgreSQL refused the whole batch; upstream refuses the one item.
+
+        ``data.tag`` carrying the whole name is what makes the desktop offer
+        its long-tag fixer.
+        """
+        name = "Ä" * 256
+        response = await client.post(
+            "/users/1/items",
+            headers=JSON,
+            json=[
+                {"itemType": "book", "tags": [{"tag": "fine"}]},
+                {"itemType": "book", "tags": [{"tag": name}]},
+                {"itemType": "book", "tags": [{"tag": "x" * 255}]},
+            ],
+        )
+
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert set(body["successful"]) == {"0", "2"}
+        failure = body["failed"]["1"]
+        assert failure["code"] == 413
+        assert failure["message"] == f"Tag '{name[:50]}\N{HORIZONTAL ELLIPSIS}' too long"
+        assert failure["data"] == {"tag": name}
+
     async def test_a_nameless_creator_on_an_existing_item_is_rejected(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:

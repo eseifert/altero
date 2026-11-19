@@ -180,6 +180,29 @@ class TestCollectionWrites:
 
         assert body["failed"]["0"]["code"] == 400
 
+    async def test_a_name_too_long_fails_that_collection_only(
+        self, client: httpx2.AsyncClient, library: Library
+    ) -> None:
+        """PostgreSQL refused the whole batch; upstream refuses the one object.
+
+        The desktop quotes ``data.value`` and offers to show the collection.
+        """
+        name = "Ä" * 256
+        response = await client.post(
+            "/users/1/collections",
+            headers=JSON,
+            json=[{"name": "Fine"}, {"name": name}, {"name": "x" * 255}],
+        )
+
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert set(body["successful"]) == {"0", "2"}
+        failure = body["failed"]["1"]
+        quoted = f"{name[:50]}\N{HORIZONTAL ELLIPSIS}"
+        assert failure["code"] == 413
+        assert failure["message"] == f"Collection name '{quoted}' too long"
+        assert failure["data"] == {"value": quoted}
+
     async def test_an_unknown_parent_is_rejected(
         self, client: httpx2.AsyncClient, library: Library
     ) -> None:
@@ -289,6 +312,39 @@ class TestSearchWrites:
         created = response.json()["successful"]["0"]
         assert created["data"]["name"] == "Whales"
         assert created["data"]["conditions"][0]["value"] == "whale"
+
+    @pytest.mark.parametrize(
+        ("change", "code", "message"),
+        [
+            ({"name": "Ä" * 256}, 413, "Search name cannot be longer than 255 characters"),
+            (
+                {"condition": "c" * 51},
+                400,
+                "Search condition cannot be longer than 50 characters",
+            ),
+            ({"operator": "o" * 26}, 400, "Search operator cannot be longer than 25 characters"),
+        ],
+    )
+    async def test_what_upstream_cannot_store_fails_that_search_only(
+        self,
+        client: httpx2.AsyncClient,
+        library: Library,
+        change: dict[str, str],
+        code: int,
+        message: str,
+    ) -> None:
+        """PostgreSQL refused the whole batch; upstream refuses the one search."""
+        condition = {"condition": "title", "operator": "contains", "value": "whale"}
+        fine = {"name": "x" * 255, "conditions": [condition | {"condition": "c" * 50}]}
+        long = {"name": change.get("name", "Whales"), "conditions": [condition | change]}
+        long["conditions"][0].pop("name", None)
+        response = await client.post("/users/1/searches", headers=JSON, json=[fine, long])
+
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert set(body["successful"]) == {"0"}
+        assert body["failed"]["1"]["code"] == code
+        assert body["failed"]["1"]["message"] == message
 
     async def test_a_search_without_conditions_is_rejected(
         self, client: httpx2.AsyncClient, library: Library

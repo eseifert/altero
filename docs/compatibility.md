@@ -24,12 +24,22 @@ Regular items include `creators: []` when empty. Omitting it from a sync
 response makes an existing desktop retain its previous creators. Notes,
 attachments and annotations have no creator list.
 
-### Long creator names
+### Long names
 
-A first, last or single-field creator name longer than 255 characters fails
-only its item, with `413` and the start of the name in `data`, as on
-zotero.org. The desktop then shows which creator to shorten and keeps syncing
-the rest of the library.
+As on zotero.org, a name longer than 255 characters fails only its object, with
+`413`, and the rest of the batch is saved. The desktop shows what to shorten
+and keeps syncing the rest of the library.
+
+- **Creator names** (first, last or single-field) quote the start of the name
+  in `data`, so the desktop can name the creator.
+- **Tags** carry the whole name in `data.tag`, which opens the desktop's
+  long-tag fixer for the item.
+- **Collection names** quote the start of the name in `data.value`, and the
+  desktop offers to show the collection.
+- **Saved-search names** are refused without `data`.
+
+A search condition longer than 50 bytes or an operator longer than 25 bytes
+fails its search with `400`, matching zotero.org's limits.
 
 ### Racing ZIP archives of different sizes
 

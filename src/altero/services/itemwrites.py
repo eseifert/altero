@@ -49,7 +49,7 @@ from altero.services import itemdata
 from altero.services.auth import Access
 from altero.services.deletions import record_deletions
 from altero.services.items import confined_to_collections, get_item, in_collections, tags_for
-from altero.services.objectwrites import parse_relations, resolve_tags
+from altero.services.objectwrites import MAX_TAG_LENGTH, parse_relations, resolve_tags
 from altero.services.writes import check_object_version
 
 #: Keys of the item JSON that are not field values.
@@ -245,6 +245,10 @@ def _validate_tags(tags: Any) -> list[tuple[str, int]]:
         name = str(tag["tag"])
         if not name:
             raise InvalidInputError("Tag cannot be empty")
+        if len(name) > MAX_TAG_LENGTH:
+            # Upstream's 413 carries the whole name in `data.tag`, which is how
+            # the desktop knows to open its long-tag fixer for the item.
+            raise ValueTooLongError(f"Tag '{name[:_QUOTED_NAME_LENGTH]}\u2026' too long", tag=name)
         tag_type = int(tag.get("type", TagType.MANUAL))
         if tag_type not in (TagType.MANUAL, TagType.AUTOMATIC):
             raise InvalidInputError(f"Invalid tag type '{tag_type}'")

@@ -8,6 +8,7 @@ gained a capability worth naming.
 ## [Unreleased]
 
 - Refuse creator names over 255 characters per item, as zotero.org does, instead of failing PostgreSQL syncs; reported by [@calummoses] ([Issue#75]).
+- Refuse over-long tags, collection names and saved-search names or conditions per object, as zotero.org does, instead of failing PostgreSQL syncs.
 
 ## [1.0.0-rc.2] — 2026-11-17
 
