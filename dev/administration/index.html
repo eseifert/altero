@@ -3082,6 +3082,10 @@ to uploads still in progress.</p>
 describe one consistent version. The lock is released before downloading.
 Restoring also locks the target library before checking or replacing its contents.</p>
 <p>Importing into a non-empty target is refused unless <code>--replace</code> is used.</p>
+<p>An archive from a SQLite instance can hold names longer than PostgreSQL columns
+allow, such as tags over 255 characters. Importing it into PostgreSQL is refused
+with the offending value, and the target library stays unchanged. Shorten the
+value in the source library, export again and retry.</p>
 <p>The browser exposes equivalent import/export operations under <strong>Settings → Import and export</strong>.</p>
 <h3 id="move-a-personal-library-from-zoteroorg">Move a personal library from zotero.org<a class="headerlink" href="#move-a-personal-library-from-zoteroorg" title="Permanent link">&para;</a></h3>
 <p>This is a one-time migration. It does not keep the two servers synchronized
@@ -3117,7 +3121,8 @@ versions replace newer desktop caches.</p>
 <li>Use Zotero's <strong>Restore to Server</strong> to upload the surviving desktop's complete copy.</li>
 <li>Verify metadata and attachment bytes before reconnecting other clients.</li>
 </ol>
-<p>This command only raises the counter; it recreates no lost objects or files.
+<p>The version cannot exceed 2147483647, the largest PostgreSQL stores.
+This command only raises the counter; it recreates no lost objects or files.
 Do not resume normal sync assuming the version change restored data. Without a
 complete surviving copy, restore from a verified backup and plan how each client
 will obtain that state. Automatic rewind of synced desktop objects is unsupported.</p>

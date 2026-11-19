@@ -1325,10 +1325,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#long-creator-names" class="md-nav__link">
+  <a href="#long-names" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Long creator names
+        Long names
       </span>
     </span>
   </a>
@@ -2088,6 +2088,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Binding sign-in to the initiating browser
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#directory-values-longer-than-altero-stores" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Directory values longer than altero stores
       </span>
     </span>
   </a>
@@ -2537,10 +2548,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#long-creator-names" class="md-nav__link">
+  <a href="#long-names" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Long creator names
+        Long names
       </span>
     </span>
   </a>
@@ -3306,6 +3317,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#directory-values-longer-than-altero-stores" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Directory values longer than altero stores
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3387,11 +3409,21 @@ checks. Inferences and untested behavior are marked explicitly.</p>
 <p>Regular items include <code>creators: []</code> when empty. Omitting it from a sync
 response makes an existing desktop retain its previous creators. Notes,
 attachments and annotations have no creator list.</p>
-<h3 id="long-creator-names">Long creator names<a class="headerlink" href="#long-creator-names" title="Permanent link">&para;</a></h3>
-<p>A first, last or single-field creator name longer than 255 characters fails
-only its item, with <code>413</code> and the start of the name in <code>data</code>, as on
-zotero.org. The desktop then shows which creator to shorten and keeps syncing
-the rest of the library.</p>
+<h3 id="long-names">Long names<a class="headerlink" href="#long-names" title="Permanent link">&para;</a></h3>
+<p>As on zotero.org, a name longer than 255 characters fails only its object, with
+<code>413</code>, and the rest of the batch is saved. The desktop shows what to shorten
+and keeps syncing the rest of the library.</p>
+<ul>
+<li><strong>Creator names</strong> (first, last or single-field) quote the start of the name
+  in <code>data</code>, so the desktop can name the creator.</li>
+<li><strong>Tags</strong> carry the whole name in <code>data.tag</code>, which opens the desktop's
+  long-tag fixer for the item.</li>
+<li><strong>Collection names</strong> quote the start of the name in <code>data.value</code>, and the
+  desktop offers to show the collection.</li>
+<li><strong>Saved-search names</strong> are refused without <code>data</code>.</li>
+</ul>
+<p>A search condition longer than 50 bytes or an operator longer than 25 bytes
+fails its search with <code>400</code>, matching zotero.org's limits.</p>
 <h3 id="racing-zip-archives-of-different-sizes">Racing ZIP archives of different sizes<a class="headerlink" href="#racing-zip-archives-of-different-sizes" title="Permanent link">&para;</a></h3>
 <p>When the client uploads a web snapshot, <code>md5</code> describes the file inside the archive and <code>zipMD5</code> the archive itself. Two clients zipping the same snapshot produce archives of different sizes with the same <code>md5</code>.</p>
 <p>Each archive is stored under its own <code>zipMD5</code>, as on zotero.org, so neither replaces the other: both registrations succeed, and each attachment downloads the archive its own client sent.</p>
@@ -3421,6 +3453,9 @@ that analyzer comparison is an inference, not a direct measurement.</p>
 child to its parent. Neither a trashed match nor a trashed parent is returned.</p>
 <p>Tag-name search is case-sensitive: <code>/tags?q=fic</code> does not find <em>Fiction</em>.
 It also accepts <code>%</code> and <code>_</code> wildcards, escaped with a backslash when literal.</p>
+<p>On SQLite, a search term longer than 50,000 bytes is matched as literal text.
+If it also contains a wildcard, the request fails with <code>400</code>; SQLite cannot
+evaluate such a pattern.</p>
 <h3 id="tag-counts-and-the-trash">Tag counts and the trash<a class="headerlink" href="#tag-counts-and-the-trash" title="Permanent link">&para;</a></h3>
 <p>Library-wide <code>/tags</code> counts include trashed items, even with
 <code>includeTrashed=0</code>. A tag carried only by trashed items remains listed. This
@@ -3482,6 +3517,9 @@ grants still limit which items are counted. The browser uses item-scoped counts.
 </tr>
 <tr>
 <td><code>numItems</code> is a valid sort only for tags</td>
+</tr>
+<tr>
+<td>A <code>since</code> above any version returns nothing newer; a <code>start</code> past the end, an empty page</td>
 </tr>
 <tr>
 <td><code>extra</code> and <code>serverDateModified</code> are valid item sorts</td>
@@ -3582,6 +3620,7 @@ item lacks an author, a <a href="https://github.com/citeproc-py/citeproc-py/issu
 <p><strong>An attachment can claim a file the server does not have.</strong> A library moved from zotero.org whose files were kept on WebDAV names a digest for every attachment, but none of the files. So <code>If-None-Match: *</code> ("is there a file to protect?") is answered by looking for the file itself, not at what the attachment claims; otherwise the upload that would repair the attachment is refused. <code>If-Match</code> is still checked against the attachment, because that is how the client proves it is not working from stale information.</p>
 <p><strong>A download serves the file an upload registered, not the one the attachment claims</strong>, as on zotero.org. <code>md5</code> is metadata any client may write, and files are shared by digest across libraries, so serving the claim would hand anybody who knew a digest the file behind it. Writing <code>md5</code> therefore changes what the attachment says and not which bytes it serves; an attachment no upload gave a file answers 404. A library copied from another, restored from an archive that carries the file, or upgraded from an earlier altero keeps the file it had.</p>
 <p><strong><code>{"exists": 1}</code> needs the digest and the exact size</strong>, as on zotero.org: that answer gives the client the stored file without receiving a byte. The digest is the archive's, <code>zipMD5</code>, for a snapshot. Where the size differs, zotero.org refuses with 400; altero asks for the bytes instead, which then prove themselves, so a stored file that was damaged can be repaired by the next client that holds it.</p>
+<p><strong>Over-long upload details are refused with 400.</strong> A <code>filename</code> or <code>contentType</code> longer than 255 characters, or a <code>charset</code> longer than 64, cannot be stored while the upload is pending. zotero.org fails such a request with a server error instead.</p>
 <p><strong>No upload or restore can replace another library's file.</strong> A snapshot's <code>md5</code> names the file inside the archive, and an archive's <code>files/</code> entry names whatever its maker wrote there; neither is checked against the bytes. So the bytes are stored under their own digest, never under a name somebody gave them.</p>
 <h4 id="downloading-is-a-redirect-and-has-to-be">Downloading is a redirect, and has to be<a class="headerlink" href="#downloading-is-a-redirect-and-has-to-be" title="Permanent link">&para;</a></h4>
 <p>Asking for an attachment's file answers <strong>302</strong>, with three headers:</p>
@@ -3711,6 +3750,7 @@ streaming service. See <a href="../clients/">client setup</a>.</p>
 <p>Collections carry relations too, and they are stored like items' relations.</p>
 <p>An empty array is accepted in place of an empty object, as zotero.org allows.</p>
 <p>Not copied: zotero.org accepts only certain relation types and requires Zotero addresses as values. altero accepts any. That is the permissive direction, so no client breaks, but a library moved from altero to zotero.org could carry a relation zotero.org refuses.</p>
+<p>A relation type longer than 64 characters or a value longer than 255 fails its object with <code>400</code>, because altero cannot store it.</p>
 <h3 id="backoff-and-retry-after">Backoff and Retry-After<a class="headerlink" href="#backoff-and-retry-after" title="Permanent link">&para;</a></h3>
 <p>The desktop ignores both headers unless they are <strong>whole seconds</strong>, and <code>0</code> is as useless as a fraction. Without <code>Retry-After</code>, a 429 still works, but the client has to guess how long to wait.</p>
 <p>altero answers 429 with a whole-second <code>Retry-After</code> of at least 1. It does not send <code>Backoff</code>, which asks clients to slow down while still being served; that needs a measure of load altero does not have.</p>
@@ -4236,13 +4276,20 @@ short-lived GET handoff that can check the browser cookie.</p>
 identity confirmation also require the same fully signed-in account. Handles
 are single-use and stored in the database for worker independence.
 No browser cookie acquires Zotero API access.</p>
+<h3 id="directory-values-longer-than-altero-stores">Directory values longer than altero stores<a class="headerlink" href="#directory-values-longer-than-altero-stores" title="Permanent link">&para;</a></h3>
+<p>A provider can assert values of any length. A display name longer than 255
+characters is shortened, and an email address longer than 320 is left off the
+account. A subject longer than 255 characters, or a SAML assertion ID longer
+than 255, refuses the sign-in: a shortened identifier could match a different
+person or assertion.</p>
 <h2 id="deliberate-differences-from-zoteroorg">Deliberate differences from zotero.org<a class="headerlink" href="#deliberate-differences-from-zoteroorg" title="Permanent link">&para;</a></h2>
 <h3 id="deliberate-differences">Deliberate differences<a class="headerlink" href="#deliberate-differences" title="Permanent link">&para;</a></h3>
-<p>Seven places where altero does not copy zotero.org:</p>
+<p>Eight places where altero does not copy zotero.org:</p>
 <ul>
 <li><strong>No <code>alternate</code> links.</strong> zotero.org links every object to its page on zotero.org. altero will not send clients to somebody else's copy of the data, and its own interface has no page per object, so envelopes carry only <code>self</code> and <code>up</code>. A single-page response therefore has no <code>Link</code> header — except group listings, which carry <code>self</code> because the desktop needs the header (see <a href="#who-the-client-finds-in-a-group">Who the client finds in a group</a>).</li>
 <li><strong>An unknown <code>locale</code> falls back to <code>en-US</code>.</strong> zotero.org answers 500.</li>
 <li><strong>A regular item given a parent fails with 400.</strong> zotero.org answers 500 for the same refusal.</li>
+<li><strong>Upload details or a group URL too long to store fail with 400.</strong> zotero.org answers 500; see <a href="#the-file-protocol">the file protocol</a>.</li>
 <li><strong>Rate limiting is off unless configured.</strong> A self-hosted server with a handful of clients rarely needs it; set <code>ALTERO_RATE_LIMIT</code> to turn it on.</li>
 <li><strong>Fields with the same translated name may be ordered differently.</strong> Three fields are called "Format"; zotero.org orders them by an internal number the published schema lacks.</li>
 <li><strong>Tags can be renamed through the API</strong> — see <a href="#renaming-a-tag">Renaming a tag</a>. An addition rather than a change: nothing that reads tags behaves differently.</li>
