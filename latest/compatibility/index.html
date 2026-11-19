@@ -1325,6 +1325,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#long-creator-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Long creator names
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#racing-zip-archives-of-different-sizes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2526,6 +2537,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#long-creator-names" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Long creator names
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#racing-zip-archives-of-different-sizes" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3365,6 +3387,11 @@ checks. Inferences and untested behavior are marked explicitly.</p>
 <p>Regular items include <code>creators: []</code> when empty. Omitting it from a sync
 response makes an existing desktop retain its previous creators. Notes,
 attachments and annotations have no creator list.</p>
+<h3 id="long-creator-names">Long creator names<a class="headerlink" href="#long-creator-names" title="Permanent link">&para;</a></h3>
+<p>A first, last or single-field creator name longer than 255 characters fails
+only its item, with <code>413</code> and the start of the name in <code>data</code>, as on
+zotero.org. The desktop then shows which creator to shorten and keeps syncing
+the rest of the library.</p>
 <h3 id="racing-zip-archives-of-different-sizes">Racing ZIP archives of different sizes<a class="headerlink" href="#racing-zip-archives-of-different-sizes" title="Permanent link">&para;</a></h3>
 <p>When the client uploads a web snapshot, <code>md5</code> describes the file inside the archive and <code>zipMD5</code> the archive itself. Two clients zipping the same snapshot produce archives of different sizes with the same <code>md5</code>.</p>
 <p>Each archive is stored under its own <code>zipMD5</code>, as on zotero.org, so neither replaces the other: both registrations succeed, and each attachment downloads the archive its own client sent.</p>
