@@ -470,6 +470,11 @@ def check_preconditions(
     raise PreconditionRequiredError("If-Match or If-None-Match must be provided")
 
 
+#: The longest each declared value may be: the widths of the columns
+#: :class:`~altero.models.StorageUpload` keeps them in until the bytes arrive.
+_DECLARED_LENGTHS = {"filename": 255, "contentType": 255, "charset": 64}
+
+
 def parse_authorization(form: dict[str, str]) -> dict[str, Any]:
     """Read and check what the client says it is about to upload."""
     missing = [name for name in ("md5", "filename", "filesize", "mtime") if not form.get(name)]
@@ -494,6 +499,12 @@ def parse_authorization(form: dict[str, str]) -> dict[str, Any]:
     zip_md5 = (form.get("zipMD5") or "").lower() or None
     if zip_md5 and len(zip_md5) != 32:
         raise InvalidInputError(f"Invalid zipMD5 '{zip_md5}'")
+
+    # Wider than the columns an upload waits in, PostgreSQL failed the request
+    # with a 500 that the client would only retry. Upstream fails too.
+    for name, limit in _DECLARED_LENGTHS.items():
+        if len(form.get(name) or "") > limit:
+            raise InvalidInputError(f"{name} cannot be longer than {limit} characters")
 
     return {
         "md5": md5.lower(),

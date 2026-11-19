@@ -236,6 +236,8 @@ Registration therefore checks the stored file against its digest before attachin
 
 **`{"exists": 1}` needs the digest and the exact size**, as on zotero.org: that answer gives the client the stored file without receiving a byte. The digest is the archive's, `zipMD5`, for a snapshot. Where the size differs, zotero.org refuses with 400; altero asks for the bytes instead, which then prove themselves, so a stored file that was damaged can be repaired by the next client that holds it.
 
+**Over-long upload details are refused with 400.** A `filename` or `contentType` longer than 255 characters, or a `charset` longer than 64, cannot be stored while the upload is pending. zotero.org fails such a request with a server error instead.
+
 **No upload or restore can replace another library's file.** A snapshot's `md5` names the file inside the archive, and an archive's `files/` entry names whatever its maker wrote there; neither is checked against the bytes. So the bytes are stored under their own digest, never under a name somebody gave them.
 
 #### Downloading is a redirect, and has to be

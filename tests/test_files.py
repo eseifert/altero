@@ -333,6 +333,28 @@ class TestAuthorization:
 
         assert response.status_code == 400
 
+    @pytest.mark.parametrize(
+        ("field", "limit"), [("filename", 255), ("contentType", 255), ("charset", 64)]
+    )
+    async def test_a_value_too_long_to_store_is_rejected(
+        self, client: httpx2.AsyncClient, attachment: str, field: str, limit: int
+    ) -> None:
+        """PostgreSQL failed the authorization with a 500 the client retries."""
+        fitting = await client.post(
+            f"/users/1/items/{attachment}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data=authorization(**{field: "Ä" * limit}),
+        )
+        response = await client.post(
+            f"/users/1/items/{attachment}/file",
+            headers=AUTH | {"If-None-Match": "*"},
+            data=authorization(**{field: "Ä" * (limit + 1)}),
+        )
+
+        assert fitting.status_code == 200, fitting.text
+        assert response.status_code == 400
+        assert response.text == f"{field} cannot be longer than {limit} characters"
+
     async def test_a_missing_field_is_rejected(
         self, client: httpx2.AsyncClient, attachment: str
     ) -> None:
