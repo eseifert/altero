@@ -14,6 +14,7 @@ from starlette.responses import JSONResponse, Response
 from altero.api.deps import AccessDep, ReadableLibraryDep, SessionDep, WritableLibraryDep
 from altero.api.responses import library_headers, not_modified
 from altero.errors import InvalidInputError, RequestTooLargeError
+from altero.query import clamp_version
 from altero.services import settings as settings_service
 from altero.services import writes
 
@@ -29,8 +30,12 @@ async def list_settings(
     if (response := not_modified(request, library.version)) is not None:
         return response
 
-    since = request.query_params.get("since")
-    stored = await settings_service.list_settings(session, library, int(since or 0), permit=access)
+    raw = request.query_params.get("since")
+    try:
+        since = clamp_version(int(raw)) if raw else 0
+    except ValueError:
+        raise InvalidInputError(f"Invalid 'since' value '{raw}'") from None
+    stored = await settings_service.list_settings(session, library, since, permit=access)
 
     return JSONResponse(
         settings_service.render_all(stored), headers=library_headers(library.version)

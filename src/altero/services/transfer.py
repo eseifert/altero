@@ -23,7 +23,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-from sqlalchemy import String, bindparam, delete, insert, select, update
+from sqlalchemy import Integer, String, bindparam, delete, insert, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero import __version__
@@ -731,6 +731,7 @@ async def import_library(
         )
 
         # Last, and the point of the exercise: the version clients remember.
+        _check_fits(Library, [{"version": described["version"]}])
         library.version = described["version"]
         duplicates.forget(library.id)
         # The name belongs to the library rather than to what is in it. Taking
@@ -771,6 +772,12 @@ def _registered(record: dict[str, Any], carried: dict[str, tuple[str, bool]]) ->
 _BATCH = 1000
 
 
+#: The largest value an ``INTEGER`` column holds on PostgreSQL. A library
+#: version can pass it only on SQLite, and only through ``set-version`` before
+#: that refused to.
+MAX_INTEGER = 2**31 - 1
+
+
 def _check_fits(model: type[Any], rows: list[dict[str, Any]]) -> None:
     """Refuse a value wider than the column it is restored into.
 
@@ -779,11 +786,14 @@ def _check_fits(model: type[Any], rows: list[dict[str, Any]]) -> None:
     neither object nor field. Refusing first names both; the restore is one
     transaction, so nothing of it is kept.
     """
+    columns = model.__table__.columns
     limits = {
         column.key: column.type.length
-        for column in model.__table__.columns
+        for column in columns
         if isinstance(column.type, String) and column.type.length
     }
+    # `Integer` alone: `BigInteger` is a subclass, and wider.
+    integers = [column.key for column in columns if type(column.type) is Integer]
     for row in rows:
         for name, limit in limits.items():
             value = row.get(name)
@@ -792,6 +802,13 @@ def _check_fits(model: type[Any], rows: list[dict[str, Any]]) -> None:
                     f"The archive's {model.__tablename__}.{name} value "
                     f"\u2018{value[:50]}\u2026\u2019 is longer than the {limit} characters "
                     "this server stores. Shorten it in the original library and export again."
+                )
+        for name in integers:
+            value = row.get(name)
+            if isinstance(value, int) and not -(2**31) <= value <= MAX_INTEGER:
+                raise InvalidInputError(
+                    f"The archive's {model.__tablename__}.{name} value {value} is outside "
+                    "the range this server stores."
                 )
 
 

@@ -28,6 +28,7 @@ from altero.models import (
     WebSession,
     WriteToken,
 )
+from altero.query import MAX_VERSION
 from altero.services import groups, streaming, websessions, writes
 from altero.services.transfer import clear_library
 
@@ -434,6 +435,8 @@ async def set_library_version(
     """
     if version < 0:
         raise InvalidInputError("A library version cannot be negative")
+    if version > MAX_VERSION:
+        raise InvalidInputError(f"A library version cannot be higher than {MAX_VERSION}")
 
     library = await session.scalar(
         select(Library).where(Library.type == library_type, Library.owner_id == owner_id)

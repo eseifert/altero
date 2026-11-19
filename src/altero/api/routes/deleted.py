@@ -7,6 +7,7 @@ from starlette.responses import Response
 from altero.api.deps import AccessDep, ReadableLibraryDep, SessionDep
 from altero.api.responses import object_response
 from altero.errors import InvalidInputError
+from altero.query import clamp_version
 from altero.services import deletions
 
 router = APIRouter(tags=["deleted"])
@@ -30,7 +31,7 @@ async def list_deleted(
     if raw is None:
         raise InvalidInputError("'since' parameter not provided")
     try:
-        since = int(raw)
+        since = clamp_version(int(raw))
     except ValueError:
         raise InvalidInputError(f"Invalid 'since' value '{raw}'") from None
 

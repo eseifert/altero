@@ -304,6 +304,33 @@ class TestValuesTooWideForTheTarget:
         keys = await target_session.scalars(select(Item.key))
         assert list(keys) == ["KEPT2345"]
 
+    async def test_a_version_too_high_is_refused(
+        self,
+        session: AsyncSession,
+        tmp_path: Path,
+        target: tuple[AsyncSession, Path],
+    ) -> None:
+        """Raised on SQLite past what PostgreSQL stores, before that was refused."""
+        await make_user(session)
+        library = await get_library(session, LibraryType.USER, 1)
+        await make_item(session, library, key="BOOK2345", version=2**31)
+        library.version = 2**31
+        await session.commit()
+        archive = await transfer.export_library(
+            session,
+            library_type=LibraryType.USER,
+            owner_id=1,
+            storage_root=tmp_path / "source",
+            destination=tmp_path / "high.zip",
+        )
+        target_session, target_storage = target
+        await make_user(target_session)
+
+        with pytest.raises(InvalidInputError, match=r"items\.version value 2147483648"):
+            await transfer.import_library(
+                target_session, archive=archive, storage_root=target_storage
+            )
+
 
 class TestRoundTrip:
     async def test_old_archives_do_not_restore_child_collection_memberships(

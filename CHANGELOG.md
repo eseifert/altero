@@ -15,6 +15,8 @@ gained a capability worth naming.
 - Refuse archive restores whose values are too long for PostgreSQL by naming the value, instead of failing with a database error.
 - Refuse group URLs over 255 characters with 400 instead of failing on PostgreSQL.
 - Fit over-long single sign-on names and addresses, and refuse over-long subjects, instead of failing PostgreSQL sign-ins.
+- Answer `since` and `start` values past any version or listing as upstream does, instead of failing with a database error.
+- Refuse `settings?since` values that are not numbers with 400, and library versions PostgreSQL cannot store.
 
 ## [1.0.0-rc.2] — 2026-11-17
 

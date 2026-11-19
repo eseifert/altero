@@ -222,6 +222,25 @@ def _parse_enum[T: StrEnum](enum: type[T], value: str | None, default: T, name: 
         raise InvalidInputError(f"Invalid '{name}' value '{value}'") from None
 
 
+#: The highest version anything can carry: versions are ``INTEGER`` columns,
+#: 32 bits wide on PostgreSQL. A ``since`` beyond it asks for nothing, which is
+#: what upstream answers, rather than for a comparison the database refuses.
+MAX_VERSION = 2**31 - 1
+
+#: Further into a listing than any library reaches, and within what both
+#: backends take as an ``OFFSET``.
+MAX_START = 2**31 - 1
+
+
+def clamp_version(value: int) -> int:
+    """Return a requested ``since`` as a version the database can compare.
+
+    Every stored version is at least zero, so a value below zero is held at -1,
+    which still asks for everything.
+    """
+    return max(-1, min(value, MAX_VERSION))
+
+
 def _parse_int[T: int | None](value: str | None, default: T, name: str) -> int | T:
     """Return ``value`` as an integer, or ``default`` if it is not one.
 
@@ -431,11 +450,11 @@ def parse_list_query(
         tags=parse_expressions(repeated),
         q=single.get("q") or None,
         qmode=_parse_qmode(single.get("qmode"), tag_endpoint=tag_endpoint),
-        since=_parse_int(single.get("since"), 0, "since"),
+        since=clamp_version(_parse_int(single.get("since"), 0, "since")),
         sort=sort,
         direction=direction,
         limit=limit,
-        start=max(0, _parse_int(single.get("start"), 0, "start")),
+        start=min(max(0, _parse_int(single.get("start"), 0, "start")), MAX_START),
         include_trashed=single.get("includeTrashed") == "1",
         style=single.get("style") or DEFAULT_STYLE,
         locale=single.get("locale") or DEFAULT_LOCALE,

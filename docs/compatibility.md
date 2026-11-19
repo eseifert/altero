@@ -141,6 +141,7 @@ All three matter because this is how a sync downloads changed objects: by key, i
 | Sorts whose name begins with `date` default to descending; everything else to ascending     |
 | `itemType` may not be repeated                                                              |
 | `numItems` is a valid sort only for tags                                                    |
+| A `since` above any version returns nothing newer; a `start` past the end, an empty page    |
 | `extra` and `serverDateModified` are valid item sorts                                       |
 
 ### Response shapes

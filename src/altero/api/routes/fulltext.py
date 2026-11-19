@@ -16,6 +16,7 @@ from altero.api.deps import AccessDep, ReadableLibraryDep, SessionDep, WritableL
 from altero.api.responses import library_headers
 from altero.errors import InvalidInputError
 from altero.models import Library
+from altero.query import clamp_version
 from altero.services import fulltext as fulltext_service
 from altero.services import items as items_service
 from altero.services import writes
@@ -36,7 +37,7 @@ async def list_fulltext_versions(
     """
     raw = request.query_params.get("since")
     try:
-        since = int(raw) if raw else 0
+        since = clamp_version(int(raw)) if raw else 0
     except ValueError:
         raise InvalidInputError(f"Invalid 'since' value '{raw}'") from None
 

@@ -610,6 +610,7 @@ If a surviving desktop holds the complete authoritative library:
 3. Use Zotero's **Restore to Server** to upload the surviving desktop's complete copy.
 4. Verify metadata and attachment bytes before reconnecting other clients.
 
+The version cannot exceed 2147483647, the largest PostgreSQL stores.
 This command only raises the counter; it recreates no lost objects or files.
 Do not resume normal sync assuming the version change restored data. Without a
 complete surviving copy, restore from a verified backup and plan how each client

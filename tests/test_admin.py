@@ -132,6 +132,22 @@ class TestLibraryVersion:
         assert library.version == 100
         assert (await get_library(session, LibraryType.USER, user.id)).version == 100
 
+    async def test_a_version_postgresql_cannot_store_is_refused(
+        self, session: AsyncSession
+    ) -> None:
+        """SQLite stored it, after which no export reached PostgreSQL."""
+        user = await admin.create_user(session, username="octocat")
+
+        with pytest.raises(InvalidInputError, match="cannot be higher than 2147483647"):
+            await admin.set_library_version(
+                session, library_type=LibraryType.USER, owner_id=user.id, version=2**31
+            )
+        library = await admin.set_library_version(
+            session, library_type=LibraryType.USER, owner_id=user.id, version=2**31 - 1
+        )
+
+        assert library.version == 2**31 - 1
+
     async def test_lowering_the_version_is_refused(self, session: AsyncSession) -> None:
         user = await admin.create_user(session, username="octocat")
         await admin.set_library_version(
