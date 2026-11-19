@@ -77,6 +77,9 @@ DEFAULT_REPLAY_MEMORY = timedelta(hours=12)
 #: document is a way of being asked to do unbounded work by a stranger.
 MAX_RESPONSE_BYTES = 512 * 1024
 
+#: The width of the column :mod:`altero.services.samlreplay` keeps IDs in.
+MAX_ASSERTION_ID_LENGTH = 255
+
 
 def _now() -> datetime:
     return datetime.now(UTC).replace(tzinfo=None)
@@ -302,6 +305,10 @@ def verify_response(
     assertion_id = assertion.get("ID") or ""
     if not assertion_id:
         raise ForbiddenError("That sign-in could not be read")
+    # Remembered to refuse a replay, in a column this wide; a shortened ID
+    # could refuse a different assertion that shares its start.
+    if len(assertion_id) > MAX_ASSERTION_ID_LENGTH:
+        raise ForbiddenError("That sign-in's assertion ID is too long to remember")
 
     return Verified(
         assertion=_read_out(assertion, provider),

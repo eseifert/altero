@@ -7,6 +7,8 @@ self-hosted server than on a service, because an operator adding a second
 provider would otherwise silently hand it everybody.
 """
 
+from dataclasses import replace
+
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -193,6 +195,41 @@ class TestProvisioning:
 
         assert again.user.id == first.user.id
         assert again.created is False
+
+
+class TestValuesWiderThanTheirColumns:
+    """A directory's values have no limit; PostgreSQL failed the sign-in on one."""
+
+    async def test_a_long_name_is_shortened(self, session: AsyncSession) -> None:
+        provider = await make_provider(session, create_accounts=True)
+        assertion = asserts()
+        long = replace(assertion, display_name="Ä" * 300)
+
+        outcome = await federation.sign_in(session, provider, long)
+
+        identity = await federation.find(session, provider, assertion.subject)
+        assert outcome.user.display_name == "Ä" * 255
+        assert identity is not None
+        assert identity.asserted_name == "Ä" * 255
+
+    async def test_a_long_address_is_left_off(self, session: AsyncSession) -> None:
+        provider = await make_provider(session, create_accounts=True)
+
+        outcome = await federation.sign_in(
+            session, provider, asserts(email=f"{'a' * 64}@{'b' * 252}.org")
+        )
+
+        assert outcome.user.email is None
+
+    async def test_a_long_subject_is_refused(self, session: AsyncSession) -> None:
+        """Shortened, it could name somebody else's identity."""
+        provider = await make_provider(session, create_accounts=True)
+
+        with pytest.raises(ForbiddenError, match="identifier longer"):
+            await federation.sign_in(session, provider, asserts("s" * 256))
+        await federation.sign_in(session, provider, asserts("s" * 255))
+
+        assert await session.scalar(select(FederatedIdentity.subject)) == "s" * 255
 
 
 class TestLinkingAnExistingAccount:

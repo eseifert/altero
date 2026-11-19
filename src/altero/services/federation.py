@@ -30,7 +30,7 @@ operator's own screen is the tool.
 """
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 
 from sqlalchemy import func, select
@@ -50,6 +50,35 @@ class Outcome:
 
     user: User
     created: bool
+
+
+#: The widths of the columns a sign-in's subject, name and address go into.
+MAX_SUBJECT_LENGTH = 255
+MAX_NAME_LENGTH = 255
+MAX_EMAIL_LENGTH = 320
+
+
+def _storable(assertion: Assertion) -> Assertion:
+    """Fit what a directory asserted into the columns it is kept in.
+
+    A directory's values have no limit of their own, and PostgreSQL refuses a
+    value wider than its column with an error that fails the sign-in. The name
+    is only a label and is shortened; an address that long cannot be a usable
+    one and is left off, as an address another account holds is. The subject
+    identifies the person, and a shortened one could name somebody else, so a
+    sign-in with a longer one is refused.
+    """
+    if len(assertion.subject) > MAX_SUBJECT_LENGTH:
+        raise ForbiddenError(
+            "The identity provider names this account with an identifier longer "
+            f"than the {MAX_SUBJECT_LENGTH} characters this server stores. "
+            "Ask whoever runs this server."
+        )
+    return replace(
+        assertion,
+        display_name=assertion.display_name[:MAX_NAME_LENGTH],
+        email=assertion.email if len(assertion.email) <= MAX_EMAIL_LENGTH else "",
+    )
 
 
 def _now() -> datetime:
@@ -86,6 +115,7 @@ async def link(
     identity, one account, or signing in through the directory would have two
     answers and pick one of them arbitrarily.
     """
+    assertion = _storable(assertion)
     existing = await find(session, provider, assertion.subject)
     if existing is not None:
         if existing.user_id != user.id:
@@ -175,6 +205,7 @@ async def sign_in(
     linked account: losing the claim has to stop a sign-in that would otherwise
     have worked, or it is not a check at all.
     """
+    assertion = _storable(assertion)
     identity = await find(session, provider, assertion.subject)
 
     if not oidc.satisfies_requirement(assertion.claims, provider):

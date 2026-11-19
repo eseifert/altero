@@ -209,6 +209,13 @@ class TestAGoodAssertion:
 
         assert result.assertion_id == "_assertion0000000000000000000000000000001"
 
+    async def test_an_id_too_long_to_remember_is_refused(self) -> None:
+        """Its replay record would fail to store; a shortened one could collide."""
+        assert verify(signed(assertion_id="_" + "a" * 254)).assertion_id == "_" + "a" * 254
+
+        with pytest.raises(ForbiddenError, match="too long"):
+            verify(signed(assertion_id="_" + "a" * 255))
+
 
 class TestTheSignature:
     async def test_an_unsigned_response_is_refused(self) -> None:

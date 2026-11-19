@@ -859,6 +859,14 @@ identity confirmation also require the same fully signed-in account. Handles
 are single-use and stored in the database for worker independence.
 No browser cookie acquires Zotero API access.
 
+### Directory values longer than altero stores
+
+A provider can assert values of any length. A display name longer than 255
+characters is shortened, and an email address longer than 320 is left off the
+account. A subject longer than 255 characters, or a SAML assertion ID longer
+than 255, refuses the sign-in: a shortened identifier could match a different
+person or assertion.
+
 ## Deliberate differences from zotero.org
 
 ### Deliberate differences
