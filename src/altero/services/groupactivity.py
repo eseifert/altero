@@ -27,6 +27,18 @@ from altero.models import (
 Named = tuple[str, str]
 
 
+#: The width of the column a name is kept in. Titles have no limit of their
+#: own, and this is only a label for the activity list.
+MAX_NAME_LENGTH = 500
+
+
+def _fitted(name: str) -> str:
+    """Shorten ``name`` to fit its column, marking that it was shortened."""
+    if len(name) <= MAX_NAME_LENGTH:
+        return name
+    return f"{name[: MAX_NAME_LENGTH - 1]}\u2026"
+
+
 async def name_items(session: AsyncSession, library: Library, keys: Sequence[str]) -> list[Named]:
     """Return ``keys`` with the name each item currently carries.
 
@@ -108,7 +120,7 @@ async def record(
         count=count,
     )
     activity.objects = [
-        GroupActivityObject(object_key=key, name=name or "") for key, name in objects
+        GroupActivityObject(object_key=key, name=_fitted(name or "")) for key, name in objects
     ]
     session.add(activity)
     await session.flush()

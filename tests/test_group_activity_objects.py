@@ -82,6 +82,26 @@ class TestRecordingWhat:
         (activity,) = await rows(session)
         assert await objects_of(session, activity) == [("NNNN2345", "Call me Ishmael.")]
 
+    async def test_a_title_too_long_for_the_column_is_shortened(
+        self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
+    ) -> None:
+        """Titles have no limit, and PostgreSQL failed the whole upload on one.
+
+        The item keeps its title; only the activity's label is shortened.
+        """
+        title = "Ä" * 600
+        response = await client.post(
+            "/groups/100/items",
+            headers=JSON,
+            json=[{"itemType": "book", "key": "AAAA2345", "title": title}],
+        )
+
+        assert response.json()["successful"]["0"]["data"]["title"] == title
+        (activity,) = await rows(session)
+        assert await objects_of(session, activity) == [
+            ("AAAA2345", f"{title[:499]}\N{HORIZONTAL ELLIPSIS}")
+        ]
+
     async def test_collections_are_named(
         self, client: httpx2.AsyncClient, session: AsyncSession, group: Library
     ) -> None:

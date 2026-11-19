@@ -10,6 +10,7 @@ gained a capability worth naming.
 - Refuse creator names over 255 characters per item, as zotero.org does, instead of failing PostgreSQL syncs; reported by [@calummoses] ([Issue#75]).
 - Refuse over-long tags, collection names and saved-search names or conditions per object, as zotero.org does, instead of failing PostgreSQL syncs.
 - Refuse relation types over 64 characters and relation values over 255 per object instead of failing PostgreSQL syncs.
+- Fix PostgreSQL group-library uploads of items titled over 500 characters, which failed while recording group activity.
 
 ## [1.0.0-rc.2] — 2026-11-17
 
