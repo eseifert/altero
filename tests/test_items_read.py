@@ -7,6 +7,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.models import Library, LibraryType
+from altero.services import items as items_service
 from altero.services.auth import get_library
 from tests.factories import make_api_key, make_collection, make_item, make_user, tag_item
 
@@ -223,6 +224,96 @@ class TestFiltering:
         response = await client.get(f"/users/1/items?itemKey={keys}", headers=AUTH)
 
         assert response.status_code == 200
+
+    async def test_many_tag_alternatives_are_one_filter(
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """A clause per tag nested past SQLite's depth limit of 1000."""
+        whale = await make_item(session, library, key="AAAA2345")
+        await make_item(session, library, key="BBBB2345")
+        await tag_item(session, library, whale, "t1199")
+
+        tags = " || ".join(f"t{index}" for index in range(1200))
+        response = await client.get("/users/1/items", params={"tag": tags}, headers=AUTH)
+
+        assert response.status_code == 200, response.text
+        assert [entry["key"] for entry in response.json()] == ["AAAA2345"]
+
+    async def test_many_repeated_tags_are_one_filter(
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        """Each repeated tag was a subquery: SQLite refused a thousand, and
+        PostgreSQL took half a minute to plan two hundred."""
+        everything = await make_item(session, library, key="AAAA2345")
+        some = await make_item(session, library, key="BBBB2345")
+        names = [f"t{index}" for index in range(1200)]
+        for name in names:
+            await tag_item(session, library, everything, name)
+        await tag_item(session, library, some, "t0")
+
+        response = await client.get(
+            "/users/1/items", params=[("tag", name) for name in names], headers=AUTH
+        )
+        negated = await client.get(
+            "/users/1/items",
+            params=[("tag", "t0"), *(("tag", f"-n{index}") for index in range(1200))],
+            headers=AUTH,
+        )
+
+        assert response.status_code == 200, response.text
+        assert [entry["key"] for entry in response.json()] == ["AAAA2345"]
+        assert negated.status_code == 200, negated.text
+        assert sorted(entry["key"] for entry in negated.json()) == ["AAAA2345", "BBBB2345"]
+
+    @pytest.mark.parametrize("subqueries", [0, 8], ids=["looked-up", "subqueries"])
+    async def test_both_ways_of_filtering_by_tag_agree(
+        self,
+        client: httpx2.AsyncClient,
+        session: AsyncSession,
+        library: Library,
+        monkeypatch: pytest.MonkeyPatch,
+        subqueries: int,
+    ) -> None:
+        """Many tags are looked up first; the answer must not change with it."""
+        monkeypatch.setattr(items_service, "SUBQUERY_TAG_EXPRESSIONS", subqueries)
+        tagged = {
+            "AAAA2345": ["a", "b", "x"],
+            "BBBB2345": ["a", "c"],
+            "CCCC2345": ["b", "c"],
+            "DDDD2345": ["a", "b", "c"],
+            "EEEE2345": [],
+        }
+        for key, names in tagged.items():
+            item = await make_item(session, library, key=key)
+            for name in names:
+                await tag_item(session, library, item, name)
+
+        async def keys(*tags: str) -> list[str]:
+            response = await client.get(
+                "/users/1/items", params=[("tag", tag) for tag in tags], headers=AUTH
+            )
+            assert response.status_code == 200, response.text
+            return sorted(entry["key"] for entry in response.json())
+
+        assert await keys("a || b", "b || c") == ["AAAA2345", "BBBB2345", "CCCC2345", "DDDD2345"]
+        assert await keys("a", "b", "-x") == ["DDDD2345"]
+        assert await keys("-a || x") == ["CCCC2345", "EEEE2345"]
+        assert await keys("a", "-c", "nowhere || b") == ["AAAA2345"]
+        assert await keys("nowhere") == []
+
+    async def test_many_item_type_alternatives_are_one_filter(
+        self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
+    ) -> None:
+        await make_item(session, library, key="AAAA2345", item_type="book")
+        await make_item(session, library, key="BBBB2345", item_type="journalArticle")
+
+        types = " || ".join(["book"] * 1200)
+        response = await client.get("/users/1/items", params={"itemType": types}, headers=AUTH)
+        negated = await client.get("/users/1/items", params={"itemType": f"-{types}"}, headers=AUTH)
+
+        assert response.status_code == 200, response.text
+        assert [entry["key"] for entry in response.json()] == ["AAAA2345"]
+        assert [entry["key"] for entry in negated.json()] == ["BBBB2345"]
 
     async def test_a_malformed_key_matches_nothing_rather_than_failing(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library

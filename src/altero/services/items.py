@@ -6,11 +6,11 @@ from datetime import UTC, datetime, timedelta
 from enum import StrEnum, auto
 from typing import Any
 
-from sqlalchemy import ColumnElement, Select, and_, distinct, func, not_, or_, select, true
+from sqlalchemy import ColumnElement, Select, and_, distinct, func, or_, select, true
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, aliased, lazyload
 
-from altero.db import chunked, id_list, ilike
+from altero.db import CHUNK, chunked, id_list, ilike
 from altero.errors import InvalidInputError, NotFoundError
 from altero.itemschema import get_schema
 from altero.models import (
@@ -215,23 +215,6 @@ async def _has_authorship(session: AsyncSession, library: Library, sort: str) ->
     return found is not None
 
 
-def _expression_filter(
-    expressions: Sequence[SearchExpression],
-    build: Any,
-) -> list[ColumnElement[bool]]:
-    """Turn parsed search expressions into predicates.
-
-    Alternatives within one expression are OR-ed and the negation, if any,
-    applies to that whole group. Separate expressions are AND-ed by being
-    returned as separate clauses.
-    """
-    clauses: list[ColumnElement[bool]] = []
-    for expression in expressions:
-        matched = or_(*(build(value) for value in expression.values))
-        clauses.append(not_(matched) if expression.negated else matched)
-    return clauses
-
-
 def confined_to_collections(collection_ids: frozenset[int]) -> ColumnElement[bool]:
     """Return the predicate that keeps a listing inside ``collection_ids``.
 
@@ -282,19 +265,85 @@ def _may_read_notes(permit: Access | None) -> bool:
     return permit is None or permit.notes
 
 
-def _has_tag(library_id: int) -> Any:
-    def build(name: str) -> ColumnElement[bool]:
-        # A list of item ids rather than a correlated EXISTS: SQLite runs the
-        # EXISTS once per item in the library, where the list is one index walk
-        # from the tag. `item_id` is never NULL, so a negated filter's NOT IN
-        # means what NOT EXISTS meant.
-        return Item.id.in_(
-            select(ItemTag.item_id)
-            .join(Tag, Tag.id == ItemTag.tag_id)
-            .where(Tag.library_id == library_id, Tag.name == name)
-        )
+#: How many ``tag`` parameters are answered by a subquery each. Beyond this the
+#: items are looked up first; see :func:`_tag_filters`.
+SUBQUERY_TAG_EXPRESSIONS = 8
 
-    return build
+
+def _carries_any(library_id: int, expression: SearchExpression) -> ColumnElement[bool]:
+    """Whether an item carries one of the expression's tags, or none if negated.
+
+    A list of item ids rather than a correlated EXISTS: SQLite runs the EXISTS
+    once per item in the library, where the list is one index walk from the
+    tag. ``item_id`` is never NULL, so ``NOT IN`` means what ``NOT EXISTS``
+    meant. One ``IN`` for all the alternatives, because one clause each nested
+    a level per alternative, and SQLite refuses a statement nested a thousand
+    deep.
+    """
+    carriers = (
+        select(ItemTag.item_id)
+        .join(Tag, Tag.id == ItemTag.tag_id)
+        .where(Tag.library_id == library_id, Tag.name.in_(sorted(set(expression.values))))
+    )
+    return Item.id.not_in(carriers) if expression.negated else Item.id.in_(carriers)
+
+
+async def _tag_filters(
+    session: AsyncSession, library_id: int, expressions: Sequence[SearchExpression]
+) -> list[ColumnElement[bool]]:
+    """Return the predicates for the ``tag`` parameters.
+
+    A few parameters are a subquery each, which is the cheapest way to page
+    through a tag carried by most of a library. Many of them are combined the
+    way upstream's ``Zotero_Items::search`` combines all of them: the items
+    carrying each tag are looked up first, an alternative adds its items, a
+    repeated parameter keeps only the items every one matched, and a negated
+    one removes its items. A subquery each made the statement grow with the
+    request: SQLite refuses one nested a thousand deep, and PostgreSQL spent
+    seconds planning a few hundred before reading a row.
+    """
+    names = sorted({name for expression in expressions for name in expression.values})
+    if len(expressions) <= SUBQUERY_TAG_EXPRESSIONS and len(names) <= CHUNK:
+        return [_carries_any(library_id, expression) for expression in expressions]
+
+    carriers: dict[str, set[int]] = {}
+    for chunk in chunked(names):
+        found = await session.execute(
+            select(Tag.name, ItemTag.item_id)
+            .join(ItemTag, ItemTag.tag_id == Tag.id)
+            .where(Tag.library_id == library_id, Tag.name.in_(chunk))
+        )
+        for name, item_id in found.tuples():
+            carriers.setdefault(name, set()).add(item_id)
+
+    wanted: set[int] | None = None
+    unwanted: set[int] = set()
+    for expression in expressions:
+        matched = set().union(*(carriers.get(name, ()) for name in expression.values))
+        if expression.negated:
+            unwanted |= matched
+        else:
+            wanted = matched if wanted is None else wanted & matched
+
+    # An id list, so the statement keeps one shape however many tags there were.
+    if wanted is not None:
+        return [Item.id.in_(id_list(wanted - unwanted))]
+    return [Item.id.not_in(id_list(unwanted))] if unwanted else []
+
+
+def _item_type_filters(expressions: Sequence[SearchExpression]) -> list[ColumnElement[bool]]:
+    """Return one ``IN`` per ``itemType`` expression, however many alternatives it has.
+
+    Alternatives joined by ``OR`` nest a level each, and SQLite refuses a
+    statement nested a thousand deep.
+    """
+    clauses: list[ColumnElement[bool]] = []
+    for expression in expressions:
+        types = sorted(set(expression.values))
+        clauses.append(
+            Item.item_type.not_in(types) if expression.negated else Item.item_type.in_(types)
+        )
+    return clauses
 
 
 def _quick_search(query: ListQuery, library_id: int, *, dialect: str) -> ColumnElement[bool]:
@@ -449,8 +498,8 @@ async def _scope_filters(
         else:
             ids = [collection.id]
 
-        # A list rather than a correlated EXISTS, for the reason `_has_tag`
-        # gives.
+        # A list rather than a correlated EXISTS: SQLite runs the EXISTS once
+        # per item in the library, where the list is one index walk.
         member = Item.id.in_(
             select(CollectionItem.item_id).where(CollectionItem.collection_id.in_(ids))
         )
@@ -584,8 +633,8 @@ async def build_item_query(
         for value in expression.values:
             if not get_schema().is_valid_item_type(value):
                 raise InvalidInputError(f"Invalid itemType '{value}'")
-    filters += _expression_filter(query.item_types, lambda value: Item.item_type == value)
-    filters += _expression_filter(query.tags, _has_tag(library.id))
+    filters += _item_type_filters(query.item_types)
+    filters += await _tag_filters(session, library.id, query.tags)
 
     if query.q:
         dialect = session.get_bind().dialect.name
