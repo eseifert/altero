@@ -107,6 +107,20 @@ class TestCreating:
         assert response.status_code == 400
         assert "must be one of" in response.text
 
+    async def test_a_url_too_long_to_store_is_refused(
+        self, people, client: httpx2.AsyncClient
+    ) -> None:
+        """PostgreSQL failed the request with a 500."""
+        url = "https://example.org/" + "ä" * 236
+        assert len(url) == 256
+
+        response = await client.post("/groups", json={"name": "x", "url": url}, headers=AS_ALICE)
+        group = await make(client, url=url[:255])
+
+        assert response.status_code == 400
+        assert response.text == "A group URL may be at most 255 characters"
+        assert group["data"]["url"] == url[:255]
+
     async def test_a_property_that_does_not_exist_is_refused(
         self, people, client: httpx2.AsyncClient
     ) -> None:

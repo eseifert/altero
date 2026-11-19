@@ -60,8 +60,9 @@ ROLES = ("member", "admin")
 #: :class:`~altero.models.MemberPermission` for what each one means.
 MEMBER_PERMISSIONS = tuple(permission.value for permission in MemberPermission)
 
-#: Longest a group name may be, matching the column.
+#: Longest a group name and URL may be, matching their columns.
 MAX_NAME = 255
+MAX_URL = 255
 
 #: Every property a group carries, with the values each accepts. ``None`` means
 #: free text.
@@ -408,6 +409,10 @@ def _validated(payload: dict[str, Any], *, require_name: bool) -> dict[str, str]
             raise InvalidInputError(f"A group name may be at most {MAX_NAME} characters")
     elif require_name:
         raise InvalidInputError("A group name is required")
+
+    # Upstream's column is as wide and unchecked, so it fails with a 500 too.
+    if len(values.get("url", "")) > MAX_URL:
+        raise InvalidInputError(f"A group URL may be at most {MAX_URL} characters")
 
     return values
 
