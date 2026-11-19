@@ -871,11 +871,12 @@ person or assertion.
 
 ### Deliberate differences
 
-Seven places where altero does not copy zotero.org:
+Eight places where altero does not copy zotero.org:
 
 - **No `alternate` links.** zotero.org links every object to its page on zotero.org. altero will not send clients to somebody else's copy of the data, and its own interface has no page per object, so envelopes carry only `self` and `up`. A single-page response therefore has no `Link` header — except group listings, which carry `self` because the desktop needs the header (see [Who the client finds in a group](#who-the-client-finds-in-a-group)).
 - **An unknown `locale` falls back to `en-US`.** zotero.org answers 500.
 - **A regular item given a parent fails with 400.** zotero.org answers 500 for the same refusal.
+- **Upload details or a group URL too long to store fail with 400.** zotero.org answers 500; see [the file protocol](#the-file-protocol).
 - **Rate limiting is off unless configured.** A self-hosted server with a handful of clients rarely needs it; set `ALTERO_RATE_LIMIT` to turn it on.
 - **Fields with the same translated name may be ordered differently.** Three fields are called "Format"; zotero.org orders them by an internal number the published schema lacks.
 - **Tags can be renamed through the API** — see [Renaming a tag](#renaming-a-tag). An addition rather than a change: nothing that reads tags behaves differently.
