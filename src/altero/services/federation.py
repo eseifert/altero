@@ -180,8 +180,13 @@ async def _unique_username(session: AsyncSession, wanted: str) -> str:
     directories certainly disagree. Rather than refusing the second person
     called ``ada``, a suffix is added -- the account is named for a person's
     convenience, and the identity that matters is the subject.
+
+    Directories often hand over an address, which may not be a username here.
+    Its local part is what people would guess; only an address without one
+    falls back to the remaining text.
     """
-    base = "".join(character for character in wanted if character not in "@ \t\n")[:200]
+    local = wanted.split("@", 1)[0]
+    base = "".join(c for c in local or wanted if c not in "@ \t\n")[:200]
     base = webauth.validate_username(base or "user")
 
     candidate = base

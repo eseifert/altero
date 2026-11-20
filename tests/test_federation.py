@@ -167,13 +167,33 @@ class TestProvisioning:
 
         assert outcome.user.username == "ada2"
 
-    async def test_a_username_with_an_at_sign_is_made_usable(self, session: AsyncSession) -> None:
-        """`upn` is an address, and a username here may not hold '@'."""
+    async def test_an_address_as_username_keeps_its_local_part(self, session: AsyncSession) -> None:
+        """`upn` is an address, and a username here may not hold '@'. Deleting
+        the '@' alone made `adaexample.org`, which nobody would guess."""
         provider = await make_provider(session, create_accounts=True)
 
         outcome = await federation.sign_in(session, provider, asserts(username="ada@example.org"))
 
-        assert "@" not in outcome.user.username
+        assert outcome.user.username == "ada"
+
+    async def test_the_same_local_part_elsewhere_gets_a_suffix(self, session: AsyncSession) -> None:
+        provider = await make_provider(session, create_accounts=True)
+        await federation.sign_in(session, provider, asserts(username="ada@example.org"))
+
+        outcome = await federation.sign_in(
+            session, provider, asserts(subject="other", username="ada@example.net")
+        )
+
+        assert outcome.user.username == "ada2"
+
+    async def test_an_address_without_a_local_part_still_names_someone(
+        self, session: AsyncSession
+    ) -> None:
+        provider = await make_provider(session, create_accounts=True)
+
+        outcome = await federation.sign_in(session, provider, asserts(username="@example.org"))
+
+        assert outcome.user.username == "example.org"
 
     async def test_signing_in_again_returns_the_same_account(self, session: AsyncSession) -> None:
         provider = await make_provider(session, create_accounts=True)

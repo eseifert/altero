@@ -300,6 +300,8 @@ The SAML implementation is deliberately limited to:
 
 Automatic account creation through a provider is **off by default**. Turning it on allows identities accepted by that provider to create local altero accounts.
 
+A new account's username comes from the provider's username claim. If the claim is an email address, altero uses its local part, because usernames cannot contain `@`. Names already taken get a numeric suffix, such as `jane.doe2`.
+
 A provider can also require a claim and value, such as an entitlement or group. On each sign-in, altero checks the requirement. If a previously linked user no longer has the required claim, the local account is suspended, which also stops existing Zotero API keys.
 
 This check happens at sign-in time. It cannot detect a person who leaves the organization and never attempts to sign in again; administrators must handle that case through the Accounts screen or another operational process.

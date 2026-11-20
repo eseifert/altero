@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Name single sign-on accounts after an address claim's local part, not the address without its `@`; reported by [@arminbahl] ([Issue#76]).
 - Refuse creator names over 255 characters per item, as zotero.org does, instead of failing PostgreSQL syncs; reported by [@calummoses] ([Issue#75]).
 - Refuse over-long tags, collection names and saved-search names or conditions per object, as zotero.org does, instead of failing PostgreSQL syncs.
 - Refuse relation types over 64 characters and relation values over 255 per object instead of failing PostgreSQL syncs.
@@ -576,3 +577,4 @@ The first release meant to be used by somebody other than its author.
 [CI#43721863040]: https://github.com/eseifert/altero/actions/runs/43721863040
 [@calummoses]: https://github.com/calummoses
 [Issue#75]: https://github.com/eseifert/altero/issues/75
+[Issue#76]: https://github.com/eseifert/altero/issues/76
