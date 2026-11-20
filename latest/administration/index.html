@@ -2871,6 +2871,7 @@ for protocol details.</p>
 </ul>
 <h3 id="account-creation-and-deprovisioning">Account creation and deprovisioning<a class="headerlink" href="#account-creation-and-deprovisioning" title="Permanent link">&para;</a></h3>
 <p>Automatic account creation through a provider is <strong>off by default</strong>. Turning it on allows identities accepted by that provider to create local altero accounts.</p>
+<p>A new account's username comes from the provider's username claim. If the claim is an email address, altero uses its local part, because usernames cannot contain <code>@</code>. Names already taken get a numeric suffix, such as <code>jane.doe2</code>.</p>
 <p>A provider can also require a claim and value, such as an entitlement or group. On each sign-in, altero checks the requirement. If a previously linked user no longer has the required claim, the local account is suspended, which also stops existing Zotero API keys.</p>
 <p>This check happens at sign-in time. It cannot detect a person who leaves the organization and never attempts to sign in again; administrators must handle that case through the Accounts screen or another operational process.</p>
 <p>It also needs a token or assertion to check. If the directory refuses sign-in
