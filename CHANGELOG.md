@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Document trusting a private certificate authority for OpenID Connect providers; requested by [@fullnamehere] ([Issue#77]).
 - Name single sign-on accounts after an address claim's local part, not the address without its `@`; reported by [@arminbahl] ([Issue#76]).
 - Refuse creator names over 255 characters per item, as zotero.org does, instead of failing PostgreSQL syncs; reported by [@calummoses] ([Issue#75]).
 - Refuse over-long tags, collection names and saved-search names or conditions per object, as zotero.org does, instead of failing PostgreSQL syncs.
@@ -578,3 +579,5 @@ The first release meant to be used by somebody other than its author.
 [@calummoses]: https://github.com/calummoses
 [Issue#75]: https://github.com/eseifert/altero/issues/75
 [Issue#76]: https://github.com/eseifert/altero/issues/76
+[@fullnamehere]: https://github.com/fullnamehere
+[Issue#77]: https://github.com/eseifert/altero/issues/77

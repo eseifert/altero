@@ -164,3 +164,5 @@ These are read by something other than the application's own configuration, so t
 | `ALTERO_IMAGE_TAG`       | `docker/compose.yaml`    | Which published image to run: `latest`, a chosen release tag, or `dev` for master. |
 | `ALTERO_PUBLISH_PORT`    | `docker/compose.yaml`    | Loopback port the API is published on.                                                          |
 | `POSTGRES_PASSWORD`      | `docker/compose.yaml`    | Password for the bundled PostgreSQL, used by both containers.                                   |
+| `SSL_CERT_FILE`          | outgoing HTTPS           | PEM bundle replacing the system trust store; see [private CAs](administration.md#trust-a-private-certificate-authority). |
+| `SSL_CERT_DIR`           | outgoing HTTPS           | Hashed certificate directory replacing the system trust store.                                  |

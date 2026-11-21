@@ -234,6 +234,38 @@ Live integration tests cover Keycloak and SimpleSAMLphp. Other provider recipes
 below are marked unverified. See the [fixture scope](https://github.com/eseifert/altero/blob/master/tests/idp/README.md)
 for the flows actually checked.
 
+### Trust a private certificate authority
+
+altero verifies the provider's TLS certificate against the system trust store.
+If a private CA signed that certificate, OIDC discovery fails with
+`certificate verify failed`. To trust the CA, set `SSL_CERT_FILE` to a PEM
+bundle, or `SSL_CERT_DIR` to a directory prepared with `openssl rehash`, before
+starting altero.
+
+> [!WARNING]
+> Either variable replaces the system trust store for all outgoing HTTPS,
+> including library migration from zotero.org. Use the system bundle with your CA
+> appended, not the CA alone.
+
+```sh
+cat /etc/ssl/certs/ca-certificates.crt private-ca.pem > /etc/altero/ca-bundle.pem
+```
+
+In Docker, mount the bundle and point the variable at it:
+
+```yaml
+services:
+  altero:
+    environment:
+      SSL_CERT_FILE: /etc/altero/ca-bundle.pem
+    volumes:
+      - ./ca-bundle.pem:/etc/altero/ca-bundle.pem:ro
+```
+
+Python rejects CA certificates that lack a `keyUsage` extension. If the error
+reads `CA cert does not include key usage extension`, reissue the CA with
+`keyUsage=critical,keyCertSign,cRLSign`.
+
 ### OpenID Connect
 
 Store the client credentials and provider settings in the administration screen. Client secrets are write-only: the interface can replace a secret but does not display the existing value.
