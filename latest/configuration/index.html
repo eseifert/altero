@@ -2257,6 +2257,16 @@ registration and account password forms read the configured minimum from
 <td><code>docker/compose.yaml</code></td>
 <td>Password for the bundled PostgreSQL, used by both containers.</td>
 </tr>
+<tr>
+<td><code>SSL_CERT_FILE</code></td>
+<td>outgoing HTTPS</td>
+<td>PEM bundle replacing the system trust store; see <a href="../administration/#trust-a-private-certificate-authority">private CAs</a>.</td>
+</tr>
+<tr>
+<td><code>SSL_CERT_DIR</code></td>
+<td>outgoing HTTPS</td>
+<td>Hashed certificate directory replacing the system trust store.</td>
+</tr>
 </tbody>
 </table>
 
