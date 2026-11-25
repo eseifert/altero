@@ -2,7 +2,7 @@
 
 import httpx2
 from fastapi import FastAPI
-from lxml import etree  # ty: ignore[import-not-found]
+from lxml import etree  # ty: ignore[missing-module-member]
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from tests.test_saml import CERTIFICATE, IDP, authn_request, signed

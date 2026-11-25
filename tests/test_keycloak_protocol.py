@@ -11,7 +11,7 @@ from urllib.parse import parse_qs
 
 import httpx2
 import pytest
-from lxml import etree  # ty: ignore[import-not-found]
+from lxml import etree  # ty: ignore[missing-module-member]
 
 from altero.models import IdentityProvider
 from altero.services import oidc, saml

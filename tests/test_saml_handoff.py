@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 import httpx2
 import pytest
-from lxml import etree  # ty: ignore[import-not-found]
+from lxml import etree  # ty: ignore[missing-module-member]
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

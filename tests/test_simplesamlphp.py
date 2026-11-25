@@ -12,7 +12,7 @@ from urllib.parse import parse_qs, urljoin
 
 import httpx2
 import pytest
-from lxml import etree  # ty: ignore[import-not-found]
+from lxml import etree  # ty: ignore[missing-module-member]
 
 from altero.services import saml
 from tests.idp.http import ALTERO_URL, Form, live_browser, new_browser
