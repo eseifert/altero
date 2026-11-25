@@ -81,7 +81,7 @@ class SinglePageApp(StaticFiles):
     """
 
     async def get_response(self, path: str, scope) -> Response:  # type: ignore[no-untyped-def]
-        if path.startswith("assets/"):
+        if scope["method"] in ("GET", "HEAD") and path.startswith("assets/"):
             response = await self._compressed(path, scope)
             if response is not None:
                 return response

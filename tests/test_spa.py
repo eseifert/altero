@@ -155,6 +155,14 @@ class TestCompressedAssets:
         assert "Accept-Encoding" in response.headers["vary"].split(", ")
         assert response.headers["cache-control"] == spa.ASSET_CACHE
 
+    async def test_compressed_assets_only_accept_reads(
+        self, built_client: httpx2.AsyncClient, compressed: Path
+    ) -> None:
+        response = await built_client.post(
+            "/app/assets/index-def456.js", headers={"Accept-Encoding": "gzip"}
+        )
+        assert response.status_code == 405
+
     async def test_gzip_is_the_second_choice(
         self, built_client: httpx2.AsyncClient, compressed: Path
     ) -> None:
