@@ -1,4 +1,6 @@
 
+
+
 <!doctype html>
 <html lang="en" class="no-js">
   <head>
@@ -16,6 +18,7 @@
       
       
       
+      
         <link rel="prev" href="../configuration/">
       
       
@@ -26,7 +29,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.3">
     
     
       
@@ -37,12 +40,13 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.ebb7f775.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.e2cf241e.min.css">
       
         
           
         
         <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
       
       
 
@@ -1368,6 +1372,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#roll-out-a-provider-to-existing-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Roll out a provider to existing accounts
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sso-only-mode" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2404,6 +2419,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#roll-out-a-provider-to-existing-accounts" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Roll out a provider to existing accounts
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#sso-only-mode" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -2828,7 +2854,10 @@ may have committed: try ordinary sign-in before requesting recovery.</p>
 <p>Deleting an account removes its personal library. It is refused while the account owns a group, because altero will not guess who should inherit that group.</p>
 <p>Deletion is also refused for your own currently signed-in administrator account and where it would remove the last administrator.</p>
 <h2 id="sign-in-providers">Sign-in providers<a class="headerlink" href="#sign-in-providers" title="Permanent link">&para;</a></h2>
-<p><strong>Administration → Sign-in providers</strong> configures OpenID Connect and SAML 2.0 for browser sign-in.</p>
+<p><strong>Administration → Sign-in providers</strong> configures OpenID Connect and SAML 2.0
+for browser sign-in. If people already have altero accounts, ask them to
+<a href="#roll-out-a-provider-to-existing-accounts">connect their existing accounts</a>
+after you enable the provider.</p>
 <p>Directory sign-in creates a browser session. The v3 API accepts API keys and
 OAuth access tokens, never that session cookie. Zotero Desktop still gets its
 API key from <strong>Settings → API keys</strong>.</p>
@@ -2843,25 +2872,32 @@ below are marked unverified. See the <a href="https://github.com/eseifert/altero
 for the flows actually checked.</p>
 <h3 id="trust-a-private-certificate-authority">Trust a private certificate authority<a class="headerlink" href="#trust-a-private-certificate-authority" title="Permanent link">&para;</a></h3>
 <p>altero verifies the provider's TLS certificate against the system trust store.
-If a private CA signed that certificate, OIDC discovery fails with
-<code>certificate verify failed</code>. To trust the CA, set <code>SSL_CERT_FILE</code> to a PEM
-bundle, or <code>SSL_CERT_DIR</code> to a directory prepared with <code>openssl rehash</code>, before
-starting altero.</p>
+If OIDC discovery reports <code>certificate verify failed</code> for a provider using a
+private CA, set <code>SSL_CERT_FILE</code> to a PEM bundle or <code>SSL_CERT_DIR</code> to a
+certificate directory prepared with <code>openssl rehash</code>. Set the variable in the
+altero process or container environment before starting it.
+<code>REQUESTS_CA_BUNDLE</code> is a setting for Python Requests and has no effect here.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Either variable replaces the system trust store for all outgoing HTTPS,
 including library migration from zotero.org. Use the system bundle with your CA
 appended, not the CA alone.</p>
 </div>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>cat<span class="w"> </span>/etc/ssl/certs/ca-certificates.crt<span class="w"> </span>private-ca.pem<span class="w"> </span>&gt;<span class="w"> </span>/etc/altero/ca-bundle.pem
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>cat<span class="w"> </span>/etc/ssl/certs/ca-certificates.crt<span class="w"> </span>private-ca.pem<span class="w"> </span>&gt;<span class="w"> </span>ca-bundle.pem
 </span></code></pre></div>
-<p>In Docker, mount the bundle and point the variable at it:</p>
+<p>Use the system CA bundle path for your distribution. For a source installation,
+set <code>SSL_CERT_FILE</code> to the absolute path of the combined bundle. For Docker
+Compose, place <code>ca-bundle.pem</code> alongside the Compose file and save this as
+<code>compose.ca.yaml</code> in the same directory:</p>
 <div class="language-yaml highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">services</span><span class="p">:</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">altero</span><span class="p">:</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">environment</span><span class="p">:</span>
 </span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="nt">SSL_CERT_FILE</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/etc/altero/ca-bundle.pem</span>
 </span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">volumes</span><span class="p">:</span>
 </span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./ca-bundle.pem:/etc/altero/ca-bundle.pem:ro</span>
+</span></code></pre></div>
+<p>From that directory, apply the override and retry OIDC discovery:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>compose.yaml<span class="w"> </span>-f<span class="w"> </span>compose.ca.yaml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>altero
 </span></code></pre></div>
 <p>Python rejects CA certificates that lack a <code>keyUsage</code> extension. If the error
 reads <code>CA cert does not include key usage extension</code>, reissue the CA with
@@ -2872,6 +2908,18 @@ reads <code>CA cert does not include key usage extension</code>, reissue the CA 
 any trailing slash. Issuers must match in configuration, discovery and ID
 tokens, as required by
 <a href="https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationValidation">OpenID Connect Discovery</a>.</p>
+<h3 id="roll-out-a-provider-to-existing-accounts">Roll out a provider to existing accounts<a class="headerlink" href="#roll-out-a-provider-to-existing-accounts" title="Permanent link">&para;</a></h3>
+<p>Once the provider is enabled, ask each user to sign in to their existing
+altero account and follow the
+<a href="../web/account/#connect-an-institutional-account">account linking steps</a>.
+Have them verify that the provider signs them into the same account before
+changing the instance's sign-in policy.</p>
+<p>altero stores the provider's stable subject identifier when a user connects
+the account. Matching email addresses cannot establish that link. Linking
+requires the user's existing session and a sign-in with the provider, so
+there is no administrator or bulk linking action. The provider's
+<a href="#account-creation-and-deprovisioning">automatic account creation</a> setting
+applies to new accounts.</p>
 <h3 id="sso-only-mode">SSO-only mode<a class="headerlink" href="#sso-only-mode" title="Permanent link">&para;</a></h3>
 <p>Set <code>ALTERO_SSO_ONLY=true</code> to require an OIDC or SAML provider for browser
 sign-in. <code>ALTERO_PUBLIC_URL</code> is required. Desktop API keys and connected
@@ -2879,11 +2927,12 @@ applications continue working; this setting controls browser authentication.</p>
 <p>Before enabling it:</p>
 <ol>
 <li>Configure and test an enabled provider, including fresh identity confirmation for sensitive actions.</li>
-<li>Connect existing accounts under <strong>Settings → Sign-in and security</strong>, or choose whether the provider may create accounts.</li>
+<li>Have existing users <a href="#roll-out-a-provider-to-existing-accounts">link and test their provider sign-in</a>
+   while they can still use their passwords or passkeys. Once SSO-only mode
+   is enabled, anyone who relies on local sign-in needs that link to reach
+   their existing account.</li>
 <li>Keep shell access for recovery, then enable the setting and restart.</li>
 </ol>
-<p>Matching email addresses never links identities. With no working provider,
-users cannot sign in. Initial local registration is disabled too.</p>
 <p>In this mode, local passwords, passkeys, registration, reset links, email
 changes and local second factors are unavailable. Manage second factors at the
 provider. Old local sessions must sign in through a provider; sensitive actions
@@ -3043,16 +3092,16 @@ Configure application access bindings and any required claim for your policy.</p
 and HTTP-POST ACS above, and register the service provider in its metadata.
 Altero does not publish a metadata endpoint; this minimal descriptor is a
 starting point, with your own host and short name substituted:</p>
-<div class="language-xml highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">&lt;EntityDescriptor</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">"urn:oasis:names:tc:SAML:2.0:metadata"</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">                  </span><span class="na">entityID=</span><span class="s">"https://library.example.org"</span><span class="nt">&gt;</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">  </span><span class="nt">&lt;SPSSODescriptor</span><span class="w"> </span><span class="na">protocolSupportEnumeration=</span><span class="s">"urn:oasis:names:tc:SAML:2.0:protocol"</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">                   </span><span class="na">AuthnRequestsSigned=</span><span class="s">"false"</span><span class="w"> </span><span class="na">WantAssertionsSigned=</span><span class="s">"true"</span><span class="nt">&gt;</span>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="nt">&lt;NameIDFormat&gt;</span>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent<span class="nt">&lt;/NameIDFormat&gt;</span>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">&lt;AssertionConsumerService</span><span class="w"> </span><span class="na">Binding=</span><span class="s">"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">        </span><span class="na">Location=</span><span class="s">"https://library.example.org/web/auth/saml/shibboleth/acs"</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">        </span><span class="na">index=</span><span class="s">"0"</span><span class="w"> </span><span class="na">isDefault=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
-</span><span id="__span-7-9"><a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">  </span><span class="nt">&lt;/SPSSODescriptor&gt;</span>
-</span><span id="__span-7-10"><a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="nt">&lt;/EntityDescriptor&gt;</span>
+<div class="language-xml highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">&lt;EntityDescriptor</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">"urn:oasis:names:tc:SAML:2.0:metadata"</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">                  </span><span class="na">entityID=</span><span class="s">"https://library.example.org"</span><span class="nt">&gt;</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">&lt;SPSSODescriptor</span><span class="w"> </span><span class="na">protocolSupportEnumeration=</span><span class="s">"urn:oasis:names:tc:SAML:2.0:protocol"</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">                   </span><span class="na">AuthnRequestsSigned=</span><span class="s">"false"</span><span class="w"> </span><span class="na">WantAssertionsSigned=</span><span class="s">"true"</span><span class="nt">&gt;</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">&lt;NameIDFormat&gt;</span>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent<span class="nt">&lt;/NameIDFormat&gt;</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">&lt;AssertionConsumerService</span><span class="w"> </span><span class="na">Binding=</span><span class="s">"urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">        </span><span class="na">Location=</span><span class="s">"https://library.example.org/web/auth/saml/shibboleth/acs"</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">        </span><span class="na">index=</span><span class="s">"0"</span><span class="w"> </span><span class="na">isDefault=</span><span class="s">"true"</span><span class="nt">/&gt;</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">  </span><span class="nt">&lt;/SPSSODescriptor&gt;</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="nt">&lt;/EntityDescriptor&gt;</span>
 </span></code></pre></div>
 <p>Enable a <a href="https://shibboleth.atlassian.net/wiki/spaces/IDP5/pages/3199507892/PersistentNameIDGenerationConfiguration">persistent NameID generator</a>
 before the first sign-in; a transient NameID changes the identity between
@@ -3081,12 +3130,12 @@ deprovisioning. See <a href="#account-creation-and-deprovisioning">account creat
 <h2 id="third-party-applications">Third-party applications<a class="headerlink" href="#third-party-applications" title="Permanent link">&para;</a></h2>
 <p>Register applications that should receive limited, expiring library access.
 Set <code>ALTERO_PUBLIC_URL</code> first, then use:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>add<span class="w"> </span>notebook<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">    </span>--name<span class="w"> </span><span class="s2">"Notebook"</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span>--redirect-uri<span class="w"> </span>https://notebook.example.com/auth/callback<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span>--scope<span class="w"> </span>openid<span class="w"> </span>--scope<span class="w"> </span>profile<span class="w"> </span>--scope<span class="w"> </span>library.read
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>list
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>disable<span class="w"> </span>notebook
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>add<span class="w"> </span>notebook<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">    </span>--name<span class="w"> </span><span class="s2">"Notebook"</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">    </span>--redirect-uri<span class="w"> </span>https://notebook.example.com/auth/callback<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span>--scope<span class="w"> </span>openid<span class="w"> </span>--scope<span class="w"> </span>profile<span class="w"> </span>--scope<span class="w"> </span>library.read
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>list
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>oauth<span class="w"> </span>disable<span class="w"> </span>notebook
 </span></code></pre></div>
 <p>Account holders approve access in their browsers and can disconnect an
 application under <strong>Settings → Connected applications</strong>. See
@@ -3094,17 +3143,17 @@ application under <strong>Settings → Connected applications</strong>. See
 <h2 id="retention">Retention<a class="headerlink" href="#retention" title="Permanent link">&para;</a></h2>
 <p>Retention starts conservatively: the default trash-retention period is <strong>never delete automatically</strong>.</p>
 <p>Configuration values:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">TRASH_RETENTION_DAYS</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">ACTIVITY_RETENTION_DAYS</span> <span class="o">=</span> <span class="mi">0</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">UPLOAD_RETENTION_HOURS</span> <span class="o">=</span> <span class="mi">24</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">RETENTION_INTERVAL</span> <span class="o">=</span> <span class="mi">0</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">TRASH_RETENTION_DAYS</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="n">ACTIVITY_RETENTION_DAYS</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">UPLOAD_RETENTION_HOURS</span> <span class="o">=</span> <span class="mi">24</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">RETENTION_INTERVAL</span> <span class="o">=</span> <span class="mi">0</span>
 </span></code></pre></div>
 <p><code>0</code> means “no automatic retention action” for the day-based settings and interval. Browser-configured values override the configuration file; clearing a browser override returns to the configured value.</p>
 <p>Inspect and run retention from the shell:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>show
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>run<span class="w"> </span>--dry-run
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>run<span class="w"> </span>--dry-run<span class="w"> </span>--trash<span class="w"> </span><span class="m">30</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>run
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>show
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>run<span class="w"> </span>--dry-run
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>run<span class="w"> </span>--dry-run<span class="w"> </span>--trash<span class="w"> </span><span class="m">30</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>retention<span class="w"> </span>run
 </span></code></pre></div>
 <h3 id="what-cleanup-removes">What cleanup removes<a class="headerlink" href="#what-cleanup-removes" title="Permanent link">&para;</a></h3>
 <p>Trash cleanup permanently deletes eligible objects and records the deletions
@@ -3119,21 +3168,27 @@ to uploads still in progress.</p>
 <h2 id="library-transfer-and-recovery">Library transfer and recovery<a class="headerlink" href="#library-transfer-and-recovery" title="Permanent link">&para;</a></h2>
 <h3 id="move-a-library-to-another-altero-instance">Move a library to another altero instance<a class="headerlink" href="#move-a-library-to-another-altero-instance" title="Permanent link">&para;</a></h3>
 <p>Export the library:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>library<span class="w"> </span><span class="nb">export</span><span class="w"> </span>user<span class="w"> </span><span class="m">1</span><span class="w"> </span>library.zip
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>library<span class="w"> </span><span class="nb">export</span><span class="w"> </span>user<span class="w"> </span><span class="m">1</span><span class="w"> </span>library.zip
 </span></code></pre></div>
 <p>On the destination, create the owning account or group first, then import:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--id<span class="w"> </span><span class="m">1</span>
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>library<span class="w"> </span>import<span class="w"> </span>library.zip
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--id<span class="w"> </span><span class="m">1</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>library<span class="w"> </span>import<span class="w"> </span>library.zip
 </span></code></pre></div>
-<p>The archive contains JSON metadata and attachment bytes, including object keys, object versions, the library version and the deletion log. Accounts and API keys are not included.</p>
+<p>The archive contains JSON metadata with object keys, object versions, the
+library version and the deletion log. It also carries registered attachment
+files that exist in the server's store. For accounts and credentials, use
+the <a href="../deployment/#backups">server backup procedure</a>.</p>
 <p>Exporting holds library writes until the archive is built, so its contents
 describe one consistent version. The lock is released before downloading.
 Restoring also locks the target library before checking or replacing its contents.</p>
-<p>Importing into a non-empty target is refused unless <code>--replace</code> is used.</p>
-<p>An archive from a SQLite instance can hold names longer than PostgreSQL columns
-allow, such as tags over 255 characters. Importing it into PostgreSQL is refused
-with the offending value, and the target library stays unchanged. Shorten the
-value in the source library, export again and retry.</p>
+<p>Use <code>--replace</code> only when you intend to replace the existing library. Before
+clearing the target, restore checks that the manifest is a JSON object and
+that each required data document is a JSON array of records. If one of these
+checks fails, export a fresh archive from the source before retrying.</p>
+<p>Older SQLite archives can contain values that exceed the current restore limits,
+such as tag names over 255 characters. Restore reports the offending value on
+either database backend. Shorten it in the source library, export again and
+retry.</p>
 <p>The browser exposes equivalent import/export operations under <strong>Settings → Import and export</strong>.</p>
 <h3 id="move-a-personal-library-from-zoteroorg">Move a personal library from zotero.org<a class="headerlink" href="#move-a-personal-library-from-zoteroorg" title="Permanent link">&para;</a></h3>
 <p>This is a one-time migration. It does not keep the two servers synchronized
@@ -3142,8 +3197,8 @@ until the clients have moved to altero. Continuous two-way sync is unsupported;
 a scheduled one-way refresh is future work. See
 <a href="../compatibility/#continuous-sync-with-zoteroorg">the verdict and replacement-import limits</a>.</p>
 <p>If possible, create the altero account with the same numeric user ID that zotero.org uses:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--id<span class="w"> </span>&lt;zotero.org-user-id&gt;
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>migrate<span class="w"> </span>zotero<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--replace
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>user<span class="w"> </span>add<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--id<span class="w"> </span>&lt;zotero.org-user-id&gt;
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>migrate<span class="w"> </span>zotero<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--replace
 </span></code></pre></div>
 <p>The migration asks for a zotero.org API key with read access to the personal library. The key is prompted for rather than placed on the command line.</p>
 <p>The migration preserves Zotero object keys and versions so an already-synchronized desktop client can continue from the same state.</p>
@@ -3163,7 +3218,7 @@ versions replace newer desktop caches.</p>
 <li>Back up its data directory and the server before proceeding.</li>
 <li>Raise the server library version above the value remembered by that desktop:</li>
 </ol>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>library<span class="w"> </span>set-version<span class="w"> </span>user<span class="w"> </span><span class="m">1</span><span class="w"> </span>&lt;higher-version&gt;
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>library<span class="w"> </span>set-version<span class="w"> </span>user<span class="w"> </span><span class="m">1</span><span class="w"> </span>&lt;higher-version&gt;
 </span></code></pre></div>
 <ol>
 <li>Use Zotero's <strong>Restore to Server</strong> to upload the surviving desktop's complete copy.</li>
@@ -3234,9 +3289,9 @@ will obtain that state. Automatic rewind of synced desktop objects is unsupporte
 </tbody>
 </table>
 <p>From the shell:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>group<span class="w"> </span>member<span class="w"> </span>&lt;group&gt;<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--permission<span class="w"> </span><span class="nb">read</span>
-</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>group<span class="w"> </span>permission<span class="w"> </span>&lt;group&gt;<span class="w"> </span>&lt;username&gt;<span class="w"> </span>add
-</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>group<span class="w"> </span>members<span class="w"> </span>&lt;group&gt;
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>group<span class="w"> </span>member<span class="w"> </span>&lt;group&gt;<span class="w"> </span>&lt;username&gt;<span class="w"> </span>--permission<span class="w"> </span><span class="nb">read</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>group<span class="w"> </span>permission<span class="w"> </span>&lt;group&gt;<span class="w"> </span>&lt;username&gt;<span class="w"> </span>add
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>uv<span class="w"> </span>run<span class="w"> </span>altero<span class="w"> </span>group<span class="w"> </span>members<span class="w"> </span>&lt;group&gt;
 </span></code></pre></div>
 <p>These permissions can only restrict what the group policy already allows. They do not elevate a member above the group's normal policy.</p>
 <p>Only the read-only state maps cleanly onto a permission the Zotero sync client understands. <code>add</code> and <code>own</code> are enforced server-side; a client that attempts a forbidden operation receives a sync error explaining the restriction. See <a href="../compatibility/#finer-roles-for-one-member">Compatibility notes</a>.</p>
@@ -3364,7 +3419,8 @@ will obtain that state. Automatic rewind of synced desktop objects is unsupporte
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["content.action.edit","content.code.annotate","content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.tabs","navigation.top","navigation.tracking","search.highlight","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      <script src="../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
       
     
   </body>

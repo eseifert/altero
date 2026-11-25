@@ -1,4 +1,6 @@
 
+
+
 <!doctype html>
 <html lang="en" class="no-js">
   <head>
@@ -16,6 +18,7 @@
       
       
       
+      
         <link rel="prev" href="../motivation/">
       
       
@@ -26,7 +29,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.3">
     
     
       
@@ -37,12 +40,13 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.ebb7f775.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.e2cf241e.min.css">
       
         
           
         
         <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
       
       
 
@@ -1837,15 +1841,15 @@ users, operators can enable <a href="../administration/#review-registration-requ
 </span></code></pre></div>
 <p>Run both commands: <code>user add</code> does not set a password.</p>
 <h2 id="3-configure-zotero-desktop">3. Configure Zotero Desktop<a class="headerlink" href="#3-configure-zotero-desktop" title="Permanent link">&para;</a></h2>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Set both URLs. Leaving the streaming URL unchanged can send your altero API key to zotero.org.</p>
+</div>
 <p>In your test profile, open <strong>Settings → Advanced → Config Editor</strong> and set:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>extensions.zotero.api.url = http://localhost:8000/
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>extensions.zotero.streaming.url = ws://localhost:8000/stream
 </span></code></pre></div>
 <p>Keep the trailing slash on the API URL. Restart Zotero.</p>
-<div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>Set both URLs. Leaving the streaming URL unchanged can send your altero API key to zotero.org.</p>
-</div>
 <p>A profile that has already synced needs special care. Read
 <a href="../clients/#a-profile-that-has-synced-before">A profile that has synced before</a>
 before connecting it.</p>
@@ -1985,7 +1989,8 @@ altero's browser interface to check that they arrived.</p>
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["content.action.edit","content.code.annotate","content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.tabs","navigation.top","navigation.tracking","search.highlight","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      <script src="../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
       
     
   </body>

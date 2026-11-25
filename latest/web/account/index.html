@@ -1,4 +1,6 @@
 
+
+
 <!doctype html>
 <html lang="en" class="no-js">
   <head>
@@ -16,6 +18,7 @@
       
       
       
+      
         <link rel="prev" href="../../web-interface/">
       
       
@@ -26,7 +29,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.3">
     
     
       
@@ -37,12 +40,13 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.ebb7f775.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.e2cf241e.min.css">
       
         
           
         
         <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
       
       
 
@@ -838,6 +842,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Accounts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connect-an-institutional-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Connect an institutional account
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1757,6 +1778,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Accounts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#connect-an-institutional-account" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Connect an institutional account
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1873,15 +1911,26 @@ administrator approval before choosing a password and signing in. See the
 <a href="../../web-interface/">registration steps</a>. An invitation does not bypass approval.</p>
 <p>Sign in with a password, a passkey, or an institutional provider when offered.
 An instance may require institutional sign-in and hide local sign-in options.</p>
-<p>If you already have an account, connect an institutional provider under
-<strong>Settings → Sign-in and security</strong> before using it to sign in. Matching email
-addresses do not link accounts automatically.</p>
+<p>If you already have an altero account, <a href="#connect-an-institutional-account">connect your institutional account</a>
+before using it to sign in.</p>
 <p><strong>Forgot your password?</strong> Use the reset link on the sign-in page if it is
 available. Self-service reset needs a confirmed email address. Otherwise, ask
 the administrator for a reset.</p>
 <p>After repeated incorrect passwords or codes, sign-in pauses for up to five
 minutes. Wait before retrying; reloading or requesting another code does not
 clear the pause.</p>
+<h3 id="connect-an-institutional-account">Connect an institutional account<a class="headerlink" href="#connect-an-institutional-account" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Sign in to your existing altero account using your usual method.</li>
+<li>Open <strong>Settings → Sign-in and security</strong>. Under <strong>Connected accounts</strong>,
+   choose <strong>Connect</strong> followed by your provider's name.</li>
+<li>Complete the provider's sign-in in the same browser. When you return to
+   altero, check that the provider appears under <strong>Connected accounts</strong>.</li>
+</ol>
+<p>You can then choose the provider on the altero sign-in page. The connection
+must be made even if both accounts use the same email address. If you cannot
+find your provider in <strong>Connected accounts</strong>, ask the administrator whether
+it is enabled.</p>
 <h2 id="account-settings">Account settings<a class="headerlink" href="#account-settings" title="Permanent link">&para;</a></h2>
 <p>Use <strong>Profile</strong> to change your display name, email address and publication
 visibility. Confirm a new email address using the link altero sends you.</p>
@@ -1901,7 +1950,7 @@ for this server address.</p>
 <h3 id="second-factors">Second factors<a class="headerlink" href="#second-factors" title="Permanent link">&para;</a></h3>
 <p>You can add an authenticator app or email codes to password sign-in:</p>
 <ul>
-<li><strong>Authenticator app:</strong> scan the setup code, then enter a code from the app to finish setup.</li>
+<li><strong>Authenticator app:</strong> scan the setup code, then enter a six-digit code from the app to finish setup. If you restart an unfinished setup, scan the new QR code and use the six-digit code it generates.</li>
 <li><strong>Email codes:</strong> first confirm your email address, then enable this option. Codes expire after ten minutes and work only in the browser that requested them.</li>
 </ul>
 <p>If both are enabled, altero asks for the authenticator code first. Choose
@@ -2057,7 +2106,8 @@ provide a translation. To report or improve wording, see the
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.tabs","navigation.top","navigation.tracking","search.highlight","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
       
     
   </body>

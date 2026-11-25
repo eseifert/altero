@@ -1,4 +1,6 @@
 
+
+
 <!doctype html>
 <html lang="en" class="no-js">
   <head>
@@ -16,6 +18,7 @@
       
       
       
+      
         <link rel="prev" href="../../design/">
       
       
@@ -26,7 +29,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.3">
     
     
       
@@ -37,12 +40,13 @@
       
         
       
-      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.ebb7f775.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/modern/main.e2cf241e.min.css">
       
         
           
         
         <link rel="stylesheet" href="../../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
       
       
 
@@ -1907,6 +1911,13 @@ tasks, see the <a href="../../web-interface/">web guide</a>.</p>
 </span></code></pre></div>
 <p>Without that build the server still runs and the API is fully usable; <code>/app/</code>
 answers 503 and says what to run.</p>
+<p>The static asset handler accepts GET and HEAD for both ordinary and
+precompressed copies. Browsers can cache fingerprinted assets and revalidate
+the service worker and manifest. Dynamic responses default to
+<code>Cache-Control: no-store</code>. Explicit route policies still apply, such as
+revalidation for the schema.</p>
+<p>Routes that require session CSRF protection compare the header with the
+cookie. A non-ASCII value in either field returns HTTP 403.</p>
 <h2 id="browser-support">Browser support<a class="headerlink" href="#browser-support" title="Permanent link">&para;</a></h2>
 <p>Keep the build target at ES2020, Safari 14 (including iOS 14.6), Chrome 87,
 Edge 88 and Firefox 78. Vite lowers syntax; it does not supply missing runtime methods.
@@ -2112,9 +2123,9 @@ duplicate items can be merged. Remaining browser gaps include:</p>
   not stored on the device.</li>
 <li>Advanced search and a saved-search builder.</li>
 <li>Adding items by DOI, ISBN or PMID.</li>
-<li>A citation-style picker and a multi-item bibliography or report interface.
-  The server already renders bibliographies and reports; the detail pane's
-  citation uses <code>format=bib</code>.</li>
+<li>A multi-item bibliography or report interface. The
+  <a href="../library/#writing-items-out">single-item citation picker</a> uses the same
+  renderer as the v3 API.</li>
 <li>Deleting a tag from the whole library at once.</li>
 </ul>
 <p>Moving in from zotero.org brings the personal library only; a group has to be
@@ -2244,7 +2255,8 @@ made here and its members invited.</p>
       <script id="__config" type="application/json">{"annotate":null,"base":"../..","features":["content.action.edit","content.code.annotate","content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.tabs","navigation.top","navigation.tracking","search.highlight","toc.follow"],"redirect":null,"search":"../../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      <script src="../../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
       
     
   </body>

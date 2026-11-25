@@ -1,4 +1,6 @@
 
+
+
 <!doctype html>
 <html lang="en" class="no-js">
   <head>
@@ -16,6 +18,7 @@
       
       
       
+      
         <link rel="prev" href="../web/data-transfer/">
       
       
@@ -26,7 +29,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.3">
     
     
       
@@ -37,12 +40,13 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.ebb7f775.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.e2cf241e.min.css">
       
         
           
         
         <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
+      
       
       
 
@@ -2491,6 +2495,9 @@ migrations; updating alone does not repair an already damaged index.</p>
 <p>To deploy local changes, build an image using the additional Compose file: <code>docker/compose.build.yaml</code> adds the build to the same deployment:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>docker<span class="w"> </span>compose<span class="w"> </span>-f<span class="w"> </span>docker/compose.yaml<span class="w"> </span>-f<span class="w"> </span>docker/compose.build.yaml<span class="w"> </span>up<span class="w"> </span>-d<span class="w"> </span>--build
 </span></code></pre></div>
+<p>The build refreshes the Python and Node images within their supported version
+series. Update the database image separately during maintenance using the
+<a href="#update-postgresql-within-a-major-version">PostgreSQL upgrade steps</a>.</p>
 <p>The result is <code>altero:local</code>. It uses the same project and volumes as the pulled stack. Continue using both Compose files when operating a local build.</p>
 <h3 id="try-the-image-on-its-own">Try the image on its own<a class="headerlink" href="#try-the-image-on-its-own" title="Permanent link">&para;</a></h3>
 <p>For a quick single-user trial, the image runs without Compose or PostgreSQL:</p>
@@ -2507,7 +2514,7 @@ migrations; updating alone does not repair an already damaged index.</p>
 <p>On SELinux systems, mount it with <code>:Z</code> so the container gets a matching label.</p>
 <p><strong>The port is the one above.</strong> The container's own health check follows <code>ALTERO_PORT</code>, so an instance that moves it stays healthy; publishing <code>8090:8000</code> on the host needs no <code>ALTERO_PORT</code> at all.</p>
 <p><strong>The health check needs the Docker image format.</strong> Podman reads a health check out of an image only in that format; an OCI image carries no such field, and <code>podman healthcheck run</code> then answers <code>has no defined healthcheck</code>. The published image uses the Docker format, but an image built locally does not unless it is asked to:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>podman<span class="w"> </span>build<span class="w"> </span>--format<span class="w"> </span>docker<span class="w"> </span>-f<span class="w"> </span>docker/Dockerfile<span class="w"> </span>.
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>podman<span class="w"> </span>build<span class="w"> </span>--pull<span class="o">=</span>always<span class="w"> </span>--format<span class="w"> </span>docker<span class="w"> </span>-f<span class="w"> </span>docker/Dockerfile<span class="w"> </span>.
 </span></code></pre></div>
 <p><code>podman-compose</code> runs <code>docker/compose.yaml</code> as it is. For Quadlet, a systemd unit or a NixOS <code>virtualisation.oci-containers</code> module, the settings are the ones <a href="../configuration/">Configuration</a> lists, plus <code>ALTERO_DATABASE_URL</code> pointing at the PostgreSQL container over a shared network.</p>
 <p>A worked NixOS example, with altero and PostgreSQL as <code>virtualisation.oci-containers</code> units on a shared Podman network, is posted in <a href="https://github.com/eseifert/altero/discussions/5#discussioncomment-18404764">Discussion #5</a>. It is one contributor's running configuration rather than a reference deployment.</p>
@@ -2564,6 +2571,11 @@ and missing files. Monitor free space and leave room for backups and migrations.
 <p class="admonition-title">Warning</p>
 <p>Do not use object storage mounted through s3fs, goofys or rclone as the attachment directory. Uploads rely on atomic renames, which these mounts do not provide. Back up a filesystem-based store to object storage instead.</p>
 </div>
+<p>If startup reports that a destination already contains different bytes during
+a legacy attachment upgrade, check the two paths named in the server log.
+The migration leaves both files in place. Back up the database and attachment
+store together before repairing the files. Verify which attachments reference
+each path before restarting the upgrade.</p>
 <h2 id="health-check">Health check<a class="headerlink" href="#health-check" title="Permanent link">&para;</a></h2>
 <p><code>GET /health</code> returns <code>200</code> and <code>status: "ok"</code> when the database is reachable.
 The response also reports the application, API and schema versions and migration
@@ -2619,7 +2631,7 @@ it is unset, those URLs use the request's address instead.</p>
 <li>Accept attachment uploads at least as large as <code>ALTERO_MAX_UPLOAD_MB</code> (1 GiB by default). A smaller proxy limit produces <code>413</code> errors.</li>
 <li>Pass WebSocket upgrades for <code>/stream</code>, used by Zotero Desktop.</li>
 <li>Stream <code>/web/libraries/&lt;id&gt;/events</code> without buffering, used for live browser updates. Allow idle connections for at least a minute.</li>
-<li>Preserve altero's security headers and cache controls. Do not cache <code>/app/sw.js</code> or <code>/app/manifest.webmanifest</code> beyond their revalidation rules.</li>
+<li>Preserve altero's security headers and cache directives. Dynamic responses use <code>Cache-Control: no-store</code> by default because the same URL can return different accounts' data. Allow revalidation of <code>/app/sw.js</code> and <code>/app/manifest.webmanifest</code> on each visit.</li>
 <li>Pass the external <code>Host</code>, and overwrite <code>X-Forwarded-For</code> with the actual client address.</li>
 </ul>
 <p>Set <code>ALTERO_PUBLIC_URL</code> to the external HTTPS address. Set
@@ -2846,7 +2858,8 @@ one library's data and files; it does not contain instance accounts or API keys.
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["content.action.edit","content.code.annotate","content.code.copy","content.tooltips","navigation.footer","navigation.indexes","navigation.instant","navigation.instant.prefetch","navigation.path","navigation.tabs","navigation.top","navigation.tracking","search.highlight","toc.follow"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":{"alias":true,"default":"latest","provider":"mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.3cb411a8.min.js"></script>
+      <script src="../assets/javascripts/bundle.9e76c64c.min.js"></script>
+      
       
     
   </body>
