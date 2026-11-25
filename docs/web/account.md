@@ -14,9 +14,8 @@ administrator approval before choosing a password and signing in. See the
 Sign in with a password, a passkey, or an institutional provider when offered.
 An instance may require institutional sign-in and hide local sign-in options.
 
-If you already have an account, connect an institutional provider under
-**Settings → Sign-in and security** before using it to sign in. Matching email
-addresses do not link accounts automatically.
+If you already have an altero account, [connect your institutional account](#connect-an-institutional-account)
+before using it to sign in.
 
 **Forgot your password?** Use the reset link on the sign-in page if it is
 available. Self-service reset needs a confirmed email address. Otherwise, ask
@@ -25,6 +24,19 @@ the administrator for a reset.
 After repeated incorrect passwords or codes, sign-in pauses for up to five
 minutes. Wait before retrying; reloading or requesting another code does not
 clear the pause.
+
+### Connect an institutional account
+
+1. Sign in to your existing altero account using your usual method.
+2. Open **Settings → Sign-in and security**. Under **Connected accounts**,
+   choose **Connect** followed by your provider's name.
+3. Complete the provider's sign-in in the same browser. When you return to
+   altero, check that the provider appears under **Connected accounts**.
+
+You can then choose the provider on the altero sign-in page. The connection
+must be made even if both accounts use the same email address. If you cannot
+find your provider in **Connected accounts**, ask the administrator whether
+it is enabled.
 
 ## Account settings
 

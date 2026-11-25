@@ -214,7 +214,10 @@ Deletion is also refused for your own currently signed-in administrator account 
 
 ## Sign-in providers
 
-**Administration → Sign-in providers** configures OpenID Connect and SAML 2.0 for browser sign-in.
+**Administration → Sign-in providers** configures OpenID Connect and SAML 2.0
+for browser sign-in. If people already have altero accounts, ask them to
+[connect their existing accounts](#roll-out-a-provider-to-existing-accounts)
+after you enable the provider.
 
 Directory sign-in creates a browser session. The v3 API accepts API keys and
 OAuth access tokens, never that session cookie. Zotero Desktop still gets its
@@ -237,10 +240,11 @@ for the flows actually checked.
 ### Trust a private certificate authority
 
 altero verifies the provider's TLS certificate against the system trust store.
-If a private CA signed that certificate, OIDC discovery fails with
-`certificate verify failed`. To trust the CA, set `SSL_CERT_FILE` to a PEM
-bundle, or `SSL_CERT_DIR` to a directory prepared with `openssl rehash`, before
-starting altero.
+If OIDC discovery reports `certificate verify failed` for a provider using a
+private CA, set `SSL_CERT_FILE` to a PEM bundle or `SSL_CERT_DIR` to a
+certificate directory prepared with `openssl rehash`. Set the variable in the
+altero process or container environment before starting it.
+`REQUESTS_CA_BUNDLE` is a setting for Python Requests and has no effect here.
 
 > [!WARNING]
 > Either variable replaces the system trust store for all outgoing HTTPS,
@@ -248,10 +252,13 @@ starting altero.
 > appended, not the CA alone.
 
 ```sh
-cat /etc/ssl/certs/ca-certificates.crt private-ca.pem > /etc/altero/ca-bundle.pem
+cat /etc/ssl/certs/ca-certificates.crt private-ca.pem > ca-bundle.pem
 ```
 
-In Docker, mount the bundle and point the variable at it:
+Use the system CA bundle path for your distribution. For a source installation,
+set `SSL_CERT_FILE` to the absolute path of the combined bundle. For Docker
+Compose, place `ca-bundle.pem` alongside the Compose file and save this as
+`compose.ca.yaml` in the same directory:
 
 ```yaml
 services:
@@ -260,6 +267,12 @@ services:
       SSL_CERT_FILE: /etc/altero/ca-bundle.pem
     volumes:
       - ./ca-bundle.pem:/etc/altero/ca-bundle.pem:ro
+```
+
+From that directory, apply the override and retry OIDC discovery:
+
+```sh
+docker compose -f compose.yaml -f compose.ca.yaml up -d altero
 ```
 
 Python rejects CA certificates that lack a `keyUsage` extension. If the error
@@ -275,6 +288,21 @@ any trailing slash. Issuers must match in configuration, discovery and ID
 tokens, as required by
 [OpenID Connect Discovery](https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderConfigurationValidation).
 
+### Roll out a provider to existing accounts
+
+Once the provider is enabled, ask each user to sign in to their existing
+altero account and follow the
+[account linking steps](web/account.md#connect-an-institutional-account).
+Have them verify that the provider signs them into the same account before
+changing the instance's sign-in policy.
+
+altero stores the provider's stable subject identifier when a user connects
+the account. Matching email addresses cannot establish that link. Linking
+requires the user's existing session and a sign-in with the provider, so
+there is no administrator or bulk linking action. The provider's
+[automatic account creation](#account-creation-and-deprovisioning) setting
+applies to new accounts.
+
 ### SSO-only mode
 
 Set `ALTERO_SSO_ONLY=true` to require an OIDC or SAML provider for browser
@@ -284,11 +312,11 @@ applications continue working; this setting controls browser authentication.
 Before enabling it:
 
 1. Configure and test an enabled provider, including fresh identity confirmation for sensitive actions.
-2. Connect existing accounts under **Settings → Sign-in and security**, or choose whether the provider may create accounts.
+2. Have existing users [link and test their provider sign-in](#roll-out-a-provider-to-existing-accounts)
+   while they can still use their passwords or passkeys. Once SSO-only mode
+   is enabled, anyone who relies on local sign-in needs that link to reach
+   their existing account.
 3. Keep shell access for recovery, then enable the setting and restart.
-
-Matching email addresses never links identities. With no working provider,
-users cannot sign in. Initial local registration is disabled too.
 
 In this mode, local passwords, passkeys, registration, reset links, email
 changes and local second factors are unavailable. Manage second factors at the

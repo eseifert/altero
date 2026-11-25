@@ -20,7 +20,9 @@ application using [its own setup guide](clients.md).
 
 Registration may be closed. Ask the administrator for an account or use a group
 invitation. If your organization requires institutional sign-in, use the provider
-button on the sign-in page.
+button on the sign-in page. If you already use altero and your organization is
+adding a provider, [connect it to your existing account](web/account.md#connect-an-institutional-account)
+first.
 
 When **Request an account** appears, enter your username and email address.
 Check your mailbox for the next step. This form collects no password and does
