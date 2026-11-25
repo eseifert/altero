@@ -52,6 +52,36 @@ compatibility, downgrade safety or a full desktop acceptance run.
 
 ## Recorded release checks
 
+### Release candidate 3 validation
+
+Local checks on 2026-11-25–26 targeted `1.0.0-rc.3` on Linux with
+PostgreSQL 18.7 and SQLite.
+
+- All 4,054 backend tests passed with PostgreSQL, Keycloak and SimpleSAMLphp
+  enabled.
+- All 1,459 frontend unit tests, template types, Ruff, Ty, the dependency lock
+  and the strict documentation build passed. The catalog validator checked
+  59 catalogs with zero errors or warnings.
+- All 294 Chromium desktop and phone cases passed. Ten separate registration
+  cases also passed with a local SMTP sink.
+- All 333 pinned desktop source-replay checks passed. Verification covered 31
+  original client functions and the pinned dataserver source. The network
+  consumer review check also passed.
+- Two real Zotero 10.0.7 profiles passed the baseline, schema corpus, credential,
+  file and recovery scenarios on each database. The 126 phases covered schema
+  types, library convergence, credential changes, attachment conflicts and
+  interrupted sync.
+- A separate run with the official Zotero 10.0.8 Linux build passed 33 baseline
+  and file phases on PostgreSQL. The pinned client and source checks still
+  use 10.0.7.
+- All sixteen populated beta upgrade cells passed. The direct upgrade from
+  the previous release candidate also passed on both databases, preserving
+  the library and attachment bytes through subsequent writes and a restart.
+- Empty-database Alembic upgrades and schema checks passed on both databases.
+  The source archive and wheel passed inventory checks. The isolated wheel
+  served the app shell, compressed JavaScript and a font over HTTP, and
+  accepted an authenticated library write that could be read back.
+
 ### Release candidate 2 validation
 
 Local preparation on 2026-11-16–17 targets `1.0.0-rc.2`, using Python 3.14.10,

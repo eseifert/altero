@@ -2,7 +2,7 @@
 
 **Your Zotero library. Your server.**
 
-**Release candidate.** Feature work is frozen while we test the stable release.
+**Release candidate.** Feature work remains frozen during release testing.
 See the [release notes](CHANGELOG.md) for fixes and upgrade guidance, and the
 [validation record](docs/release-history.md#recorded-release-checks) for coverage
 and limits.

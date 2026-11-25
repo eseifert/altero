@@ -8,9 +8,9 @@ acceptance runs on Linux. Basic sync has community reports on Windows and
 macOS; broader conflict and recovery coverage on those platforms remains
 unverified. Mobile apps need a separate build pointed at your server.
 
-The project is in release-candidate testing. Keep
-current backups of your libraries, and back up the server database and attachment
-storage together before upgrading. Recorded results and their limits are in
+The project is in release-candidate testing. Keep current library backups.
+Back up the server database and attachment storage together before upgrading.
+Recorded results and their limits are in
 [desktop compatibility checks](client-compatibility.md),
 [Podman testing](testing-podman.md#recorded-run) and
 [release validation history](release-history.md).

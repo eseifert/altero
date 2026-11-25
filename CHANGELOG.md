@@ -7,7 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
-## [1.0.0-rc.3] — 2026-11-25
+## [1.0.0-rc.3] — 2026-11-26
 
 This release candidate fixes reported Zotero sync failures, protects library
 contents during archive restore and hardens sign-in and HTTP caching. It also
