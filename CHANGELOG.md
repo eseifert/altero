@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Handle opaque HTTP header values and refuse non-ASCII browser CSRF tokens without raising server errors.
 - Reject malformed PKCE challenges and verifiers with OAuth errors during authorization and token exchange.
 - Keep concurrent authenticator setups from replacing a confirmed factor or confirming the wrong secret. Reject non-ASCII codes cleanly.
 - Document trusting a private certificate authority for OpenID Connect providers; requested by [@fullnamehere] ([Issue#77]).

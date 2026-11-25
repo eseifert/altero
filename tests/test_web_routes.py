@@ -36,6 +36,14 @@ def csrf_headers(client: httpx2.AsyncClient) -> dict[str, str]:
     return {CSRF_HEADER: client.cookies.get("altero_csrf") or ""}
 
 
+async def test_non_ascii_csrf_is_refused(client: httpx2.AsyncClient) -> None:
+    await register(client)
+    response = await client.post(
+        "/web/auth/logout", headers={"Cookie": 'altero_csrf="\\351"', CSRF_HEADER: "abc"}
+    )
+    assert response.status_code == 403
+
+
 class TestRegistration:
     async def test_the_first_registration_succeeds_and_signs_the_browser_in(
         self, client: httpx2.AsyncClient

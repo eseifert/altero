@@ -262,7 +262,13 @@ def require_csrf(request: Request) -> None:
     """Refuse an unsafe request whose header does not match its cookie."""
     cookie = request.cookies.get(CSRF_COOKIE)
     header = request.headers.get(CSRF_HEADER)
-    if not cookie or not header or not secrets.compare_digest(cookie, header):
+    if (
+        not cookie
+        or not header
+        or not cookie.isascii()
+        or not header.isascii()
+        or not secrets.compare_digest(cookie, header)
+    ):
         raise HTTPException(status_code=403, detail="Missing or invalid CSRF token")
 
 

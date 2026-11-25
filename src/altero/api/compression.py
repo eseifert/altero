@@ -12,6 +12,7 @@ gigabytes in memory at the request of anybody who can reach the port.
 import asyncio
 import zlib
 
+from starlette.datastructures import Headers
 from starlette.responses import PlainTextResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
@@ -83,7 +84,7 @@ class DecompressionMiddleware:
             await self.app(scope, receive, send)
             return
 
-        headers = {key.decode().lower(): value.decode() for key, value in scope["headers"]}
+        headers = Headers(scope=scope)
         encoding = headers.get("content-encoding", "").lower().strip()
         if encoding not in SUPPORTED:
             await self.app(scope, receive, send)
@@ -92,7 +93,14 @@ class DecompressionMiddleware:
         limit = MAX_BODY_BYTES
         too_large = f"Request body is larger than {limit} bytes"
         declared = headers.get("content-length", "")
-        if declared.isdigit() and int(declared) > limit:
+        if declared.isascii() and declared.isdigit():
+            # Compare magnitudes without converting an unbounded header to int.
+            digits = declared.lstrip("0")
+            maximum = str(limit)
+            oversized = (len(digits), digits) > (len(maximum), maximum)
+        else:
+            oversized = False
+        if oversized:
             await _refuse(scope, receive, send, 413, too_large)
             return
 
@@ -128,7 +136,7 @@ class DecompressionMiddleware:
         scope["headers"] = [
             (key, value)
             for key, value in scope["headers"]
-            if key.decode().lower() not in ("content-encoding", "content-length")
+            if key.lower() not in (b"content-encoding", b"content-length")
         ] + [(b"content-length", str(len(body)).encode())]
 
         sent = False

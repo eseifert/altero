@@ -57,6 +57,12 @@ class TestGzippedRequests:
     500 and the client retried forever with a growing backoff.
     """
 
+    async def test_unrelated_headers_can_contain_opaque_bytes(
+        self, client: httpx2.AsyncClient
+    ) -> None:
+        response = await client.get("/web/config", headers=[(b"x-label", b"caf\xe9")])
+        assert response.status_code == 200
+
     async def test_a_gzipped_body_is_accepted(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library
     ) -> None:
