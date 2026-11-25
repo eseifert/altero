@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Reject malformed PKCE challenges and verifiers with OAuth errors during authorization and token exchange.
 - Keep concurrent authenticator setups from replacing a confirmed factor or confirming the wrong secret. Reject non-ASCII codes cleanly.
 - Document trusting a private certificate authority for OpenID Connect providers; requested by [@fullnamehere] ([Issue#77]).
 - Name single sign-on accounts after an address claim's local part, not the address without its `@`; reported by [@arminbahl] ([Issue#76]).

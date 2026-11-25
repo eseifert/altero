@@ -777,8 +777,16 @@ class TestPkceCannotBeTurnedOff:
 
         assert "error=invalid_request" in response.headers["location"]
 
-    async def test_the_wrong_verifier_does_not_redeem_the_code(
+    async def test_a_non_ascii_challenge_is_refused(
         self, client: httpx2.AsyncClient, session: AsyncSession
+    ) -> None:
+        await make_client(session)
+        response = await authorize(client, challenge="é" * 43)
+        assert "error=invalid_request" in response.headers["location"]
+
+    @pytest.mark.parametrize("wrong_verifier", ["a" * 48, "é" * 48])
+    async def test_the_wrong_verifier_does_not_redeem_the_code(
+        self, client: httpx2.AsyncClient, session: AsyncSession, wrong_verifier: str
     ) -> None:
         await make_client(session)
         await make_account(client)
@@ -793,7 +801,7 @@ class TestPkceCannotBeTurnedOff:
                 "grant_type": "authorization_code",
                 "client_id": "notebook",
                 "code": code_from(redirect),
-                "code_verifier": secrets.token_urlsafe(48),
+                "code_verifier": wrong_verifier,
                 "redirect_uri": REDIRECT,
             },
         )

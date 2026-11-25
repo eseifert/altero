@@ -30,6 +30,7 @@ marked rather than deleted.
 """
 
 import hashlib
+import re
 import secrets
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
@@ -254,8 +255,8 @@ async def begin(
             "PKCE with S256 is required. 'plain' makes the challenge equal to the "
             "verifier, which is the interception this exists to prevent.",
         )
-    if not code_challenge:
-        raise OAuthError("invalid_request", "code_challenge is required")
+    if not re.fullmatch(r"[A-Za-z0-9_-]{43}=?", code_challenge):
+        raise OAuthError("invalid_request", "code_challenge must be a base64url S256 digest")
 
     try:
         requested = oauthscopes.validate(scope)
@@ -279,7 +280,7 @@ async def begin(
         redirect_uri=redirect_uri,
         scopes=" ".join(requested),
         state=state[:255],
-        code_challenge=code_challenge[:128],
+        code_challenge=code_challenge,
         nonce=nonce[:255],
         expires=_now() + REQUEST_LIFETIME,
     )
@@ -1006,7 +1007,7 @@ def verify_challenge(verifier: str, challenge: str) -> bool:
     challenge is public and the verifier is not, so the comparison is between a
     secret and something an attacker can vary.
     """
-    if not verifier or not challenge:
+    if not re.fullmatch(r"[A-Za-z0-9._~-]{43,128}", verifier) or not challenge.isascii():
         return False
     digest = hashlib.sha256(verifier.encode("ascii")).digest()
     return secrets.compare_digest(jws.b64url(digest), challenge.rstrip("="))

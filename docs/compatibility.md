@@ -820,6 +820,8 @@ scopes are reviewed at registration; no dynamic registration endpoint is provide
 
 The `plain` method makes the challenge identical to the secret it protects, so anyone who intercepts the code has everything needed to use it. altero neither offers nor accepts it, and requires PKCE from every application, including those with a client secret.
 
+Send a 43–128 character verifier using ASCII letters, digits, or the characters `-._~`.
+
 ### Scopes are refused rather than narrowed
 
 An unknown scope, a scope the application is not registered for, or one useless without another is an error, rather than being quietly dropped. Dropping it would produce an application that half works and a person who cannot tell which half. `library.write` without `library.read` is the useless case.
