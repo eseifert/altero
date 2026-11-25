@@ -10,7 +10,7 @@ import pytest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError
-from altero.models import User
+from altero.models import TotpCredential, User
 from altero.services import account, emailverify, passwords, totp, webauth, websessions
 
 PASSWORD = "correct horse battery staple"
@@ -164,6 +164,40 @@ class TestChangingTheAddress:
 
 
 class TestEnrollingAnAuthenticator:
+    async def test_stale_setup_cannot_replace_a_confirmed_secret(
+        self, session: AsyncSession
+    ) -> None:
+        user = await make_user(session)
+        setup = await account.begin_totp_enrolment(session, user)
+        cached = await session.get(TotpCredential, user.id)
+        assert cached
+        assert not cached.confirmed
+        async with AsyncSession(session.bind, expire_on_commit=False) as other:
+            await account.confirm_totp_enrolment(other, user, totp.code_at(setup.secret, _now()))
+
+        with pytest.raises(InvalidInputError):
+            await account.begin_totp_enrolment(session, user)
+        await session.refresh(cached)
+        assert cached.confirmed
+        assert cached.secret == setup.secret
+
+    async def test_stale_confirmation_cannot_activate_a_replacement(
+        self, session: AsyncSession
+    ) -> None:
+        user = await make_user(session)
+        first = await account.begin_totp_enrolment(session, user)
+        cached = await session.get(TotpCredential, user.id)
+        assert cached
+        assert cached.secret == first.secret
+        async with AsyncSession(session.bind, expire_on_commit=False) as other:
+            replacement = await account.begin_totp_enrolment(other, user)
+
+        with pytest.raises(ForbiddenError):
+            await account.confirm_totp_enrolment(session, user, totp.code_at(first.secret, _now()))
+        await session.refresh(cached)
+        assert not cached.confirmed
+        assert cached.secret == replacement.secret
+
     async def test_starting_does_not_yet_require_a_code_to_sign_in(
         self, session: AsyncSession
     ) -> None:

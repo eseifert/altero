@@ -93,6 +93,10 @@ def test_verify_rejects_a_code_that_is_not_digits() -> None:
     assert totp.verify(RFC_SECRET, "", timestamp=1111111111) is None
 
 
+def test_verify_refuses_non_ascii_digits() -> None:
+    assert totp.verify(RFC_SECRET, "\N{FULLWIDTH DIGIT ONE}" * 6) is None
+
+
 def test_verify_ignores_spaces_a_user_typed() -> None:
     code = totp.code_at(RFC_SECRET, 1111111111)
     spaced = f"{code[:3]} {code[3:]}"

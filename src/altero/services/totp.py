@@ -96,7 +96,7 @@ def verify(
     from time import time
 
     candidate = code.replace(" ", "").replace("-", "")
-    if not candidate.isdigit():
+    if not candidate.isascii() or not candidate.isdigit():
         return None
 
     now = int(time()) if timestamp is None else timestamp

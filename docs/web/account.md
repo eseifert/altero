@@ -53,7 +53,7 @@ for this server address.
 
 You can add an authenticator app or email codes to password sign-in:
 
-- **Authenticator app:** scan the setup code, then enter a code from the app to finish setup.
+- **Authenticator app:** scan the setup code, then enter a six-digit code from the app to finish setup. If you start setup in two tabs, use the most recent setup code.
 - **Email codes:** first confirm your email address, then enable this option. Codes expire after ten minutes and work only in the browser that requested them.
 
 If both are enabled, altero asks for the authenticator code first. Choose

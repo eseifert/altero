@@ -20,7 +20,9 @@ themselves out of their own library with a mistyped setup.
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import func, select, update
+from sqlalchemy.dialects.postgresql import insert as pg_insert
+from sqlalchemy.dialects.sqlite import insert as sqlite_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from altero.errors import ForbiddenError, InvalidInputError, NotFoundError
@@ -193,16 +195,21 @@ async def begin_totp_enrolment(session: AsyncSession, user: User) -> TotpEnrolme
     lock anyone out, and starting it twice simply replaces the secret that was
     never proved.
     """
-    if await is_totp_active(session, user):
-        raise InvalidInputError("An authenticator is already enrolled")
-
-    existing = await session.get(TotpCredential, user.id)
-    if existing is not None:
-        await session.delete(existing)
-        await session.flush()
-
     secret = totp.generate_secret()
-    session.add(TotpCredential(user_id=user.id, secret=secret, confirmed=False))
+    insert = sqlite_insert if session.get_bind().dialect.name == "sqlite" else pg_insert
+    statement = insert(TotpCredential).values(user_id=user.id, secret=secret, confirmed=False)
+    # A second setup may replace a pending secret only while it is still pending.
+    enrolled = await session.scalar(
+        statement.on_conflict_do_update(
+            index_elements=[TotpCredential.user_id],
+            set_={"secret": secret, "last_step": 0, "created": func.now()},
+            where=TotpCredential.confirmed.is_(False),
+        )
+        .returning(TotpCredential)
+        .execution_options(populate_existing=True)
+    )
+    if enrolled is None:
+        raise InvalidInputError("An authenticator is already enrolled")
     await session.commit()
 
     return TotpEnrolment(
@@ -225,8 +232,18 @@ async def confirm_totp_enrolment(
     if step is None:
         raise ForbiddenError("That code is not valid")
 
-    credential.confirmed = True
-    credential.last_step = step
+    confirmed = await session.scalar(
+        update(TotpCredential)
+        .where(
+            TotpCredential.user_id == user.id,
+            TotpCredential.secret == credential.secret,
+            TotpCredential.confirmed.is_(False),
+        )
+        .values(confirmed=True, last_step=step)
+        .returning(TotpCredential.user_id)
+    )
+    if confirmed is None:
+        raise ForbiddenError("That authenticator setup is no longer pending")
     await session.commit()
 
     await webauth.notify_security(

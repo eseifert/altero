@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Keep concurrent authenticator setups from replacing a confirmed factor or confirming the wrong secret. Reject non-ASCII codes cleanly.
 - Document trusting a private certificate authority for OpenID Connect providers; requested by [@fullnamehere] ([Issue#77]).
 - Name single sign-on accounts after an address claim's local part, not the address without its `@`; reported by [@arminbahl] ([Issue#76]).
 - Refuse creator names over 255 characters per item, as zotero.org does, instead of failing PostgreSQL syncs; reported by [@calummoses] ([Issue#75]).
