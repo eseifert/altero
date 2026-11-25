@@ -2,9 +2,10 @@
 
 **Your Zotero library. Your server.**
 
-**Release candidate.** Feature work is frozen for 1.0.0;
-remaining changes are fixes, documentation and translations. See the
-[release notes](CHANGELOG.md) and [validation record](docs/release-history.md#release-candidate-2-validation).
+**Release candidate.** Feature work is frozen while we test the stable release.
+See the [release notes](CHANGELOG.md) for fixes and upgrade guidance, and the
+[validation record](docs/release-history.md#recorded-release-checks) for coverage
+and limits.
 
 [![CI](https://github.com/eseifert/altero/actions/workflows/ci.yml/badge.svg)](https://github.com/eseifert/altero/actions/workflows/ci.yml)
 [![License: AGPL-3.0-or-later](https://img.shields.io/badge/license-AGPL--3.0--or--later-006a6a)](LICENSE)

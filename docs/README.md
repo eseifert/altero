@@ -4,7 +4,7 @@ altero lets you synchronize Zotero libraries on a server you control. Use
 Zotero Desktop, the browser interface, or both.
 
 See the
-[release validation record](release-history.md#release-candidate-2-validation)
+[release validation record](release-history.md#recorded-release-checks)
 for the checks completed and their limits.
 
 > [!WARNING]

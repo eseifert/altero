@@ -7,6 +7,18 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+## [1.0.0-rc.3] — 2026-11-25
+
+This release candidate fixes reported Zotero sync failures, protects library
+contents during archive restore and hardens sign-in and HTTP caching. It also
+refreshes the Python and browser dependencies and container build images.
+
+Upgrades from the previous candidate need no new database migration. Back up
+the database and attachment storage together before following the
+[upgrade instructions][upgrade]. If you use the bundled database, follow the
+[PostgreSQL update steps](docs/deployment.md#update-postgresql-within-a-major-version)
+to apply its security updates in the same maintenance window.
+
 - Refresh Python and Node container bases on image builds and use uv 0.13.10 for its archive validation fix.
 - Update browser dependencies, including Vue, Tiptap, DOMPurify, Playwright, and IBM Plex Sans 2.
 - Update Python dependencies, including FastAPI, SQLAlchemy, HTTPX2, and the documentation and development tools.
@@ -519,6 +531,7 @@ The first release meant to be used by somebody other than its author.
 [config]: docs/configuration.md
 [@orshih6]: https://github.com/orshih6
 [GHSA-75xw-v7vm-5v6r]: https://github.com/eseifert/altero/security/advisories/GHSA-75xw-v7vm-5v6r
+[1.0.0-rc.3]: https://github.com/eseifert/altero/releases/tag/v1.0.0-rc.3
 [1.0.0-rc.2]: https://github.com/eseifert/altero/releases/tag/v1.0.0-rc.2
 [1.0.0-rc.1]: https://github.com/eseifert/altero/releases/tag/v1.0.0-rc.1
 [1.0.0-beta.8]: https://github.com/eseifert/altero/releases/tag/v1.0.0-beta.8

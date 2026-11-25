@@ -44,7 +44,7 @@ Hosted synchronization at zotero.org remains convenient and supports Zotero's
 development. altero is an independent project for users who need another
 deployment model; it is not supported by Zotero.
 
-The release candidate is ready for final testing before 1.0.0 stable. Keep
+The project is in release-candidate testing. Keep
 current backups of your libraries, and back up the server database and attachment
 storage together before upgrading. Read [What works](status.md) for capabilities and limits, then
 [try a local instance](getting-started.md) with disposable data.
