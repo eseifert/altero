@@ -81,6 +81,23 @@ def policy(response: httpx2.Response) -> list[str]:
     return [part.strip() for part in response.headers["content-security-policy"].split(";")]
 
 
+async def test_library_reads_stay_out_of_http_caches(
+    client: httpx2.AsyncClient, library: Library
+) -> None:
+    response = await client.get("/users/1/items", headers=AUTH)
+    assert response.status_code == 200
+    assert response.headers.get("Cache-Control") == "no-store"
+
+
+async def test_session_responses_stay_out_of_http_caches(client: httpx2.AsyncClient) -> None:
+    from tests.test_web_routes import register
+
+    await register(client)
+    response = await client.get("/web/auth/session")
+    assert response.status_code == 200
+    assert response.headers.get("Cache-Control") == "no-store"
+
+
 class TestAFileIsNeverAPage:
     async def test_an_html_attachment_runs_nothing(
         self, client: httpx2.AsyncClient, session: AsyncSession, library: Library

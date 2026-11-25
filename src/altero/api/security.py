@@ -81,8 +81,13 @@ class SecurityHeadersMiddleware:
                 media_type = headers.get("content-type", "").partition(";")[0].strip().lower()
                 if interface:
                     headers["Content-Security-Policy"] = INTERFACE_POLICY
-                elif media_type not in UNSANDBOXED:
-                    headers["Content-Security-Policy"] = DATA_POLICY
+                else:
+                    # The same URL can return different libraries or account data
+                    # depending on a cookie or Zotero-API-Key. Only routes serving
+                    # public data (such as schema metadata) opt into caching.
+                    headers.setdefault("Cache-Control", "no-store")
+                    if media_type not in UNSANDBOXED:
+                        headers["Content-Security-Policy"] = DATA_POLICY
             await send(message)
 
         await self.app(scope, receive, secured)

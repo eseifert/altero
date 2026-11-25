@@ -376,7 +376,7 @@ Configure your proxy to:
 - Accept attachment uploads at least as large as `ALTERO_MAX_UPLOAD_MB` (1 GiB by default). A smaller proxy limit produces `413` errors.
 - Pass WebSocket upgrades for `/stream`, used by Zotero Desktop.
 - Stream `/web/libraries/<id>/events` without buffering, used for live browser updates. Allow idle connections for at least a minute.
-- Preserve altero's security headers and cache controls. Do not cache `/app/sw.js` or `/app/manifest.webmanifest` beyond their revalidation rules.
+- Preserve altero's security headers and cache controls. Dynamic responses default to `no-store` because the same URL can return different accounts’ data. Do not cache `/app/sw.js` or `/app/manifest.webmanifest` beyond their revalidation rules.
 - Pass the external `Host`, and overwrite `X-Forwarded-For` with the actual client address.
 
 Set `ALTERO_PUBLIC_URL` to the external HTTPS address. Set

@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Default dynamic responses to no-store so HTTP caches cannot reuse account or library data across callers.
 - Reject archive restores with missing, unreadable or incorrectly shaped JSON data files before replacing library contents.
 - Stop legacy attachment migration when a digest path holds different bytes, preserving both files for recovery.
 - Restrict precompressed interface assets to GET and HEAD, matching the method checks for ordinary assets.
