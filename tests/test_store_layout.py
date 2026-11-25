@@ -96,6 +96,23 @@ async def test_each_file_is_renamed_to_its_own_digest(
     assert storage.file_path(old_store, PAPER_MD5).read_bytes() == PAPER
 
 
+async def test_an_occupied_digest_preserves_both_files_and_registrations(
+    session: AsyncSession, old_store: Path
+) -> None:
+    other = b"another legacy attachment"
+    storage.store_file(old_store, SNAPSHOT_MD5, other)
+    previous = await registered(session)
+
+    with pytest.raises(OSError, match=SNAPSHOT_MD5):
+        await storelayout.ensure_current(session, old_store)
+    await session.rollback()
+
+    assert await registered(session) == previous
+    assert storage.file_path(old_store, PAGE_MD5).read_bytes() == SNAPSHOT
+    assert storage.file_path(old_store, SNAPSHOT_MD5).read_bytes() == other
+    assert not (old_store / storelayout.MARKER).exists()
+
+
 async def test_a_snapshot_still_downloads_as_one(
     client: httpx2.AsyncClient, session: AsyncSession, old_store: Path
 ) -> None:

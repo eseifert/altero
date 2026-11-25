@@ -20,6 +20,7 @@ again, and an old name is removed only once nothing is registered to it.
 
 import asyncio
 import fcntl
+import filecmp
 import hashlib
 import logging
 import os
@@ -135,7 +136,11 @@ def _content_name(root: Path, name: str) -> tuple[str, bool] | None:
     if own == name:
         return None
     target = file_path(root, own)
-    if not target.exists():
+    if target.exists():
+        # A legacy restore could use an arbitrary digest for unrelated bytes.
+        if not path.samefile(target) and not filecmp.cmp(path, target, shallow=False):
+            raise OSError(f"Cannot migrate {path}: {target} already contains different bytes")
+    else:
         target.parent.mkdir(parents=True, exist_ok=True)
         try:
             os.link(path, target)

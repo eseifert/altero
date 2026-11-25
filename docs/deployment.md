@@ -286,6 +286,11 @@ Use a normal filesystem that supports atomic renames for
 > [!WARNING]
 > Do not use object storage mounted through s3fs, goofys or rclone as the attachment directory. Uploads rely on atomic renames, which these mounts do not provide. Back up a filesystem-based store to object storage instead.
 
+When upgrading a legacy attachment store, startup stops if a file's destination
+already holds different bytes. Back up the database and both paths named in the
+error together. Check which attachments reference each path before repairing
+the store and restarting the upgrade.
+
 ## Health check
 
 `GET /health` returns `200` and `status: "ok"` when the database is reachable.
