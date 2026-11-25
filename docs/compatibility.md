@@ -676,8 +676,8 @@ The browser uses the same operation; see [Tags](web/library.md#tags).
 
 ### The desktop client's three extra views
 
-These views exist only in the browser. Zotero computes them from its local
-library; its API has no corresponding scopes.
+Altero exposes these views in its browser interface. Zotero Desktop computes
+them from its local library. The v3 API has no corresponding scopes.
 
 | View | altero behavior |
 | --- | --- |
@@ -820,7 +820,8 @@ scopes are reviewed at registration; no dynamic registration endpoint is provide
 
 The `plain` method makes the challenge identical to the secret it protects, so anyone who intercepts the code has everything needed to use it. altero neither offers nor accepts it, and requires PKCE from every application, including those with a client secret.
 
-Send a 43–128 character verifier using ASCII letters, digits, or the characters `-._~`.
+See [the authorization flow](oauth.md#the-flow) for valid challenge and verifier
+formats and the errors returned for invalid values.
 
 ### Scopes are refused rather than narrowed
 

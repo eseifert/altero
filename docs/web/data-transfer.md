@@ -39,20 +39,23 @@ For shell migration, see [Administration](../administration.md#move-a-personal-l
 
 ## Import and export
 
-An altero archive contains a complete library's objects, sync history and
-stored attachment bytes. Accounts, API keys and instance configuration are
-not included. For a complete server backup, follow [Backups](../deployment.md#backups).
+An altero archive contains the library's records, sync history and any
+registered attachment files that are present on the server. Keep a separate copy of files
+held only on a client or WebDAV server. For a backup that includes accounts,
+API keys and instance configuration, follow [Backups](../deployment.md#backups).
 
 Under **Settings → Import and export**, choose a library and export its archive.
 For a group, an administrator may export; only its owner may restore.
 
-To restore, select the target library and an archive. Confirm your identity
-when asked. A non-empty library is left unchanged unless you explicitly enable
-replacement. If a required data file is missing or has the wrong JSON format,
-altero refuses the restore before replacing the target.
-
 > [!WARNING]
 > Replacement discards the target library's existing contents, including files. Keep a backup and pause client edits first. Restoring an older archive does not automatically rewind already-synchronized desktop copies. Follow the [recovery procedure](../administration.md#after-recreating-the-database) before resuming sync.
+
+To restore, select the target library and an archive. Confirm your identity
+when asked. To restore into a library that already has content, explicitly
+enable replacement. If altero reports that a required data file is missing,
+unreadable or has the wrong JSON structure, export a fresh archive from the
+source library and try again. The target library keeps its existing contents
+when this check fails.
 
 ## Export references for another application
 

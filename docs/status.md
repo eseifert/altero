@@ -61,7 +61,7 @@ The compatibility reference documents behavior that differs from the public API 
 
 Three explicit choices: [library tag counts include trash](compatibility.md#tag-counts-and-the-trash),
 [group renames notify clients](compatibility.md#group-renames-notify-connected-clients),
-and [Unfiled is a browser-only view](compatibility.md#the-desktop-clients-three-extra-views).
+and [altero exposes Unfiled in the browser](compatibility.md#the-desktop-clients-three-extra-views).
 
 ## Additional altero features
 
@@ -99,6 +99,9 @@ altero currently answers the retractions request with `404`. Zotero logs the fai
 
 ## Library versions and concurrent writes
 
-Writes to a library are serialized so one request advances the library by one version, even when that request changes several objects. This is important because Zotero synchronization uses the library version as its consistency boundary.
+Writes to a library are serialized. A request that changes the library
+advances its version once, even if it changes several objects. An unchanged
+batch keeps the previous version. Zotero uses the library version to decide
+which changes to fetch.
 
 See [Database schema](schema.md#concurrency) for the implementation details.

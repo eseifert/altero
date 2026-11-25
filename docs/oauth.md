@@ -107,7 +107,9 @@ The following sections are for application developers. Use discovery and an
 OAuth/OpenID client library where possible. Authorization code requires PKCE
 with `S256` for every client, including confidential clients.
 
-1. Generate a verifier, its challenge, and a random `state` value.
+1. Generate a random verifier of 43–128 characters using ASCII letters, digits,
+   or `-._~`. Hash it with SHA-256 and base64url-encode the digest without
+   padding to get the challenge. Generate a separate random `state` value.
 2. Open the authorization endpoint in the user's browser:
 
    ```text
@@ -136,6 +138,10 @@ with `S256` for every client, including confidential clients.
 
 The response contains `access_token`, `token_type`, `expires_in`, `refresh_token`
 and `scope`, plus an `id_token` when `openid` was granted.
+
+A malformed challenge returns `invalid_request` to the registered redirect URI.
+A malformed or mismatched verifier returns HTTP 400 with `invalid_grant` at the
+token endpoint.
 
 ### Presenting a client secret
 

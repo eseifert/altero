@@ -43,6 +43,9 @@ Run both commands: `user add` does not set a password.
 
 ## 3. Configure Zotero Desktop
 
+> [!IMPORTANT]
+> Set both URLs. Leaving the streaming URL unchanged can send your altero API key to zotero.org.
+
 In your test profile, open **Settings → Advanced → Config Editor** and set:
 
 ```text
@@ -51,9 +54,6 @@ extensions.zotero.streaming.url = ws://localhost:8000/stream
 ```
 
 Keep the trailing slash on the API URL. Restart Zotero.
-
-> [!IMPORTANT]
-> Set both URLs. Leaving the streaming URL unchanged can send your altero API key to zotero.org.
 
 A profile that has already synced needs special care. Read
 [A profile that has synced before](clients.md#a-profile-that-has-synced-before)

@@ -147,6 +147,9 @@ reload and check the records again.
 
 ## Writing items out
 
+To render a bibliography entry for one reference, open the item's **Citation**
+section, choose a style and select **Render**.
+
 Choose **Export…** above the list or in the detail or selection pane. Select
 the current selection, filtered view or whole library, then an export format.
 Export includes all matching references, beyond the loaded page.

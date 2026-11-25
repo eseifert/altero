@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Clarify archive recovery, OAuth inputs, cache behavior, desktop setup and SQLite concurrency in the guides.
 - Default dynamic responses to no-store so HTTP caches cannot reuse account or library data across callers.
 - Reject archive restores with missing, unreadable or incorrectly shaped JSON data files before replacing library contents.
 - Stop legacy attachment migration when a digest path holds different bytes, preserving both files for recovery.

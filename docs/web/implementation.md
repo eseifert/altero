@@ -18,6 +18,15 @@ npm run dev          # localhost:5173, proxying the API to :8000
 Without that build the server still runs and the API is fully usable; `/app/`
 answers 503 and says what to run.
 
+The static asset handler accepts GET and HEAD for both ordinary and
+precompressed copies. Browsers can cache fingerprinted assets and revalidate
+the service worker and manifest. Dynamic responses default to
+`Cache-Control: no-store`. Explicit route policies still apply, such as
+revalidation for the schema.
+
+Routes that require session CSRF protection compare the header with the
+cookie. A non-ASCII value in either field returns HTTP 403.
+
 ## Browser support
 
 Keep the build target at ES2020, Safari 14 (including iOS 14.6), Chrome 87,
@@ -268,9 +277,9 @@ duplicate items can be merged. Remaining browser gaps include:
   not stored on the device.
 - Advanced search and a saved-search builder.
 - Adding items by DOI, ISBN or PMID.
-- A citation-style picker and a multi-item bibliography or report interface.
-  The server already renders bibliographies and reports; the detail pane's
-  citation uses `format=bib`.
+- A multi-item bibliography or report interface. The
+  [single-item citation picker](library.md#writing-items-out) uses the same
+  renderer as the v3 API.
 - Deleting a tag from the whole library at once.
 
 Moving in from zotero.org brings the personal library only; a group has to be

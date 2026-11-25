@@ -325,19 +325,17 @@ shape in `deleted_objects`.
 
 ## Concurrency
 
-Writes to one library are serialized by taking a row lock on it before the
-version precondition is checked and holding it until commit, so a request is
-atomic with respect to its library. `SELECT ... FOR UPDATE` is emitted on
-PostgreSQL and dropped on SQLite, which has a single writer anyway. The version
-increment itself is computed by the database rather than in Python, so it stays
-correct even without the lock.
+Writes take a lock before checking the library version and hold it until
+commit. PostgreSQL locks the library row with `SELECT ... FOR UPDATE`.
+SQLite issues a no-op update on that row to acquire its database-wide write
+lock before reading the current version. The database computes the version
+increment in the same transaction.
 
 Write-token and tag get-or-create operations use unique constraints rather
 than a separate existence check followed by insertion. This preserves their
 correctness independently of library locking.
 
 SQLite is configured with `foreign_keys=ON`, WAL and a busy timeout.
-`BEGIN IMMEDIATE` is deliberately not used: it would close the remaining
-lock-upgrade hole, but takes the write lock for read-only transactions too, so a
-single long read would block every writer. A deployment serving several clients
-at once should use PostgreSQL.
+Ordinary reads leave the write lock available. The busy timeout applies when a
+library writer waits to acquire the write lock. Use PostgreSQL for a deployment
+serving several clients at once.

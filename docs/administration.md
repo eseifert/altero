@@ -584,18 +584,24 @@ uv run altero user add <username> --id 1
 uv run altero library import library.zip
 ```
 
-The archive contains JSON metadata and attachment bytes, including object keys, object versions, the library version and the deletion log. Accounts and API keys are not included.
+The archive contains JSON metadata with object keys, object versions, the
+library version and the deletion log. It also carries registered attachment
+files that exist in the server's store. For accounts and credentials, use
+the [server backup procedure](deployment.md#backups).
 
 Exporting holds library writes until the archive is built, so its contents
 describe one consistent version. The lock is released before downloading.
 Restoring also locks the target library before checking or replacing its contents.
 
-Importing into a non-empty target is refused unless `--replace` is used.
+Use `--replace` only when you intend to replace the existing library. Before
+clearing the target, restore checks that the manifest is a JSON object and
+that each required data document is a JSON array of records. If one of these
+checks fails, export a fresh archive from the source before retrying.
 
-An archive from a SQLite instance can hold names longer than PostgreSQL columns
-allow, such as tags over 255 characters. Importing it into PostgreSQL is refused
-with the offending value, and the target library stays unchanged. Shorten the
-value in the source library, export again and retry.
+Older SQLite archives can contain values that exceed the current restore limits,
+such as tag names over 255 characters. Restore reports the offending value on
+either database backend. Shorten it in the source library, export again and
+retry.
 
 The browser exposes equivalent import/export operations under **Settings → Import and export**.
 

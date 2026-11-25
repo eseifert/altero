@@ -286,10 +286,11 @@ Use a normal filesystem that supports atomic renames for
 > [!WARNING]
 > Do not use object storage mounted through s3fs, goofys or rclone as the attachment directory. Uploads rely on atomic renames, which these mounts do not provide. Back up a filesystem-based store to object storage instead.
 
-When upgrading a legacy attachment store, startup stops if a file's destination
-already holds different bytes. Back up the database and both paths named in the
-error together. Check which attachments reference each path before repairing
-the store and restarting the upgrade.
+If startup reports that a destination already contains different bytes during
+a legacy attachment upgrade, check the two paths named in the server log.
+The migration leaves both files in place. Back up the database and attachment
+store together before repairing the files. Verify which attachments reference
+each path before restarting the upgrade.
 
 ## Health check
 
@@ -376,7 +377,7 @@ Configure your proxy to:
 - Accept attachment uploads at least as large as `ALTERO_MAX_UPLOAD_MB` (1 GiB by default). A smaller proxy limit produces `413` errors.
 - Pass WebSocket upgrades for `/stream`, used by Zotero Desktop.
 - Stream `/web/libraries/<id>/events` without buffering, used for live browser updates. Allow idle connections for at least a minute.
-- Preserve altero's security headers and cache controls. Dynamic responses default to `no-store` because the same URL can return different accounts’ data. Do not cache `/app/sw.js` or `/app/manifest.webmanifest` beyond their revalidation rules.
+- Preserve altero's security headers and cache directives. Dynamic responses use `Cache-Control: no-store` by default because the same URL can return different accounts' data. Allow revalidation of `/app/sw.js` and `/app/manifest.webmanifest` on each visit.
 - Pass the external `Host`, and overwrite `X-Forwarded-For` with the actual client address.
 
 Set `ALTERO_PUBLIC_URL` to the external HTTPS address. Set

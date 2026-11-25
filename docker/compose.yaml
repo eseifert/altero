@@ -13,8 +13,8 @@
 # `docker compose up -d` and nothing else. Building it from a checkout instead
 # is compose.build.yaml beside this file.
 #
-# Point the Zotero client at http://<host>:8000/ and turn its streaming off --
-# see "Point Zotero at altero" in README.md.
+# Configure both the API and streaming URLs in Zotero Desktop.
+# See "Try it locally" in README.md.
 #
 # Named explicitly: the project name otherwise follows the directory the file
 # sits in, and renaming it to "docker" would leave an existing deployment's

@@ -141,7 +141,7 @@ The first three are also settable in **Administration → Retention**, and a val
 |----------------------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ALTERO_TRASH_RETENTION_DAYS`    | `0`     | Days before permanent trash deletion; zero keeps trash indefinitely.                                                       |
 | `ALTERO_ACTIVITY_RETENTION_DAYS` | `0`     | How long delivered group activity is kept.                                                                                                           |
-| `ALTERO_UPLOAD_RETENTION_HOURS`  | `24`    | How long an authorized upload whose bytes never arrived is remembered. Nothing is lost by forgetting one; the client asks again.                     |
+| `ALTERO_UPLOAD_RETENTION_HOURS`  | `24`    | How long upload authorization is kept when registration never completes. The client can request a new authorization.                     |
 | `ALTERO_RETENTION_INTERVAL`      | `0`     | How often, in seconds, to apply those periods. Zero means only `altero retention run` ever does. 3600 suits an instance that should not need asking. |
 
 ## Group notifications
