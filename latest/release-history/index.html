@@ -1620,6 +1620,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#release-candidate-3-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Release candidate 3 validation
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#release-candidate-2-validation" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -1796,6 +1807,17 @@
   
     <nav class="md-nav" aria-label="Recorded release checks">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#release-candidate-3-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Release candidate 3 validation
+      </span>
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#release-candidate-2-validation" class="md-nav__link">
@@ -2018,6 +2040,35 @@ over live HTTP; restoring its bytes made the intact snapshot pass again.
 This local run does not establish a hosted CI result, historic dependency-lock
 compatibility, downgrade safety or a full desktop acceptance run.</p>
 <h2 id="recorded-release-checks">Recorded release checks<a class="headerlink" href="#recorded-release-checks" title="Permanent link">&para;</a></h2>
+<h3 id="release-candidate-3-validation">Release candidate 3 validation<a class="headerlink" href="#release-candidate-3-validation" title="Permanent link">&para;</a></h3>
+<p>Local checks on 2026-11-25–26 targeted <code>1.0.0-rc.3</code> on Linux with
+PostgreSQL 18.7 and SQLite.</p>
+<ul>
+<li>All 4,054 backend tests passed with PostgreSQL, Keycloak and SimpleSAMLphp
+  enabled.</li>
+<li>All 1,459 frontend unit tests, template types, Ruff, Ty, the dependency lock
+  and the strict documentation build passed. The catalog validator checked
+  59 catalogs with zero errors or warnings.</li>
+<li>All 294 Chromium desktop and phone cases passed. Ten separate registration
+  cases also passed with a local SMTP sink.</li>
+<li>All 333 pinned desktop source-replay checks passed. Verification covered 31
+  original client functions and the pinned dataserver source. The network
+  consumer review check also passed.</li>
+<li>Two real Zotero 10.0.7 profiles passed the baseline, schema corpus, credential,
+  file and recovery scenarios on each database. The 126 phases covered schema
+  types, library convergence, credential changes, attachment conflicts and
+  interrupted sync.</li>
+<li>A separate run with the official Zotero 10.0.8 Linux build passed 33 baseline
+  and file phases on PostgreSQL. The pinned client and source checks still
+  use 10.0.7.</li>
+<li>All sixteen populated beta upgrade cells passed. The direct upgrade from
+  the previous release candidate also passed on both databases, preserving
+  the library and attachment bytes through subsequent writes and a restart.</li>
+<li>Empty-database Alembic upgrades and schema checks passed on both databases.
+  The source archive and wheel passed inventory checks. The isolated wheel
+  served the app shell, compressed JavaScript and a font over HTTP, and
+  accepted an authenticated library write that could be read back.</li>
+</ul>
 <h3 id="release-candidate-2-validation">Release candidate 2 validation<a class="headerlink" href="#release-candidate-2-validation" title="Permanent link">&para;</a></h3>
 <p>Local preparation on 2026-11-16–17 targets <code>1.0.0-rc.2</code>, using Python 3.14.10,
 Node 24.22.1, SQLAlchemy 2.0.57 and PostgreSQL 18.7:</p>
