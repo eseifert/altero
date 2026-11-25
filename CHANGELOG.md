@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Refresh Python and Node container bases on image builds and use uv 0.13.10 for its archive validation fix.
 - Update browser dependencies, including Vue, Tiptap, DOMPurify, Playwright, and IBM Plex Sans 2.
 - Update Python dependencies, including FastAPI, SQLAlchemy, HTTPX2, and the documentation and development tools.
 - Clarify how to connect existing accounts to a sign-in provider before enabling SSO-only mode, requested by [@fullnamehere] ([Issue#77]).

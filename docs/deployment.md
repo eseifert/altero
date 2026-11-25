@@ -174,6 +174,10 @@ To deploy local changes, build an image using the additional Compose file: `dock
 docker compose -f docker/compose.yaml -f docker/compose.build.yaml up -d --build
 ```
 
+The build refreshes the Python and Node images within their supported version
+series. Update the database image separately during maintenance using the
+[PostgreSQL upgrade steps](#update-postgresql-within-a-major-version).
+
 The result is `altero:local`. It uses the same project and volumes as the pulled stack. Continue using both Compose files when operating a local build.
 
 ### Try the image on its own
@@ -205,7 +209,7 @@ On SELinux systems, mount it with `:Z` so the container gets a matching label.
 **The health check needs the Docker image format.** Podman reads a health check out of an image only in that format; an OCI image carries no such field, and `podman healthcheck run` then answers `has no defined healthcheck`. The published image uses the Docker format, but an image built locally does not unless it is asked to:
 
 ```sh
-podman build --format docker -f docker/Dockerfile .
+podman build --pull=always --format docker -f docker/Dockerfile .
 ```
 
 `podman-compose` runs `docker/compose.yaml` as it is. For Quadlet, a systemd unit or a NixOS `virtualisation.oci-containers` module, the settings are the ones [Configuration](configuration.md) lists, plus `ALTERO_DATABASE_URL` pointing at the PostgreSQL container over a shared network.

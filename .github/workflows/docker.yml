@@ -75,6 +75,8 @@ jobs:
         with:
           context: .
           file: docker/Dockerfile
+          # Refresh the moving Python and Node patch-release tags.
+          pull: true
           platforms: ${{ matrix.platform }}
           push: true
           # `oci-mediatypes=false` publishes the Docker image format rather

@@ -3,7 +3,7 @@
 #
 # The build context is the repository root, not this directory:
 #
-#     docker build -f docker/Dockerfile .
+#     docker build --pull -f docker/Dockerfile .
 #
 # which is also what docker/compose.yaml asks for. The exclusions live in
 # Dockerfile.dockerignore beside this file -- a .dockerignore is read from the
@@ -30,7 +30,8 @@ FROM python:3.14-slim-trixie AS build
 # its runtime library reaches the final image; headers and compiler stay here.
 RUN apt-get update && apt-get install -y --no-install-recommends g++ pkg-config libicu-dev \
     && rm -rf /var/lib/apt/lists/*
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+# Use the release that addresses GHSA-vjvj-3m3f-fgmm.
+COPY --from=ghcr.io/astral-sh/uv:0.13.10 /uv /usr/local/bin/uv
 # The interpreter this base ships, never one uv downloads: the stage below is
 # the same base, so the environment's links to it still hold there. Nothing is
 # cached, since a cache would only be carried along unused.
