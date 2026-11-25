@@ -31,7 +31,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
-    "@ibm/plex-sans": "^1.1.0",
+    "@ibm/plex-sans": "^2.0.0",
     "@ibm/plex-sans-arabic": "^1.1.0",
     "@ibm/plex-sans-hebrew": "^1.1.0",
     "@ibm/plex-sans-jp": "^3.0.0",

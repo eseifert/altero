@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Update browser dependencies, including Vue, Tiptap, DOMPurify, Playwright, and IBM Plex Sans 2.
 - Update Python dependencies, including FastAPI, SQLAlchemy, HTTPX2, and the documentation and development tools.
 - Clarify how to connect existing accounts to a sign-in provider before enabling SSO-only mode, requested by [@fullnamehere] ([Issue#77]).
 - Clarify archive recovery, OAuth inputs, cache behavior, desktop setup and SQLite concurrency in the guides.
