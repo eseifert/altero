@@ -172,6 +172,42 @@ async def make_signed_in_existing(
 
 
 class TestRestore:
+    @pytest.mark.parametrize(
+        ("member", "contents"),
+        [
+            ("manifest.json", b"[]"),
+            ("items.json", b"{}"),
+            ("items.json", b"[null]"),
+            ("items.json", b""),
+            ("items.json", None),
+        ],
+    )
+    async def test_invalid_archive_documents_preserve_the_target(
+        self, ada: httpx2.AsyncClient, session: AsyncSession, member: str, contents: bytes | None
+    ) -> None:
+        library = await personal(session, 1)
+        await seed(session, library, "Original title")
+        path = f"/web/libraries/{library.id}/archive"
+        original = await ada.get(path)
+        changed = io.BytesIO()
+        with (
+            zipfile.ZipFile(io.BytesIO(original.content)) as source,
+            zipfile.ZipFile(changed, "w") as target,
+        ):
+            for name in source.namelist():
+                if name != member:
+                    target.writestr(name, source.read(name))
+                elif contents is not None:
+                    target.writestr(name, contents)
+
+        response = await ada.post(
+            path, headers=csrf(ada), **upload(changed.getvalue(), replace="true")
+        )
+
+        assert response.status_code == 400
+        titles = await ada.get(f"/web/libraries/{library.id}/items")
+        assert [item["data"]["title"] for item in titles.json()["items"]] == ["Original title"]
+
     async def test_an_archive_goes_back_into_the_library_it_came_from(
         self, ada: httpx2.AsyncClient, session: AsyncSession
     ) -> None:

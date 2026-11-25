@@ -7,6 +7,7 @@ gained a capability worth naming.
 
 ## [Unreleased]
 
+- Reject archive restores with missing, unreadable or incorrectly shaped JSON data files before replacing library contents.
 - Stop legacy attachment migration when a digest path holds different bytes, preserving both files for recovery.
 - Restrict precompressed interface assets to GET and HEAD, matching the method checks for ordinary assets.
 - Handle opaque HTTP header values and refuse non-ASCII browser CSRF tokens without raising server errors.

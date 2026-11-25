@@ -357,11 +357,13 @@ def read_manifest(archive: Path) -> dict[str, Any]:
 
     try:
         with zipfile.ZipFile(archive) as bundle:
-            manifest: dict[str, Any] = json.loads(bundle.read(MANIFEST))
+            manifest = json.loads(bundle.read(MANIFEST))
             names = bundle.namelist()
     except (zipfile.BadZipFile, KeyError, UnicodeDecodeError, json.JSONDecodeError) as error:
         raise InvalidInputError("That file is not an altero library archive") from error
 
+    if not isinstance(manifest, dict):
+        raise InvalidInputError("The archive manifest must be a JSON object")
     if manifest.get("format") != FORMAT_VERSION:
         raise InvalidInputError(
             f"Unsupported archive format {manifest.get('format')}; "
@@ -466,18 +468,25 @@ async def import_library(
     await storelayout.ensure_current(session, storage_root)
 
     with zipfile.ZipFile(archive) as bundle:
-        documents: dict[str, Any] = {
-            name: json.loads(bundle.read(name))
-            for name in (
-                "items.json",
-                "collections.json",
-                "searches.json",
-                "tags.json",
-                "settings.json",
-                "fulltext.json",
-                "deleted.json",
-            )
-        }
+        documents = {}
+        for name in (
+            "items.json",
+            "collections.json",
+            "searches.json",
+            "tags.json",
+            "settings.json",
+            "fulltext.json",
+            "deleted.json",
+        ):
+            try:
+                records = json.loads(bundle.read(name))
+            except (KeyError, ValueError, zipfile.BadZipFile) as error:
+                raise InvalidInputError(
+                    f"The archive is missing {name} or it is unreadable"
+                ) from error
+            if not isinstance(records, list) or not all(isinstance(row, dict) for row in records):
+                raise InvalidInputError(f"The archive's {name} must be an array of objects")
+            documents[name] = records
 
         described = manifest["library"]
         library = (

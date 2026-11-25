@@ -48,7 +48,8 @@ For a group, an administrator may export; only its owner may restore.
 
 To restore, select the target library and an archive. Confirm your identity
 when asked. A non-empty library is left unchanged unless you explicitly enable
-replacement.
+replacement. If a required data file is missing or has the wrong JSON format,
+altero refuses the restore before replacing the target.
 
 > [!WARNING]
 > Replacement discards the target library's existing contents, including files. Keep a backup and pause client edits first. Restoring an older archive does not automatically rewind already-synchronized desktop copies. Follow the [recovery procedure](../administration.md#after-recreating-the-database) before resuming sync.
